@@ -1,0 +1,7 @@
+{
+  "name": "AEGIS Tech Hub",
+  "description": "Advanced Cybersecurity Tools and AI Security Advisor for tech enthusiasts.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
