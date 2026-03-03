@@ -1,23 +1,61 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
-import dns from "dns";
-import tls from "tls";
-import { promisify } from "util";
-import https from "https";
+import compression from "compression";
 
-const resolveAny = promisify(dns.resolveAny);
 dotenv.config();
 
+const logger = {
+  info: (msg: string) => console.log(`\x1b[36m[INFO]\x1b[0m ${msg}`),
+  success: (msg: string) => console.log(`\x1b[32m[SUCCESS]\x1b[0m ${msg}`),
+  warn: (msg: string) => console.log(`\x1b[33m[WARN]\x1b[0m ${msg}`),
+  error: (msg: string) => console.log(`\x1b[31m[ERROR]\x1b[0m ${msg}`),
+  ai: (msg: string) => console.log(`\x1b[35m[AI]\x1b[0m ${msg}`),
+};
+
+const requestLogger = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const start = Date.now();
+  const path = req.path;
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const status = res.statusCode;
+    const color = status >= 500 ? '\x1b[31m' : status >= 400 ? '\x1b[33m' : '\x1b[32m';
+    console.log(`${color}[${req.method}]\x1b[0m ${path} - ${status} (${duration}ms)`);
+  });
+  
+  next();
+};
+
 async function startServer() {
+  if (!process.env.GEMINI_API_KEY) {
+    logger.error("GEMINI_API_KEY is not set in .env file");
+    logger.warn("AI endpoint will not function without API key");
+    process.exit(1);
+  }
+
+  logger.info("Initializing AEGIS CORE server...");
+
   const app = express();
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || "3000", 10);
+if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
+  logger.error(`Invalid PORT: ${process.env.PORT}`);
+  process.exit(1);
+}
+
+  app.use(compression());
 
   app.set("trust proxy", 1);
+
+  app.use((req, res, next) => {
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Keep-Alive', 'timeout=5');
+    next();
+  });
 
   app.use(
     helmet({
@@ -27,7 +65,7 @@ async function startServer() {
           "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://static.cloudflareinsights.com", "https://pagead2.googlesyndication.com", "https://partner.googleadservices.com", "https://adservice.google.com", "https://www.googletagservices.com", "https://*.adtrafficquality.google"],
           "style-src": ["'self'", "'unsafe-inline'"],
           "img-src": ["'self'", "data:", "https://picsum.photos", "https://grainy-gradients.vercel.app", "https://pagead2.googlesyndication.com", "https://googleads.g.doubleclick.net", "https://*.doubleclick.net", "https://www.google.com", "https://*.adtrafficquality.google"],
-          "connect-src": ["'self'", "ws:", "wss:", "https://*.run.app", "http://ip-api.com", "https://googleads.g.doubleclick.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://www.google-analytics.com"],
+          "connect-src": ["'self'", "ws:", "wss:", "https://*.run.app", "https://dns.google", "http://ip-api.com", "https://googleads.g.doubleclick.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://www.google-analytics.com"],
           "frame-src": ["'self'", "https://googleads.g.doubleclick.net", "https://*.adtrafficquality.google", "https://tpc.googlesyndication.com", "https://www.google.com", "https://*.googlesyndication.com", "https://*.doubleclick.net"],
         },
       },
@@ -44,6 +82,7 @@ async function startServer() {
       if (!origin || allowedOrigins.includes(origin.replace(/\/$/, "")) || origin.endsWith(".run.app")) {
         callback(null, true);
       } else {
+        logger.warn(`Blocked CORS request from: ${origin}`);
         callback(null, false);
       }
     },
@@ -57,122 +96,167 @@ async function startServer() {
     message: { error: "Too many requests. Neural link throttled." },
     standardHeaders: true,
     legacyHeaders: false,
+    handler: (req, res) => {
+      logger.warn(`Rate limit exceeded from IP: ${req.ip}`);
+      res.status(429).json({ error: "Too many requests. Neural link throttled." });
+    },
   });
 
   app.use("/api/", limiter);
   app.use(express.json({ limit: "1mb" }));
 
-  // --- AI Endpoint ---
+  app.use(requestLogger);
+
+  let aiInstance: GoogleGenerativeAI | null = null;
+const getAIInstance = () => {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY!;
+    aiInstance = new GoogleGenerativeAI(apiKey); 
+    logger.success("AI model instance initialized");
+  }
+  return aiInstance;
+};
+
+  
   app.post("/api/ai", async (req, res) => {
-    try {
-      const { message } = req.body;
-      if (!message || typeof message !== "string") return res.status(400).json({ error: "Invalid input." });
-      if (message.length > 2000) return res.status(400).json({ error: "Input too long." });
+  const startTime = Date.now();
+  
+  try {
+    const { message } = req.body;
+    const trimmedMessage = (message || "").trim(); 
+    
+    if (typeof message !== "string" || !trimmedMessage) { 
+      logger.warn("AI request rejected: Invalid input");
+      return res.status(400).json({ error: "Invalid input." });
+    }
+    
+    if (trimmedMessage.length > 2000) { 
+      logger.warn(`AI request rejected: Message too long (${trimmedMessage.length} chars)`);  
+      return res.status(400).json({ error: "Input too long." });
+    }
 
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) return res.status(500).json({ error: "API Key not configured." });
+    logger.ai(`Processing request: "${trimmedMessage.substring(0, 50)}${trimmedMessage.length > 50 ? '...' : ''}"`); 
 
-      const ai = new GoogleGenAI({ apiKey });
-      const model = "gemini-3-flash-preview";
-      const response = await ai.models.generateContent({
-        model,
-        contents: message,
-        config: {
-          systemInstruction: "You are the AEGIS Core Intelligence. Your tone is professional, high-tech, and slightly cold. You provide expert cybersecurity and technology advice. Keep responses concise and technical."
+    const genAI = getAIInstance();
+const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash",
+  systemInstruction: "You are the AEGIS Core Intelligence. Your tone is professional, high-tech, and slightly cold. You provide expert cybersecurity and technology advice. Keep responses concise and technical."
+});
+
+const result = await model.generateContent(trimmedMessage);
+const response = await result.response;
+
+res.json({ text: response.text() });
+
+      const processingTime = Date.now() - startTime;
+      logger.ai(`Response generated in ${processingTime}ms`);
+      
+      res.json({ text: response.text() });
+    } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
+
+
+      console.error("🔴 FULL ERROR:", error);
+    console.error("🔴 ERROR TYPE:", typeof error);
+    if (error instanceof Error) {
+      console.error("🔴 ERROR MESSAGE:", error.message);
+      console.error("🔴 ERROR STACK:", error.stack);
+    }
+      
+      if (error instanceof Error) {
+        if (error.message.includes("429") || error.message.includes("quota") || error.message.includes("RESOURCE_EXHAUSTED")) {
+          logger.warn(`AI quota exceeded after ${processingTime}ms`);
+          return res.status(429).json({ error: "AI service temporarily unavailable. Please try again later." });
         }
-      });
-      res.json({ text: response.text });
-    } catch (error) {
+        
+        if (error.message.includes("401") || error.message.includes("authentication") || error.message.includes("API key")) {
+          logger.error(`Invalid API key after ${processingTime}ms`);
+          return res.status(500).json({ error: "AI service configuration error." });
+        }
+        
+        if (error.message.includes("ECONNREFUSED") || error.message.includes("network")) {
+          logger.error(`Network error after ${processingTime}ms: ${error.message}`);
+          return res.status(503).json({ error: "AI service unreachable." });
+        }
+        
+        logger.error(`AI request failed after ${processingTime}ms: ${error.message}`);
+      } else {
+        logger.error(`AI request failed after ${processingTime}ms: Unknown error`);
+      }
+      
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Full error details:", error);
+      }
+      
       res.status(500).json({ error: "Neural link failure." });
     }
   });
 
-  // --- Tool Endpoints ---
-
-  // 1. IP Geolocation Proxy
-  app.get("/api/tools/ip/:ip", async (req, res) => {
-    try {
-      const response = await fetch(`http://ip-api.com/json/${req.params.ip}?fields=status,message,country,countryCode,regionName,city,zip,lat,lon,timezone,isp,org,as,query`);
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: "IP lookup failed." });
-    }
-  });
-
-  // 2. DNS Lookup
-app.get("/api/tools/dns/:domain", (req, res) => {
-  const cleanDomain = req.params.domain.trim().replace(/^https?:\/\//, '').split('/')[0].split(':')[0];
-
-  https.get(`https://dns.google/resolve?name=${cleanDomain}&type=A`, (apiRes) => {
-    let rawData = '';
-    apiRes.on('data', (chunk) => { rawData += chunk; });
-    apiRes.on('end', () => {
-      try {
-        const data = JSON.parse(rawData);
-        const records = (data.Answer || []).map((ans: any) => ({
-          type: 'A',
-          address: ans.data,
-          ttl: ans.TTL
-        }));
-        res.json({ records });
-      } catch (e) {
-        res.status(500).json({ error: "Parse error", details: "Google DNS format mismatch" });
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "operational", 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
       }
     });
-  }).on('error', (err) => {
-    res.status(500).json({ error: "API error", details: err.message });
-  });
-});
-
-  // 3. SSL Check
-  app.get("/api/tools/ssl/:domain", (req, res) => {
-    const domain = req.params.domain.replace(/^https?:\/\//, '').split('/')[0];
-    try {
-      const socket = tls.connect(443, domain, { servername: domain }, () => {
-        const cert = socket.getPeerCertificate();
-        socket.end();
-        if (cert && Object.keys(cert).length > 0) {
-          res.json({
-            subject: cert.subject,
-            issuer: cert.issuer,
-            valid_from: cert.valid_from,
-            valid_to: cert.valid_to,
-            fingerprint: cert.fingerprint,
-            serialNumber: cert.serialNumber
-          });
-        } else {
-          res.status(404).json({ error: "No SSL certificate found." });
-        }
-      });
-      socket.on('error', (err) => {
-        res.status(500).json({ error: "SSL connection failed: " + err.message });
-      });
-      socket.setTimeout(5000, () => {
-        socket.destroy();
-        res.status(500).json({ error: "SSL check timed out." });
-      });
-    } catch (error) {
-      res.status(500).json({ error: "SSL check failed." });
-    }
   });
 
   if (process.env.NODE_ENV !== "production") {
+    logger.info("Running in DEVELOPMENT mode");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
+    logger.info("Running in PRODUCTION mode");
     app.use(express.static("dist"));
     app.get("*", (req, res) => {
       res.sendFile("dist/index.html", { root: "." });
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`AEGIS CORE online at http://localhost:${PORT}`);
+  app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    logger.error(`Unhandled error: ${err.message}`);
+    if (process.env.NODE_ENV !== "production") {
+      console.error(err.stack);
+    }
+    res.status(500).json({ error: "Internal server error" });
+  });
+
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log("\n");
+    logger.success("═══════════════════════════════════════");
+    logger.success("    🚀 AEGIS CORE ONLINE");
+    logger.success("═══════════════════════════════════════");
+    logger.info(`    Server: http://localhost:${PORT}`);
+    logger.info(`    Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.ai(`    AI Endpoint: POST /api/ai`);
+    logger.info(`    Health Check: GET /api/health`);
+    logger.success("═══════════════════════════════════════\n");
+  });
+
+  process.on('SIGTERM', () => {
+    logger.warn("SIGTERM received, shutting down gracefully...");
+    server.close(() => {
+      logger.success("Server closed");
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', () => {
+    logger.warn("\nSIGINT received, shutting down gracefully...");
+    server.close(() => {
+      logger.success("Server closed");
+      process.exit(0);
+    });
   });
 }
 
-startServer();
+startServer().catch((err) => {
+  logger.error(`Failed to start server: ${err.message}`);
+  process.exit(1);
+});
