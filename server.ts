@@ -1,11 +1,12 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 import compression from "compression";
+import { get } from "https";
 
 dotenv.config();
 
@@ -107,90 +108,69 @@ if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
 
   app.use(requestLogger);
 
-  let aiInstance: GoogleGenerativeAI | null = null;
+  let aiInstance: GoogleGenAI | null = null;
+
 const getAIInstance = () => {
   if (!aiInstance) {
     const apiKey = process.env.GEMINI_API_KEY!;
-    aiInstance = new GoogleGenerativeAI(apiKey); 
-    logger.success("AI model instance initialized");
+    aiInstance = new GoogleGenAI({ apiKey }); 
+    logger.success("AI model instance initialized (GenAI SDK)");
   }
   return aiInstance;
 };
-
   
-  app.post("/api/ai", async (req, res) => {
-  const startTime = Date.now();
-  
+app.post("/api/ai", async (req, res) => {
   try {
     const { message } = req.body;
-    const trimmedMessage = (message || "").trim(); 
+    if (!message || typeof message !== "string") return res.status(400).json({ error: "Invalid input." });
+    if (message.length > 2000) return res.status(400).json({ error: "Input too long." });
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "API Key not configured." });
+
+    const ai = new GoogleGenAI({ apiKey });
     
-    if (typeof message !== "string" || !trimmedMessage) { 
-      logger.warn("AI request rejected: Invalid input");
-      return res.status(400).json({ error: "Invalid input." });
-    }
-    
-    if (trimmedMessage.length > 2000) { 
-      logger.warn(`AI request rejected: Message too long (${trimmedMessage.length} chars)`);  
-      return res.status(400).json({ error: "Input too long." });
+    const modelsToTry = [
+      "gemini-3-flash-preview",
+      "gemini-3.0-flash",       
+      "gemini-2.5-flash",       
+    ];
+
+    let finalResponseText = "";
+    let success = false;
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await ai.models.generateContent({
+          model: model,
+          contents: message,
+          config: {
+            systemInstruction: "You are the AEGIS Core Intelligence. Your tone is professional, high-tech, and slightly cold. You provide expert cybersecurity and technology advice. Keep responses concise and technical."
+          }
+        });
+
+        if (response && response.text) {
+          finalResponseText = response.text;
+          success = true;
+          break; 
+        }
+      } catch (modelError) {
+        console.warn(`[AEGIS WARN] Model ${model} failed: ${modelError.message}`);
+      }
     }
 
-    logger.ai(`Processing request: "${trimmedMessage.substring(0, 50)}${trimmedMessage.length > 50 ? '...' : ''}"`); 
+    if (success) {
+      return res.json({ text: finalResponseText });
+    } else {
+      console.error("[AEGIS CRITICAL] Bütün yapay zeka modelleri çöktü.");
+      return res.status(503).json({ error: "Tüm neural link bağlantıları şu an meşgul. Lütfen daha sonra tekrar deneyin." });
+    }
 
-    const genAI = getAIInstance();
-const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash",
-  systemInstruction: "You are the AEGIS Core Intelligence. Your tone is professional, high-tech, and slightly cold. You provide expert cybersecurity and technology advice. Keep responses concise and technical."
+  } catch (error) {
+    console.error("[AEGIS ERROR] Beklenmeyen sistem hatası:", error);
+    res.status(500).json({ error: "Neural link failure. Core dump saved." });
+  }
 });
-
-const result = await model.generateContent(trimmedMessage);
-const response = await result.response;
-
-res.json({ text: response.text() });
-
-      const processingTime = Date.now() - startTime;
-      logger.ai(`Response generated in ${processingTime}ms`);
-      
-      res.json({ text: response.text() });
-    } catch (error: unknown) {
-      const processingTime = Date.now() - startTime;
-
-
-      console.error("🔴 FULL ERROR:", error);
-    console.error("🔴 ERROR TYPE:", typeof error);
-    if (error instanceof Error) {
-      console.error("🔴 ERROR MESSAGE:", error.message);
-      console.error("🔴 ERROR STACK:", error.stack);
-    }
-      
-      if (error instanceof Error) {
-        if (error.message.includes("429") || error.message.includes("quota") || error.message.includes("RESOURCE_EXHAUSTED")) {
-          logger.warn(`AI quota exceeded after ${processingTime}ms`);
-          return res.status(429).json({ error: "AI service temporarily unavailable. Please try again later." });
-        }
-        
-        if (error.message.includes("401") || error.message.includes("authentication") || error.message.includes("API key")) {
-          logger.error(`Invalid API key after ${processingTime}ms`);
-          return res.status(500).json({ error: "AI service configuration error." });
-        }
-        
-        if (error.message.includes("ECONNREFUSED") || error.message.includes("network")) {
-          logger.error(`Network error after ${processingTime}ms: ${error.message}`);
-          return res.status(503).json({ error: "AI service unreachable." });
-        }
-        
-        logger.error(`AI request failed after ${processingTime}ms: ${error.message}`);
-      } else {
-        logger.error(`AI request failed after ${processingTime}ms: Unknown error`);
-      }
-      
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Full error details:", error);
-      }
-      
-      res.status(500).json({ error: "Neural link failure." });
-    }
-  });
 
   app.get("/api/health", (req, res) => {
     res.json({ 
@@ -260,3 +240,7 @@ startServer().catch((err) => {
   logger.error(`Failed to start server: ${err.message}`);
   process.exit(1);
 });
+
+function getAI() {
+  throw new Error("Function not implemented.");
+}
