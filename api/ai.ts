@@ -25,9 +25,9 @@ router.post("/", async (req, res) => {
     const ai = new GoogleGenAI({ apiKey });
 
     const modelsToTry = [
-      // "gemini-3-flash-preview",
-      // "gemini-3.0-flash",       
-      "gemini-2.5-flash",
+      //  "gemini-3-flash-preview",
+      "gemini-3.0-flash",
+      // "gemini-2.5-flash",
     ];
 
     let finalResponseText = "";

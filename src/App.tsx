@@ -129,7 +129,7 @@ function AppLayout() {
               <Link to="/" className="hover:text-cyan-500 transition-colors">Privacy</Link>
             </div>
             <div className="text-[10px] font-mono text-slate-600">
-              © 2024 AEGIS_CORE // V.0.1-BETA
+              © 2026 AEGIS_CORE
             </div>
           </div>
         </footer>
