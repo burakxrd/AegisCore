@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Shield, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 import Dashboard from './pages/Dashboard';
 import AegisIntelligence from './pages/AegisIntelligence';
@@ -34,7 +34,7 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-cyan-500/30 flex flex-col relative overflow-x-hidden">
-      
+
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/5 blur-[120px] rounded-full" />
@@ -43,9 +43,7 @@ function AppLayout() {
       <header className="relative z-50 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl px-6 py-4 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-4 group">
           <div className="relative">
-            <div className="w-10 h-10 bg-linear-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] transition-all">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
+            <img src="/favicon.ico" alt="AEGIS" className="w-10 h-10 rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] transition-all" />
             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-slate-950 rounded-full" />
           </div>
           <div>
@@ -59,11 +57,10 @@ function AppLayout() {
             <Link
               key={link.path}
               to={link.path}
-              className={`px-6 py-2 rounded-lg text-xs font-medium uppercase tracking-wider transition-all ${
-                checkIsActive(link.path)
-                  ? 'bg-slate-800 text-cyan-400 shadow-inner' 
+              className={`px-6 py-2 rounded-lg text-xs font-medium uppercase tracking-wider transition-all ${checkIsActive(link.path)
+                  ? 'bg-slate-800 text-cyan-400 shadow-inner'
                   : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
-              }`}
+                }`}
             >
               {link.label}
             </Link>
@@ -78,7 +75,7 @@ function AppLayout() {
           </div>
         </div>
 
-        <button 
+        <button
           className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
@@ -93,11 +90,10 @@ function AppLayout() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`p-4 rounded-xl text-center text-sm font-bold uppercase tracking-wider transition-all ${
-                  checkIsActive(link.path)
+                className={`p-4 rounded-xl text-center text-sm font-bold uppercase tracking-wider transition-all ${checkIsActive(link.path)
                     ? 'bg-slate-800 border border-slate-700 text-cyan-400'
                     : 'bg-slate-900/50 text-slate-400 border border-transparent'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -111,7 +107,7 @@ function AppLayout() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/ai" element={<AegisIntelligence />} />
           <Route path="/tools" element={<ToolsCatalog />} />
-          
+
           <Route path="/tools/ip-intelligence" element={<IpIntelligence />} />
           <Route path="/tools/domain-analyzer" element={<DomainAnalyzer />} />
           <Route path="/tools/hash-generator" element={<HashGenerator />} />
@@ -122,9 +118,7 @@ function AppLayout() {
       <footer className="relative z-10 border-t border-slate-800/50 py-8 px-6 bg-slate-950/80 backdrop-blur-md mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-cyan-500" />
-            </div>
+            <img src="/favicon.ico" alt="AEGIS" className="w-8 h-8 rounded-lg" />
             <span className="font-bold text-white tracking-tight">AEGIS CORE</span>
           </div>
           <div className="flex gap-8 text-[10px] uppercase font-bold tracking-widest text-slate-500">

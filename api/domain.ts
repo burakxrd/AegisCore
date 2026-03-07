@@ -1,4 +1,5 @@
 import { Router } from "express";
+import tls from "node:tls";
 
 const router = Router();
 
@@ -13,6 +14,60 @@ async function resolveDns(domain: string, type: string) {
   }
 }
 
+// SSL sertifika bilgisini çeken yardımcı fonksiyon
+function checkSsl(domain: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const socket = tls.connect(443, domain, { servername: domain, timeout: 5000 }, () => {
+      const cert = socket.getPeerCertificate();
+      if (!cert || !cert.subject) {
+        socket.destroy();
+        return reject(new Error("No certificate returned"));
+      }
+
+      resolve({
+        subject: cert.subject.CN || cert.subject.O || domain,
+        issuer: cert.issuer?.O || cert.issuer?.CN || "Unknown",
+        validFrom: cert.valid_from,
+        validTo: cert.valid_to,
+        serialNumber: cert.serialNumber,
+        protocol: socket.getProtocol(),
+        fingerprint: cert.fingerprint256 || cert.fingerprint,
+      });
+
+      socket.destroy();
+    });
+
+    socket.on("error", (err) => reject(err));
+    socket.on("timeout", () => {
+      socket.destroy();
+      reject(new Error("Connection timed out"));
+    });
+  });
+}
+
+// SSL sertifika kontrolü
+router.get("/ssl/:domain", async (req, res) => {
+  try {
+    const { domain } = req.params;
+
+    const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!domain || !domainRegex.test(domain)) {
+      return res.status(400).json({ status: "fail", message: "Invalid domain format." });
+    }
+
+    const sslData = await checkSsl(domain);
+    return res.json({ status: "success", ...sslData });
+
+  } catch (error: any) {
+    console.error("[AEGIS ERROR] SSL check failed:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: error.message || "SSL handshake failed.",
+    });
+  }
+});
+
+// DNS kayıt analizi
 router.get("/:domain", async (req, res) => {
   try {
     const { domain } = req.params;
@@ -32,7 +87,6 @@ router.get("/:domain", async (req, res) => {
       records: { A: [], AAAA: [], MX: [], TXT: [], NS: [] }
     };
 
-    // Bütün sorguları aynı anda (paralel) atarak API'yi inanılmaz hızlandırıyoruz
     const [aData, aaaaData, mxData, txtData, nsData] = await Promise.all([
       resolveDns(domain, "A"),
       resolveDns(domain, "AAAA"),
@@ -41,11 +95,9 @@ router.get("/:domain", async (req, res) => {
       resolveDns(domain, "NS")
     ]);
 
-    // Gelen verileri React önyüzünün beklediği temiz formata çeviriyoruz
     results.records.A = aData.map((r: any) => r.data);
     results.records.AAAA = aaaaData.map((r: any) => r.data);
 
-    // Google DoH, MX verisini "10 mail.example.com." gibi tek metin döner. Önceliği ve adresi ayırıyoruz.
     results.records.MX = mxData.map((r: any) => {
       const parts = r.data.split(' ');
       return {
@@ -54,12 +106,9 @@ router.get("/:domain", async (req, res) => {
       };
     }).sort((a: any, b: any) => a.priority - b.priority);
 
-    // TXT kayıtları tırnak işaretleriyle gelir, başındaki ve sonundaki tırnakları siliyoruz
     results.records.TXT = txtData.map((r: any) => r.data.replace(/(^"|"$)/g, ''));
-
     results.records.NS = nsData.map((r: any) => r.data);
 
-    // Eğer hiçbir kayıt dönmediyse domain ölüdür
     const hasAnyRecord = Object.values(results.records).some((arr: any) => arr.length > 0);
     if (!hasAnyRecord) {
       return res.status(404).json({
@@ -72,7 +121,7 @@ router.get("/:domain", async (req, res) => {
     return res.json(results);
 
   } catch (error) {
-    console.error("[AEGIS ERROR] DoH Analyzer hatası:", error);
+    console.error("[AEGIS ERROR] DoH Analyzer error:", error);
     return res.status(500).json({
       status: "fail",
       message: "Uplink severed. DoH resolution failed.",
