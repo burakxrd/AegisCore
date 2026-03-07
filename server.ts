@@ -1,6 +1,5 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -25,14 +24,14 @@ const logger = {
 const requestLogger = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const start = Date.now();
   const path = req.path;
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start;
     const status = res.statusCode;
     const color = status >= 500 ? '\x1b[31m' : status >= 400 ? '\x1b[33m' : '\x1b[32m';
     console.log(`${color}[${req.method}]\x1b[0m ${path} - ${status} (${duration}ms)`);
   });
-  
+
   next();
 };
 
@@ -47,10 +46,10 @@ async function startServer() {
 
   const app = express();
   const PORT = parseInt(process.env.PORT || "3000", 10);
-if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
-  logger.error(`Invalid PORT: ${process.env.PORT}`);
-  process.exit(1);
-}
+  if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
+    logger.error(`Invalid PORT: ${process.env.PORT}`);
+    process.exit(1);
+  }
 
   app.use(compression());
 
@@ -112,25 +111,15 @@ if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
 
   app.use(requestLogger);
 
-  let aiInstance: GoogleGenAI | null = null;
 
-const getAIInstance = () => {
-  if (!aiInstance) {
-    const apiKey = process.env.GEMINI_API_KEY!;
-    aiInstance = new GoogleGenAI({ apiKey }); 
-    logger.success("AI model instance initialized (GenAI SDK)");
-  }
-  return aiInstance;
-};
-  
-// api calls
-app.use("/api/ai", aiRoutes);
-app.use("/api/tools/ip", ipRoutes);
-app.use("/api/tools/domain", domainRoutes);
+  // api calls
+  app.use("/api/ai", aiRoutes);
+  app.use("/api/tools/ip", ipRoutes);
+  app.use("/api/tools/domain", domainRoutes);
 
   app.get("/api/health", (req, res) => {
-    res.json({ 
-      status: "operational", 
+    res.json({
+      status: "operational",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       memory: {
@@ -196,7 +185,3 @@ startServer().catch((err) => {
   logger.error(`Failed to start server: ${err.message}`);
   process.exit(1);
 });
-
-function getAI() {
-  throw new Error("Function not implemented.");
-}

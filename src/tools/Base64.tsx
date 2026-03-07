@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, ArrowRightLeft, Copy, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Terminal, ArrowRightLeft, Copy, CheckCircle2, AlertCircle, Network, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Base64Encoder() {
   const [input, setInput] = useState<string>('');
@@ -38,14 +39,23 @@ export default function Base64Encoder() {
 
   const toggleMode = () => {
     setMode(prev => prev === 'ENCODE' ? 'DECODE' : 'ENCODE');
-    setInput(output); 
+    setInput(output);
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      
+
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
+            <Link to="/tools" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
+              <Network className="w-4 h-4" />
+              Tools
+            </Link>
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+            <span className="text-cyan-500/70">Base64 Codec</span>
+          </div>
+
           <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
             <Terminal className="w-8 h-8 text-cyan-500" />
             Base64 <span className="text-cyan-500">Codec</span>
@@ -56,17 +66,15 @@ export default function Base64Encoder() {
         <div className="flex items-center bg-slate-900 border border-slate-700/50 p-1 rounded-xl w-fit">
           <button
             onClick={() => setMode('ENCODE')}
-            className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-              mode === 'ENCODE' ? 'bg-cyan-600 text-white shadow-md' : 'text-slate-500 hover:text-white'
-            }`}
+            className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${mode === 'ENCODE' ? 'bg-cyan-600 text-white shadow-md' : 'text-slate-500 hover:text-white'
+              }`}
           >
             Encode
           </button>
           <button
             onClick={() => setMode('DECODE')}
-            className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-              mode === 'DECODE' ? 'bg-cyan-600 text-white shadow-md' : 'text-slate-500 hover:text-white'
-            }`}
+            className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${mode === 'DECODE' ? 'bg-cyan-600 text-white shadow-md' : 'text-slate-500 hover:text-white'
+              }`}
           >
             Decode
           </button>
@@ -74,7 +82,7 @@ export default function Base64Encoder() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch relative">
-        
+
         <div className="bg-slate-900/40 border border-slate-800/50 rounded-3xl flex flex-col overflow-hidden backdrop-blur-md">
           <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-950/50">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
@@ -89,7 +97,7 @@ export default function Base64Encoder() {
           />
         </div>
 
-        <button 
+        <button
           onClick={toggleMode}
           className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-slate-800 border-4 border-slate-950 rounded-full items-center justify-center text-slate-400 hover:text-cyan-400 hover:scale-110 transition-all z-10"
           title="Swap Input & Output"
@@ -102,7 +110,7 @@ export default function Base64Encoder() {
             <span className="text-xs font-bold text-cyan-500 uppercase tracking-widest">
               {mode === 'ENCODE' ? 'Base64 Output' : 'Plain Text Output'}
             </span>
-            <button 
+            <button
               onClick={handleCopy}
               disabled={!output}
               className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors disabled:opacity-30"
@@ -111,7 +119,7 @@ export default function Base64Encoder() {
               {copied ? 'COPIED' : 'COPY'}
             </button>
           </div>
-          
+
           <div className="flex-1 p-6 relative">
             {error ? (
               <div className="flex items-center gap-2 text-red-400 font-mono text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20">

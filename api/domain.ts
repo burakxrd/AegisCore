@@ -5,7 +5,7 @@ const router = Router();
 // Google DNS-over-HTTPS (DoH) API ile filtresiz sorgu
 async function resolveDns(domain: string, type: string) {
   try {
-    const response = await fetch(`https://dns.google/resolve?name=${domain}&type=${type}`);
+    const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`);
     const data = await response.json();
     return data.Answer || [];
   } catch (e) {
@@ -44,7 +44,7 @@ router.get("/:domain", async (req, res) => {
     // Gelen verileri React önyüzünün beklediği temiz formata çeviriyoruz
     results.records.A = aData.map((r: any) => r.data);
     results.records.AAAA = aaaaData.map((r: any) => r.data);
-    
+
     // Google DoH, MX verisini "10 mail.example.com." gibi tek metin döner. Önceliği ve adresi ayırıyoruz.
     results.records.MX = mxData.map((r: any) => {
       const parts = r.data.split(' ');
@@ -56,16 +56,16 @@ router.get("/:domain", async (req, res) => {
 
     // TXT kayıtları tırnak işaretleriyle gelir, başındaki ve sonundaki tırnakları siliyoruz
     results.records.TXT = txtData.map((r: any) => r.data.replace(/(^"|"$)/g, ''));
-    
+
     results.records.NS = nsData.map((r: any) => r.data);
 
     // Eğer hiçbir kayıt dönmediyse domain ölüdür
     const hasAnyRecord = Object.values(results.records).some((arr: any) => arr.length > 0);
     if (!hasAnyRecord) {
-      return res.status(404).json({ 
-        status: "fail", 
+      return res.status(404).json({
+        status: "fail",
         message: "No DNS records found. Domain might be inactive.",
-        query: domain 
+        query: domain
       });
     }
 
@@ -73,10 +73,10 @@ router.get("/:domain", async (req, res) => {
 
   } catch (error) {
     console.error("[AEGIS ERROR] DoH Analyzer hatası:", error);
-    return res.status(500).json({ 
-      status: "fail", 
+    return res.status(500).json({
+      status: "fail",
       message: "Uplink severed. DoH resolution failed.",
-      query: req.params.domain 
+      query: req.params.domain
     });
   }
 });

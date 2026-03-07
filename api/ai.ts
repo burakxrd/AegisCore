@@ -3,6 +3,16 @@ import { GoogleGenAI } from "@google/genai";
 
 const router = Router();
 
+let ai: GoogleGenAI | null = null;
+function getAI(): GoogleGenAI {
+  if (!ai) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+}
+
 router.post("/", async (req, res) => {
   try {
     const { message } = req.body;
@@ -13,11 +23,11 @@ router.post("/", async (req, res) => {
     if (!apiKey) return res.status(500).json({ error: "API Key not configured." });
 
     const ai = new GoogleGenAI({ apiKey });
-    
+
     const modelsToTry = [
       // "gemini-3-flash-preview",
       // "gemini-3.0-flash",       
-      "gemini-2.5-flash",       
+      "gemini-2.5-flash",
     ];
 
     let finalResponseText = "";
@@ -36,7 +46,7 @@ router.post("/", async (req, res) => {
         if (response && response.text) {
           finalResponseText = response.text;
           success = true;
-          break; 
+          break;
         }
       } catch (modelError: any) {
         console.warn(`[AEGIS WARN] Model ${model} failed: ${modelError.message}`);
@@ -46,12 +56,12 @@ router.post("/", async (req, res) => {
     if (success) {
       return res.json({ text: finalResponseText });
     } else {
-      console.error("[AEGIS CRITICAL] Bütün yapay zeka modelleri çöktü.");
-      return res.status(503).json({ error: "Tüm neural link bağlantıları şu an meşgul. Lütfen daha sonra tekrar deneyin." });
+      console.error("[AEGIS CRITICAL] AI model returned empty response.");
+      return res.status(503).json({ error: "Neural link returned no response. Please try again." });
     }
 
-  } catch (error) {
-    console.error("[AEGIS ERROR] Beklenmeyen sistem hatası:", error);
+  } catch (error: any) {
+    console.error("[AEGIS ERROR] AI request failed:", error.message);
     res.status(500).json({ error: "Neural link failure. Core dump saved." });
   }
 });
