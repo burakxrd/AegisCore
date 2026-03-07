@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Globe, MapPin, Server, ShieldAlert, Activity, ChevronRight, Clock, Fingerprint, Network, Crosshair, Terminal } from 'lucide-react';
+import { Search, Globe, MapPin, Server, ShieldAlert, Activity, ChevronRight, Clock, Fingerprint, Network, Crosshair, Terminal, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface IpData {
@@ -16,27 +16,29 @@ interface IpData {
   isp?: string;
   org?: string;
   as?: string;
-  hostname?: string; // <--- YENİ EKLENDİ
+  hostname?: string;
   query: string;
 }
 
 export default function IpIntelligence() {
   const [ipInput, setIpInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [myIpLoading, setMyIpLoading] = useState<boolean>(false);
   const [result, setResult] = useState<IpData | null>(null);
   const [easterEgg, setEasterEgg] = useState<string | null>(null);
+  const [ipMode, setIpMode] = useState<'IPv4' | 'IPv6'>('IPv4');
 
   const checkSpecialIps = (ip: string): string | null => {
-    if (ip === '127.0.0.1') return "THERE IS NO PLACE LIKE 127.0.0.1 [LOCALHOST / LOOPBACK]";
-    if (ip === '0.0.0.0') return "THE VOID [NON-ROUTABLE META-ADDRESS]";
-    if (ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.16.')) {
+    if (ip === '127.0.0.1' || ip === '::1') return "THERE IS NO PLACE LIKE 127.0.0.1 [LOCALHOST / LOOPBACK]";
+    if (ip === '0.0.0.0' || ip === '::') return "THE VOID [NON-ROUTABLE META-ADDRESS]";
+    if (ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.16.') || ip.startsWith('fe80:') || ip.startsWith('fc00:') || ip.startsWith('fd')) {
       return "INTERNAL SYSTEM DETECTED [PRIVATE NETWORK IP - NOT PUBLICLY ROUTABLE]";
     }
     return null;
   };
 
-  const handleSearch = async () => {
-    const cleanIp = ipInput.trim();
+  const handleSearch = async (overrideIp?: string) => {
+    const cleanIp = (overrideIp || ipInput).trim();
     if (!cleanIp) return;
 
     const specialMessage = checkSpecialIps(cleanIp);
@@ -61,9 +63,38 @@ export default function IpIntelligence() {
     }
   };
 
+  const handleMyIp = async () => {
+    setMyIpLoading(true);
+    try {
+      const response = await fetch('/api/tools/ip/me');
+      const data = await response.json();
+      if (data.status === 'success' && data.ip) {
+        // IP türüne göre tab'ı otomatik değiştir
+        const isV6 = data.ip.includes(':');
+        setIpMode(isV6 ? 'IPv6' : 'IPv4');
+        setIpInput(data.ip);
+        await handleSearch(data.ip);
+      }
+    } catch (error) {
+      setEasterEgg("DETECTION FAILED [COULD NOT RESOLVE YOUR IP]");
+    } finally {
+      setMyIpLoading(false);
+    }
+  };
+
+  const handleInputChange = (value: string) => {
+    if (ipMode === 'IPv4') {
+      const val = value.replace(/[^0-9.]/g, '');
+      if (val.length <= 15) setIpInput(val);
+    } else {
+      const val = value.replace(/[^0-9a-fA-F:]/g, '');
+      if (val.length <= 45) setIpInput(val);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      
+
       {/* ÜST BİLGİ VE GERİ DÖNÜŞ LİNKİ */}
       <div>
         <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
@@ -75,31 +106,58 @@ export default function IpIntelligence() {
           <span className="text-cyan-500/70">IP Intelligence</span>
         </div>
 
-        <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-          <Globe className="w-8 h-8 text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-          IP <span className="text-cyan-500">Intelligence</span>
-        </h2>
-        <p className="text-slate-400 font-mono text-sm mt-2">Enter an IPv4 address to trace its global origin, ASN, and ISP details.</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+              <Globe className="w-8 h-8 text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
+              IP <span className="text-cyan-500">Intelligence</span>
+            </h2>
+            <p className="text-slate-400 font-mono text-sm mt-2">Enter an IP address to trace its global origin, ASN, and ISP details.</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* IPv4 / IPv6 Tab */}
+            <div className="flex items-center bg-slate-900 border border-slate-700/50 p-1 rounded-xl shadow-inner">
+              {(['IPv4', 'IPv6'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => { setIpMode(mode); setIpInput(''); }}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${ipMode === mode ? 'bg-cyan-600 text-white shadow-[0_0_10px_rgba(6,182,212,0.4)]' : 'text-slate-500 hover:text-white'
+                    }`}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+
+            {/* My IP Button */}
+            <button
+              onClick={handleMyIp}
+              disabled={myIpLoading || loading}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-slate-300 border border-slate-700/50 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-cyan-900 hover:text-cyan-400 hover:border-cyan-700 transition-all disabled:opacity-50"
+            >
+              {myIpLoading ? <Activity className="w-4 h-4 animate-spin" /> : <User className="w-4 h-4" />}
+              MY IP
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ARAMA ÇUBUĞU */}
       <div className="bg-slate-900/60 border border-cyan-500/20 p-2 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
         <div className="relative flex items-center">
           <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" />
-          <input 
+          <input
             type="text"
             value={ipInput}
-            onChange={(e) => {
-              const val = e.target.value.replace(/[^0-9.]/g, '');
-              if (val.length <= 15) setIpInput(val);
-            }}
+            onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder="Target IP (e.g. 8.8.8.8)"
-            maxLength={15}
+            placeholder={ipMode === 'IPv4' ? "Target IP (e.g. 8.8.8.8)" : "Target IP (e.g. 2001:4860:4860::8888)"}
+            maxLength={ipMode === 'IPv4' ? 15 : 45}
             className="w-full bg-transparent pl-12 pr-16 py-4 text-xl font-mono text-cyan-400 focus:outline-none placeholder:text-slate-600 tracking-wider"
           />
-          <button 
-            onClick={handleSearch}
+          <button
+            onClick={() => handleSearch()}
             disabled={loading || !ipInput}
             className="absolute right-2 p-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
           >
@@ -122,7 +180,7 @@ export default function IpIntelligence() {
       {/* BAŞARILI SONUÇ */}
       {result && result.status === 'success' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-          
+
           <div className="flex items-center gap-3 bg-cyan-950/30 border border-cyan-500/30 py-3 px-5 rounded-xl">
             <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,1)]" />
             <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">Target Locked:</span>
@@ -130,15 +188,15 @@ export default function IpIntelligence() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             {/* GEOLOCATION & HARİTA KARTI */}
             <div className="bg-slate-900/50 border border-slate-700/50 p-6 rounded-3xl backdrop-blur-md relative overflow-hidden group hover:border-cyan-500/30 transition-colors flex flex-col">
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-colors" />
-              
+
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-cyan-500" /> Geolocation & SATELLITE
               </h3>
-              
+
               <div className="space-y-5 font-mono mb-6">
                 <div className="flex justify-between items-end border-b border-slate-800 pb-2">
                   <div className="text-[10px] text-slate-500">COUNTRY</div>
@@ -147,7 +205,7 @@ export default function IpIntelligence() {
                     <span className="text-cyan-500/50 ml-2">[{result.countryCode}]</span>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between items-end border-b border-slate-800 pb-2">
                   <div className="text-[10px] text-slate-500">REGION / CITY</div>
                   <div className="text-right text-slate-300">
@@ -173,17 +231,17 @@ export default function IpIntelligence() {
               {/* CANLI GOOGLE HARİTA (Siber Hack CSS) */}
               {result.lat && result.lon && (
                 <div className="mt-auto rounded-xl overflow-hidden border border-slate-800 h-40 relative">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    frameBorder="0" 
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
                     title="Target Location"
                     // Bu inline stil Google haritayı "Dark Mode Siber" yapıyor
-                    style={{ filter: "invert(90%) hue-rotate(180deg) contrast(120%) opacity(80%)", pointerEvents: "none" }} 
-                    src={`https://www.google.com/maps?q=${result.lat},${result.lon}&z=10&output=embed`} 
+                    style={{ filter: "invert(90%) hue-rotate(180deg) contrast(120%) opacity(80%)", pointerEvents: "none" }}
+                    src={`https://www.google.com/maps?q=${result.lat},${result.lon}&z=10&output=embed`}
                   />
                   {/* Üstüne Tıklanabilir Şeffaf Buton */}
-                  <a 
+                  <a
                     href={`https://www.google.com/maps/place/${result.lat},${result.lon}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -200,11 +258,11 @@ export default function IpIntelligence() {
             {/* NETWORK KARTI */}
             <div className="bg-slate-900/50 border border-slate-700/50 p-6 rounded-3xl backdrop-blur-md relative overflow-hidden group hover:border-blue-500/30 transition-colors">
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
-              
+
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                 <Server className="w-4 h-4 text-blue-500" /> Network Data
               </h3>
-              
+
               <div className="space-y-5 font-mono">
                 <div className="flex justify-between items-end border-b border-slate-800 pb-2">
                   <div className="text-[10px] text-slate-500 flex items-center gap-1"><Network className="w-3 h-3" /> ISP</div>
@@ -212,7 +270,7 @@ export default function IpIntelligence() {
                     {result.isp || "N/A"}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between items-end border-b border-slate-800 pb-2">
                   <div className="text-[10px] text-slate-500">ORGANIZATION</div>
                   <div className="text-right text-slate-300 truncate max-w-50" title={result.org}>

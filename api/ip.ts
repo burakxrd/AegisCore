@@ -2,6 +2,33 @@ import { Router } from "express";
 
 const router = Router();
 
+const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+const ipv6Regex = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
+
+function isValidIp(ip: string): boolean {
+  return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+}
+
+// Kullanıcının gerçek public IP'sini döndüren endpoint
+router.get("/me", async (req, res) => {
+  try {
+    // Harici servis ile gerçek public IP'yi al (localhost'ta da çalışır)
+    const ipResponse = await fetch("https://api.ipify.org?format=json");
+    const ipData = await ipResponse.json();
+
+    if (ipData.ip) {
+      return res.json({ status: "success", ip: ipData.ip });
+    }
+
+    // Fallback: Express'in algıladığı client IP
+    let clientIp = (req.ip || req.socket.remoteAddress || "").replace(/^::ffff:/, "");
+    return res.json({ status: "success", ip: clientIp || "unknown" });
+  } catch (error) {
+    console.error("[AEGIS ERROR] IP detection failed:", error);
+    return res.status(500).json({ status: "fail", message: "IP detection failed." });
+  }
+});
+
 router.get("/:ip", async (req, res) => {
   try {
     const { ip } = req.params;
@@ -10,8 +37,7 @@ router.get("/:ip", async (req, res) => {
       return res.status(400).json({ status: "fail", message: "IP address missing." });
     }
 
-    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-    if (!ipv4Regex.test(ip)) {
+    if (!isValidIp(ip)) {
       return res.status(400).json({ status: "fail", message: "Invalid IP format." });
     }
 
@@ -21,7 +47,7 @@ router.get("/:ip", async (req, res) => {
     if (data.error) {
       return res.status(404).json({
         status: "fail",
-        message: "IP adresi bulunamadı veya geçersiz.",
+        message: "IP not found or invalid.",
         query: ip
       });
     }
@@ -41,14 +67,14 @@ router.get("/:ip", async (req, res) => {
       isp: data.org,
       org: data.org,
       as: data.org,
-      hostname: data.hostname, // <--- YENİ: Ters DNS kaydı (hostname)
+      hostname: data.hostname,
       query: data.ip
     };
 
     return res.json(formattedData);
 
   } catch (error) {
-    console.error("[AEGIS ERROR] IPinfo.io Sorgulama hatası:", error);
+    console.error("[AEGIS ERROR] IPinfo.io query failed:", error);
     return res.status(500).json({
       status: "fail",
       message: "Uplink severed. Unable to resolve IP.",
