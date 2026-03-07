@@ -72,7 +72,7 @@ export default function AegisIntelligence() {
   const isEmpty = messages.length === 0 && !isLoading;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-180px)] max-w-4xl mx-auto">
+    <div className="flex flex-col flex-1 min-h-0 max-w-4xl mx-auto w-full px-4 sm:px-6">
 
       {/* Empty State — sohbet yokken */}
       {isEmpty ? (
@@ -116,7 +116,7 @@ export default function AegisIntelligence() {
         </div>
       ) : (
         /* Chat mesajları */
-        <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-6 space-y-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-6 space-y-6 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
 
