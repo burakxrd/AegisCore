@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Search, Globe, MapPin, Server, ShieldAlert, Activity, ChevronRight, Clock, Fingerprint, Network, Crosshair, Terminal, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Search, Globe, MapPin, Server, ShieldAlert, Activity, ChevronRight, Clock, Fingerprint, Network, Crosshair, Terminal, User, Copy, CheckCircle } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 
 interface IpData {
   status: string;
@@ -14,10 +14,27 @@ interface IpData {
   lon?: number;
   timezone?: string;
   isp?: string;
-  org?: string;
   as?: string;
   hostname?: string;
   query: string;
+  hosting?: boolean;
+  proxy?: boolean;
+  mobile?: boolean;
+}
+
+// Copy button component
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button onClick={handleCopy} className="p-1 text-slate-500 hover:text-cyan-400 transition-colors rounded-lg hover:bg-slate-800/50" title="Copy">
+      {copied ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+    </button>
+  );
 }
 
 export default function IpIntelligence() {
@@ -27,6 +44,7 @@ export default function IpIntelligence() {
   const [result, setResult] = useState<IpData | null>(null);
   const [easterEgg, setEasterEgg] = useState<string | null>(null);
   const [ipMode, setIpMode] = useState<'IPv4' | 'IPv6'>('IPv4');
+  const [searchParams] = useSearchParams();
 
   const checkSpecialIps = (ip: string): string | null => {
     if (ip === '127.0.0.1' || ip === '::1') return "THERE IS NO PLACE LIKE 127.0.0.1 [LOCALHOST / LOOPBACK]";
@@ -63,13 +81,25 @@ export default function IpIntelligence() {
     }
   };
 
+  // Auto-search from Dashboard quick lookup
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) {
+      const isV6 = q.includes(':');
+      setIpMode(isV6 ? 'IPv6' : 'IPv4');
+      setIpInput(q);
+      handleSearch(q);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+
   const handleMyIp = async () => {
     setMyIpLoading(true);
     try {
-      const response = await fetch('/api/tools/ip/me');
+      // Client-side fetch — returns the user's real public IP, not the server's
+      const response = await fetch('https://api.ipify.org?format=json');
       const data = await response.json();
-      if (data.status === 'success' && data.ip) {
-        // IP türüne göre tab'ı otomatik değiştir
+      if (data.ip) {
         const isV6 = data.ip.includes(':');
         setIpMode(isV6 ? 'IPv6' : 'IPv4');
         setIpInput(data.ip);
@@ -185,6 +215,7 @@ export default function IpIntelligence() {
             <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,1)]" />
             <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">Target Locked:</span>
             <span className="text-cyan-400 font-mono font-bold tracking-wider">{result.query}</span>
+            <CopyButton text={result.query} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -215,8 +246,11 @@ export default function IpIntelligence() {
 
                 <div className="flex justify-between items-end border-b border-slate-800 pb-2">
                   <div className="text-[10px] text-slate-500">COORDINATES</div>
-                  <div className="text-right text-cyan-400 tracking-wider">
-                    {result.lat}° N, {result.lon}° E
+                  <div className="flex items-center gap-1">
+                    <span className="text-right text-cyan-400 tracking-wider">
+                      {result.lat}° N, {result.lon}° E
+                    </span>
+                    <CopyButton text={`${result.lat}, ${result.lon}`} />
                   </div>
                 </div>
 
@@ -263,33 +297,56 @@ export default function IpIntelligence() {
                 <Server className="w-4 h-4 text-blue-500" /> Network Data
               </h3>
 
-              <div className="space-y-5 font-mono">
-                <div className="flex justify-between items-end border-b border-slate-800 pb-2">
-                  <div className="text-[10px] text-slate-500 flex items-center gap-1"><Network className="w-3 h-3" /> ISP</div>
-                  <div className="text-right text-white font-bold truncate max-w-50" title={result.isp}>
-                    {result.isp || "N/A"}
+              <div className="space-y-5 font-mono relative z-10">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                  <div className="text-[10px] text-slate-500 flex items-center gap-1 shrink-0 mr-3"><Network className="w-3 h-3" /> ISP</div>
+                  <div className="flex items-center gap-1 overflow-hidden">
+                    <span className="text-white font-bold truncate" title={result.isp}>
+                      {result.isp || "N/A"}
+                    </span>
+                    <span className="shrink-0">{result.isp && <CopyButton text={result.isp} />}</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-end border-b border-slate-800 pb-2">
-                  <div className="text-[10px] text-slate-500">ORGANIZATION</div>
-                  <div className="text-right text-slate-300 truncate max-w-50" title={result.org}>
-                    {result.org || "N/A"}
+                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                  <div className="text-[10px] text-slate-500 shrink-0 mr-3">PRIVACY</div>
+                  <div className="flex items-center gap-3 flex-wrap justify-end">
+                    <span className={`flex items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-md ${result.hosting ? 'bg-orange-500/10 text-orange-400' : 'bg-slate-800/50 text-slate-600'
+                      }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${result.hosting ? 'bg-orange-400' : 'bg-slate-600'}`} />
+                      HOSTING
+                    </span>
+                    <span className={`flex items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-md ${result.proxy ? 'bg-red-500/10 text-red-400' : 'bg-slate-800/50 text-slate-600'
+                      }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${result.proxy ? 'bg-red-400' : 'bg-slate-600'}`} />
+                      VPN/PROXY
+                    </span>
+                    <span className={`flex items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-md ${result.mobile ? 'bg-violet-500/10 text-violet-400' : 'bg-slate-800/50 text-slate-600'
+                      }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${result.mobile ? 'bg-violet-400' : 'bg-slate-600'}`} />
+                      MOBILE
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-end border-b border-slate-800 pb-2">
-                  <div className="text-[10px] text-slate-500 flex items-center gap-1"><Fingerprint className="w-3 h-3" /> ASN</div>
-                  <div className="text-right text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded-md">
-                    {result.as || "UNKNOWN"}
+                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                  <div className="text-[10px] text-slate-500 flex items-center gap-1 shrink-0 mr-3"><Fingerprint className="w-3 h-3" /> ASN</div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded-md">
+                      {result.as || "UNKNOWN"}
+                    </span>
+                    <span className="shrink-0">{result.as && <CopyButton text={result.as} />}</span>
                   </div>
                 </div>
 
-                {/* YENİ EKLENEN HOSTNAME BİLGİSİ */}
-                <div className="flex justify-between items-end">
-                  <div className="text-[10px] text-slate-500 flex items-center gap-1"><Terminal className="w-3 h-3" /> HOSTNAME</div>
-                  <div className="text-right text-slate-400 text-xs truncate max-w-50" title={result.hostname || "NO REVERSE DNS"}>
-                    {result.hostname || "NO REVERSE DNS"}
+                {/* HOSTNAME */}
+                <div className="flex justify-between items-center">
+                  <div className="text-[10px] text-slate-500 flex items-center gap-1 shrink-0 mr-3"><Terminal className="w-3 h-3" /> HOSTNAME</div>
+                  <div className="flex items-center gap-1 overflow-hidden">
+                    <span className="text-slate-400 text-xs truncate" title={result.hostname || "NO REVERSE DNS"}>
+                      {result.hostname || "NO REVERSE DNS"}
+                    </span>
+                    <span className="shrink-0">{result.hostname && <CopyButton text={result.hostname} />}</span>
                   </div>
                 </div>
 

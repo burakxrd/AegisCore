@@ -1,33 +1,13 @@
 import { Router } from "express";
+import net from "node:net";
 
 const router = Router();
 
-const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-const ipv6Regex = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
-
 function isValidIp(ip: string): boolean {
-  return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+  return net.isIPv4(ip) || net.isIPv6(ip);
 }
 
-// Kullanıcının gerçek public IP'sini döndüren endpoint
-router.get("/me", async (req, res) => {
-  try {
-    // Harici servis ile gerçek public IP'yi al (localhost'ta da çalışır)
-    const ipResponse = await fetch("https://api.ipify.org?format=json");
-    const ipData = await ipResponse.json();
-
-    if (ipData.ip) {
-      return res.json({ status: "success", ip: ipData.ip });
-    }
-
-    // Fallback: Express'in algıladığı client IP
-    let clientIp = (req.ip || req.socket.remoteAddress || "").replace(/^::ffff:/, "");
-    return res.json({ status: "success", ip: clientIp || "unknown" });
-  } catch (error) {
-    console.error("[AEGIS ERROR] IP detection failed:", error);
-    return res.status(500).json({ status: "fail", message: "IP detection failed." });
-  }
-});
+// MY IP detection is handled client-side (direct fetch to api.ipify.org)
 
 router.get("/:ip", async (req, res) => {
   try {
@@ -41,40 +21,43 @@ router.get("/:ip", async (req, res) => {
       return res.status(400).json({ status: "fail", message: "Invalid IP format." });
     }
 
-    const response = await fetch(`https://ipinfo.io/${ip}/json`);
+    // ip-api.com provides ISP, ASN, hosting/proxy/mobile detection for free
+    const fields = "status,message,country,countryCode,regionName,city,zip,lat,lon,timezone,isp,as,reverse,hosting,proxy,mobile,query";
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=${fields}`);
     const data = await response.json();
 
-    if (data.error) {
+    if (data.status === "fail") {
       return res.status(404).json({
         status: "fail",
-        message: "IP not found or invalid.",
+        message: data.message || "IP not found or invalid.",
         query: ip
       });
     }
 
-    const [lat, lon] = data.loc ? data.loc.split(',') : [null, null];
-
     const formattedData = {
       status: "success",
       country: data.country,
-      countryCode: data.country,
-      regionName: data.region,
+      countryCode: data.countryCode,
+      regionName: data.regionName,
       city: data.city,
-      zip: data.postal,
-      lat: lat ? parseFloat(lat) : undefined,
-      lon: lon ? parseFloat(lon) : undefined,
+      zip: data.zip,
+      lat: data.lat,
+      lon: data.lon,
       timezone: data.timezone,
-      isp: data.org,
-      org: data.org,
-      as: data.org,
-      hostname: data.hostname,
-      query: data.ip
+      isp: data.isp || "N/A",
+      as: data.as || "UNKNOWN",
+      hostname: data.reverse || undefined,
+      query: data.query,
+      // Privacy detection
+      hosting: data.hosting ?? false,
+      proxy: data.proxy ?? false,
+      mobile: data.mobile ?? false,
     };
 
     return res.json(formattedData);
 
   } catch (error) {
-    console.error("[AEGIS ERROR] IPinfo.io query failed:", error);
+    console.error("[AEGIS ERROR] IP API query failed:", error);
     return res.status(500).json({
       status: "fail",
       message: "Uplink severed. Unable to resolve IP.",

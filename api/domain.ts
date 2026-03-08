@@ -84,15 +84,16 @@ router.get("/:domain", async (req, res) => {
     const results: any = {
       query: domain,
       status: "success",
-      records: { A: [], AAAA: [], MX: [], TXT: [], NS: [] }
+      records: { A: [], AAAA: [], MX: [], TXT: [], NS: [], DMARC: [] }
     };
 
-    const [aData, aaaaData, mxData, txtData, nsData] = await Promise.all([
+    const [aData, aaaaData, mxData, txtData, nsData, dmarcData] = await Promise.all([
       resolveDns(domain, "A"),
       resolveDns(domain, "AAAA"),
       resolveDns(domain, "MX"),
       resolveDns(domain, "TXT"),
-      resolveDns(domain, "NS")
+      resolveDns(domain, "NS"),
+      resolveDns(`_dmarc.${domain}`, "TXT")
     ]);
 
     results.records.A = aData.map((r: any) => r.data);
@@ -108,6 +109,7 @@ router.get("/:domain", async (req, res) => {
 
     results.records.TXT = txtData.map((r: any) => r.data.replace(/(^"|"$)/g, ''));
     results.records.NS = nsData.map((r: any) => r.data);
+    results.records.DMARC = dmarcData.map((r: any) => r.data.replace(/(^"|"$)/g, ''));
 
     const hasAnyRecord = Object.values(results.records).some((arr: any) => arr.length > 0);
     if (!hasAnyRecord) {

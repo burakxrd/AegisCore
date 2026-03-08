@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Send, Sparkles, User, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // --- Types ---
 interface Message {
@@ -7,10 +9,7 @@ interface Message {
   text: string;
 }
 
-interface ApiResponse {
-  text?: string;
-  error?: string;
-}
+const MAX_CHARS = 2000;
 
 export default function AegisIntelligence() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -46,13 +45,17 @@ export default function AegisIntelligence() {
         body: JSON.stringify({ message: userMsg })
       });
 
-      const data = (await response.json()) as ApiResponse;
+      const data = await response.json();
 
-      if (data.error) throw new Error(data.error);
+      if (!response.ok) {
+        throw new Error(data.error || 'Request failed.');
+      }
 
-      setMessages(prev => [...prev, { role: 'ai', text: data.text || 'Interface error.' }]);
+      setMessages(prev => [...prev, { role: 'ai', text: data.text || 'Neural link returned empty response.' }]);
+
     } catch (error: unknown) {
-      setMessages(prev => [...prev, { role: 'ai', text: 'Neural link severed. Retry connection.' }]);
+      const msg = error instanceof Error ? error.message : 'Neural link severed. Retry connection.';
+      setMessages(prev => [...prev, { role: 'ai', text: msg }]);
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +72,14 @@ export default function AegisIntelligence() {
     setMessages([]);
   };
 
+  const handleInputChange = (value: string) => {
+    if (value.length <= MAX_CHARS) {
+      setInput(value);
+    }
+  };
+
   const isEmpty = messages.length === 0 && !isLoading;
+  const charsLeft = MAX_CHARS - input.length;
 
   return (
     <div className="flex flex-col flex-1 min-h-0 max-w-4xl mx-auto w-full px-4 sm:px-6">
@@ -131,8 +141,25 @@ export default function AegisIntelligence() {
                 ? 'bg-cyan-600 text-white rounded-2xl rounded-br-md px-5 py-3.5 shadow-lg shadow-cyan-900/20'
                 : 'text-slate-200'
                 }`}>
-                <p className={`text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'ai' ? 'text-slate-300' : ''
-                  }`}>{msg.text}</p>
+                {msg.role === 'ai' ? (
+                  <div className="prose prose-invert prose-sm max-w-none
+                    prose-headings:text-cyan-400 prose-headings:font-bold prose-headings:tracking-tight
+                    prose-p:text-slate-300 prose-p:leading-relaxed
+                    prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline
+                    prose-strong:text-white
+                    prose-code:text-cyan-300 prose-code:bg-slate-800/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:font-mono
+                    prose-pre:bg-slate-900/90 prose-pre:border prose-pre:border-slate-700/50 prose-pre:rounded-xl prose-pre:p-4
+                    prose-li:text-slate-300
+                    prose-blockquote:border-cyan-500/40 prose-blockquote:text-slate-400
+                    prose-th:text-slate-300 prose-td:text-slate-400
+                  ">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.text || '▊'}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                )}
               </div>
 
               {/* User Avatar */}
@@ -168,10 +195,11 @@ export default function AegisIntelligence() {
             <textarea
               ref={inputRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask AEGIS anything about cybersecurity..."
               rows={1}
+              maxLength={MAX_CHARS}
               className="flex-1 bg-transparent px-4 py-3 text-sm text-white focus:outline-none resize-none max-h-[150px] placeholder:text-slate-600 font-mono"
             />
 
@@ -193,6 +221,15 @@ export default function AegisIntelligence() {
                 <Send className="w-4 h-4" />
               </button>
             </div>
+          </div>
+
+          {/* Character counter */}
+          <div className="flex justify-between items-center px-4 pb-1">
+            <div />
+            <span className={`text-[10px] font-mono transition-colors ${charsLeft < 100 ? 'text-red-400' : charsLeft < 300 ? 'text-yellow-500' : 'text-slate-600'
+              }`}>
+              {input.length}/{MAX_CHARS}
+            </span>
           </div>
         </div>
         <p className="text-center text-[10px] text-slate-600 font-mono mt-2">

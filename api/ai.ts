@@ -3,16 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 
 const router = Router();
 
-let ai: GoogleGenAI | null = null;
-function getAI(): GoogleGenAI {
-  if (!ai) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
-    ai = new GoogleGenAI({ apiKey });
-  }
-  return ai;
-}
-
+// Non-streaming endpoint (kept as fallback)
 router.post("/", async (req, res) => {
   try {
     const { message } = req.body;
@@ -25,9 +16,8 @@ router.post("/", async (req, res) => {
     const ai = new GoogleGenAI({ apiKey });
 
     const modelsToTry = [
-      //  "gemini-3-flash-preview",
-      "gemini-3.0-flash",
-      // "gemini-2.5-flash",
+      // "gemini-3-flash-preview",
+      "gemini-2.5-flash"
     ];
 
     let finalResponseText = "";

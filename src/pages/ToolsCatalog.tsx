@@ -19,7 +19,7 @@ export default function ToolsCatalog() {
       id: 'ip-intelligence',
       name: 'IP Intelligence',
       icon: <Globe className="w-6 h-6" />,
-      description: 'Advanced IP tracking, ASN details, and VPN/Proxy detection. Auto-detects client origin.',
+      description: 'Advanced IP tracking, geolocation, ASN details, and ISP identification.',
       path: '/tools/ip-intelligence',
       colorClass: 'text-cyan-500'
     },
@@ -27,7 +27,7 @@ export default function ToolsCatalog() {
       id: 'domain-analyzer',
       name: 'Domain Analyzer',
       icon: <Search className="w-6 h-6" />,
-      description: 'Comprehensive DNS lookup, WHOIS records, and email security (SPF/DMARC) checks.',
+      description: 'Comprehensive DNS lookup and email security (SPF/DMARC) checks.',
       path: '/tools/domain-analyzer',
       colorClass: 'text-purple-500'
     },
@@ -40,11 +40,11 @@ export default function ToolsCatalog() {
       colorClass: 'text-blue-500'
     },
     {
-      id: 'base64 Codec',
+      id: 'base64-codec',
       name: 'Base64 Codec',
       icon: <Terminal className="w-6 h-6" />,
       description: 'Encode and decode Base64 strings safely within your local browser environment.',
-      path: '/tools/base64',
+      path: '/tools/base64-codec',
       colorClass: 'text-slate-400'
     }
   ];
@@ -69,7 +69,7 @@ export default function ToolsCatalog() {
           >
             {/* Arka plan efekti */}
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all duration-500">
-              {React.cloneElement(tool.icon as React.ReactElement, { className: "w-32 h-32" })}
+              {React.cloneElement(tool.icon as React.ReactElement<any>, { className: "w-32 h-32" })}
             </div>
 
             <div className="relative z-10">

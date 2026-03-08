@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Globe, Shield, Mail, Server, AlertTriangle, CheckCircle2, Activity, ChevronRight, Network, Crosshair, Terminal, ShieldAlert, Fingerprint, Lock, Copy, CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 // --- Types ---
 interface MxRecord {
@@ -17,6 +17,7 @@ interface DomainIntelligence {
     MX: MxRecord[];
     TXT: string[];
     NS: string[];
+    DMARC: string[];
   };
 }
 
@@ -59,7 +60,7 @@ function CopyAllButton({ items, label }: { items: string[]; label: string }) {
 
   const handleCopy = () => {
     if (!items.length) return;
-    navigator.clipboard.writeText(items.join('\n'));
+    navigator.clipboard.writeText(items.join('\r\n'));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -85,13 +86,14 @@ export default function DomainAnalyzer() {
   const [error, setError] = useState<string | null>(null);
   const [sslInfo, setSslInfo] = useState<SslInfo | null>(null);
   const [sslLoading, setSslLoading] = useState<boolean>(false);
+  const [searchParams] = useSearchParams();
 
   const cleanDomainInput = (input: string) => {
     return input.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].toLowerCase();
   };
 
-  const handleAnalyze = async () => {
-    const target = cleanDomainInput(domainInput);
+  const handleAnalyze = async (overrideDomain?: string) => {
+    const target = cleanDomainInput(overrideDomain || domainInput);
     if (!target) return;
 
     setLoading(true);
@@ -130,9 +132,19 @@ export default function DomainAnalyzer() {
     }
   };
 
+  // Auto-search from Dashboard quick lookup
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) {
+      setDomainInput(q);
+      handleAnalyze(q);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+
   // Güvenlik Postürü Analizi
   const hasSpf = result?.records.TXT.some(r => r.toLowerCase().includes('v=spf1'));
-  const hasDmarc = result?.records.TXT.some(r => r.toLowerCase().includes('v=dmarc1'));
+  const hasDmarc = result?.records.DMARC && result.records.DMARC.length > 0;
 
   // SSL sertifika süre hesabı
   const getSslDaysLeft = () => {
@@ -179,7 +191,7 @@ export default function DomainAnalyzer() {
             className="w-full bg-transparent pl-12 pr-16 py-4 text-xl font-mono text-cyan-400 focus:outline-none placeholder:text-slate-600 tracking-wider"
           />
           <button
-            onClick={handleAnalyze}
+            onClick={() => handleAnalyze()}
             disabled={loading || !domainInput.trim()}
             className="absolute right-2 p-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
           >
@@ -222,9 +234,15 @@ export default function DomainAnalyzer() {
 
               {sslInfo && sslInfo.status === 'success' ? (
                 <div className="space-y-4 font-mono text-sm">
-                  <div className="flex justify-between items-end border-b border-slate-800 pb-2">
-                    <div className="text-[10px] text-slate-500">SUBJECT</div>
-                    <div className="text-right text-white font-bold truncate max-w-[60%]" title={sslInfo.subject}>{sslInfo.subject}</div>
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <div className="text-[10px] text-slate-500 shrink-0 mr-3">SUBJECT</div>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      {sslInfo.subject?.startsWith('*.') && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">WILDCARD</span>
+                      )}
+                      <span className="text-white font-bold truncate" title={sslInfo.subject}>{sslInfo.subject}</span>
+                      <span className="shrink-0">{sslInfo.subject && <CopyButton text={sslInfo.subject} />}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between items-end border-b border-slate-800 pb-2">
                     <div className="text-[10px] text-slate-500">ISSUER</div>
@@ -240,17 +258,20 @@ export default function DomainAnalyzer() {
                       <span className="text-slate-300">{sslInfo.validTo ? new Date(sslInfo.validTo).toLocaleDateString() : "N/A"}</span>
                       {sslDaysLeft !== null && (
                         <span className={`text-xs font-bold px-2 py-0.5 rounded ${sslDaysLeft > 30 ? 'bg-green-500/10 text-green-400' :
-                            sslDaysLeft > 7 ? 'bg-yellow-500/10 text-yellow-400' :
-                              'bg-red-500/10 text-red-400'
+                          sslDaysLeft > 7 ? 'bg-yellow-500/10 text-yellow-400' :
+                            'bg-red-500/10 text-red-400'
                           }`}>
                           {sslDaysLeft > 0 ? `${sslDaysLeft}d` : 'EXPIRED'}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between items-end">
-                    <div className="text-[10px] text-slate-500">SERIAL</div>
-                    <div className="text-right text-slate-500 text-xs truncate max-w-[60%]" title={sslInfo.serialNumber}>{sslInfo.serialNumber?.slice(0, 20)}...</div>
+                  <div className="flex justify-between items-center">
+                    <div className="text-[10px] text-slate-500 shrink-0 mr-3">SERIAL</div>
+                    <div className="flex items-center gap-1 overflow-hidden">
+                      <span className="text-slate-500 text-xs truncate" title={sslInfo.serialNumber}>{sslInfo.serialNumber || 'N/A'}</span>
+                      <span className="shrink-0">{sslInfo.serialNumber && <CopyButton text={sslInfo.serialNumber} />}</span>
+                    </div>
                   </div>
                 </div>
               ) : sslInfo && sslInfo.status === 'fail' ? (

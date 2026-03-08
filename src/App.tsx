@@ -113,7 +113,7 @@ function AppLayout() {
           <Route path="/tools/ip-intelligence" element={<IpIntelligence />} />
           <Route path="/tools/domain-analyzer" element={<DomainAnalyzer />} />
           <Route path="/tools/hash-generator" element={<HashGenerator />} />
-          <Route path="/tools/base64" element={<Base64 />} />
+          <Route path="/tools/base64-codec" element={<Base64 />} />
         </Routes>
       </main>
 

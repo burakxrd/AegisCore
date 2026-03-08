@@ -38,7 +38,7 @@ export default function Dashboard() {
       description: 'Encode and decode with file support',
       icon: Terminal,
       color: 'emerald',
-      path: '/tools/base64',
+      path: '/tools/base64-codec',
     },
   ];
 
@@ -110,18 +110,21 @@ export default function Dashboard() {
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && quickIp.trim()) {
-                  navigate(`/tools/ip-intelligence`);
+                  navigate(`/tools/ip-intelligence?q=${encodeURIComponent(quickIp.trim())}`);
                 }
               }}
               placeholder="e.g. 8.8.8.8"
               className="w-full bg-slate-950/80 border border-slate-700/50 rounded-xl pl-4 pr-12 py-3 text-sm font-mono text-cyan-400 focus:outline-none focus:border-cyan-500/50 placeholder:text-slate-600 transition-colors"
             />
-            <Link
-              to="/tools/ip-intelligence"
+            <button
+              onClick={() => {
+                if (quickIp.trim()) navigate(`/tools/ip-intelligence?q=${encodeURIComponent(quickIp.trim())}`);
+                else navigate('/tools/ip-intelligence');
+              }}
               className="absolute right-2 p-2 bg-cyan-500/10 text-cyan-400 rounded-lg hover:bg-cyan-500 hover:text-white transition-all"
             >
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -146,18 +149,21 @@ export default function Dashboard() {
               onChange={(e) => setQuickDomain(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && quickDomain.trim()) {
-                  navigate(`/tools/domain-analyzer`);
+                  navigate(`/tools/domain-analyzer?q=${encodeURIComponent(quickDomain.trim())}`);
                 }
               }}
               placeholder="e.g. google.com"
               className="w-full bg-slate-950/80 border border-slate-700/50 rounded-xl pl-4 pr-12 py-3 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500/50 placeholder:text-slate-600 transition-colors"
             />
-            <Link
-              to="/tools/domain-analyzer"
+            <button
+              onClick={() => {
+                if (quickDomain.trim()) navigate(`/tools/domain-analyzer?q=${encodeURIComponent(quickDomain.trim())}`);
+                else navigate('/tools/domain-analyzer');
+              }}
               className="absolute right-2 p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all"
             >
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
           </div>
         </div>
       </div>
