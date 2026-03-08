@@ -105,16 +105,18 @@ function AppLayout() {
 
       <main className={`relative z-10 flex-1 w-full max-w-7xl mx-auto ${isAiPage ? 'p-0 flex flex-col overflow-hidden' : 'p-4 sm:p-6 md:p-10'
         }`}>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/ai" element={<AegisIntelligence />} />
-          <Route path="/tools" element={<ToolsCatalog />} />
+        <div key={location.pathname} className="animate-page-in flex-1 flex flex-col min-h-0">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/ai" element={<AegisIntelligence />} />
+            <Route path="/tools" element={<ToolsCatalog />} />
 
-          <Route path="/tools/ip-intelligence" element={<IpIntelligence />} />
-          <Route path="/tools/domain-analyzer" element={<DomainAnalyzer />} />
-          <Route path="/tools/hash-generator" element={<HashGenerator />} />
-          <Route path="/tools/base64-codec" element={<Base64 />} />
-        </Routes>
+            <Route path="/tools/ip-intelligence" element={<IpIntelligence />} />
+            <Route path="/tools/domain-analyzer" element={<DomainAnalyzer />} />
+            <Route path="/tools/hash-generator" element={<HashGenerator />} />
+            <Route path="/tools/base64-codec" element={<Base64 />} />
+          </Routes>
+        </div>
       </main>
 
       {!isAiPage && (
