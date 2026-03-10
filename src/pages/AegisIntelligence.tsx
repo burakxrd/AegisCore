@@ -200,7 +200,7 @@ export default function AegisIntelligence() {
               placeholder="Ask AEGIS anything about cybersecurity..."
               rows={1}
               maxLength={MAX_CHARS}
-              className="flex-1 bg-transparent px-4 py-3 text-sm text-white focus:outline-none resize-none max-h-[150px] placeholder:text-slate-600 font-mono"
+              className="flex-1 bg-transparent px-4 py-3 text-sm text-white focus:outline-none resize-none max-h-37.5 placeholder:text-slate-600 font-mono"
             />
 
             <div className="flex items-center gap-1 pb-1 pr-1">

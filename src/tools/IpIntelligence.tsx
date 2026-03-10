@@ -179,6 +179,7 @@ export default function IpIntelligence() {
           <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" />
           <input
             type="text"
+            aria-label="Target IP Address"
             value={ipInput}
             onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -188,6 +189,7 @@ export default function IpIntelligence() {
           />
           <button
             onClick={() => handleSearch()}
+            aria-label="Execute Search"
             disabled={loading || !ipInput}
             className="absolute right-2 p-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
           >

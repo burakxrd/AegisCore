@@ -251,7 +251,7 @@ export default function Base64Encoder() {
 
           {/* Dosya yüklüyse dosya bilgisini göster */}
           {file ? (
-            <div className="flex-1 p-6 flex flex-col items-center justify-center border-2 border-dashed border-cyan-500/30 m-6 rounded-2xl bg-cyan-950/20 min-h-[200px]">
+            <div className="flex-1 p-6 flex flex-col items-center justify-center border-2 border-dashed border-cyan-500/30 m-6 rounded-2xl bg-cyan-950/20 min-h-50">
               <FileUp className="w-12 h-12 text-cyan-500 mb-4 opacity-80" />
               <p className="text-white font-mono font-bold text-center break-all">{file.name}</p>
               <p className="text-slate-400 font-mono text-xs mt-2">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
@@ -263,7 +263,7 @@ export default function Base64Encoder() {
               </button>
             </div>
           ) : (
-            <div className="flex-1 relative min-h-[200px]">
+            <div className="flex-1 relative min-h-50">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -313,7 +313,7 @@ export default function Base64Encoder() {
             </div>
           </div>
 
-          <div className="flex-1 p-6 relative min-h-[200px]">
+          <div className="flex-1 p-6 relative min-h-50">
             {error ? (
               <div className="flex items-center gap-2 text-red-400 font-mono text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20">
                 <AlertCircle className="w-5 h-5 shrink-0" />

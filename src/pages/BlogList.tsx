@@ -109,7 +109,7 @@ export default function BlogList() {
                                     {/* Title */}
                                     <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2 leading-snug">
                                         {post.title}
-                                        <ChevronRight className="w-5 h-5 text-cyan-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all flex-shrink-0" />
+                                        <ChevronRight className="w-5 h-5 text-cyan-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all shrink-0" />
                                     </h3>
 
                                     {/* Summary */}
