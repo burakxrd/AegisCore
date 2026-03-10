@@ -179,7 +179,7 @@ export default function DomainAnalyzer() {
       </div>
 
       {/* ARAMA ÇUBUĞU */}
-      <div className="bg-slate-900/60 border border-cyan-500/20 p-2 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
+      <div className="-mx-8 md:-mx-16 bg-slate-900/60 border border-cyan-500/20 p-2 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
         <div className="relative flex items-center">
           <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" />
           <input

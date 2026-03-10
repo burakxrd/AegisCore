@@ -1,0 +1,10 @@
+[
+    {
+        "slug": "operation-silent-watch",
+        "title": "OP-REPORT: Infiltrating the Windows Outpost",
+        "summary": "A complete adversary simulation demonstrating initial access, internal reconnaissance, and log evasion techniques on a Windows 10 target.",
+        "date": "2026-03-10",
+        "category": "Adversary Simulation",
+        "threatLevel": "High"
+    }
+]

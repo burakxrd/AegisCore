@@ -5,6 +5,8 @@ import { Menu, X } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import AegisIntelligence from './pages/AegisIntelligence';
 import ToolsCatalog from './pages/ToolsCatalog';
+import BlogPost from './pages/BlogPost';
+import BlogList from './pages/BlogList';
 
 import IpIntelligence from './tools/IpIntelligence';
 import DomainAnalyzer from './tools/DomainAnalyzer';
@@ -23,7 +25,8 @@ function AppLayout() {
   const navLinks = [
     { path: '/', label: 'DASHBOARD' },
     { path: '/ai', label: 'AI' },
-    { path: '/tools', label: 'TOOLS' }
+    { path: '/tools', label: 'TOOLS' },
+    { path: '/blog', label: 'BLOGS' }
   ];
 
   const checkIsActive = (path: string) => {
@@ -110,6 +113,8 @@ function AppLayout() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/ai" element={<AegisIntelligence />} />
             <Route path="/tools" element={<ToolsCatalog />} />
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
 
             <Route path="/tools/ip-intelligence" element={<IpIntelligence />} />
             <Route path="/tools/domain-analyzer" element={<DomainAnalyzer />} />
