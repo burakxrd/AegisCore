@@ -201,7 +201,31 @@ export default function Dashboard() {
           })}
         </div>
       </div>
-
+      <div className="mt-16 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p className="text-slate-600 text-xs font-mono">
+          © {new Date().getFullYear()} AEGIS CORE. All systems operational.
+        </p>
+        <div className="flex items-center gap-6">
+          <Link 
+            to="/privacy-policy" 
+            className="text-slate-500 hover:text-cyan-400 text-xs font-mono transition-colors tracking-wide"
+          >
+            [ Privacy Policy ]
+          </Link>
+          <Link 
+            to="/terms-of-service" 
+            className="text-slate-500 hover:text-cyan-400 text-xs font-mono transition-colors tracking-wide"
+          >
+            [ Terms of Service ]
+          </Link>
+          <a 
+            href="mailto:info@aegis.net.tr" 
+            className="text-slate-500 hover:text-cyan-400 text-xs font-mono transition-colors tracking-wide"
+          >
+            [ Contact ]
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

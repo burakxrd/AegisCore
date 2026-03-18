@@ -7,6 +7,8 @@ import AegisIntelligence from './pages/AegisIntelligence';
 import ToolsCatalog from './pages/ToolsCatalog';
 import BlogPost from './pages/BlogPost';
 import BlogList from './pages/BlogList';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 import IpIntelligence from './tools/IpIntelligence';
 import DomainAnalyzer from './tools/DomainAnalyzer';
@@ -115,6 +117,8 @@ function AppLayout() {
             <Route path="/tools" element={<ToolsCatalog />} />
             <Route path="/blog" element={<BlogList />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
 
             <Route path="/tools/ip-intelligence" element={<IpIntelligence />} />
             <Route path="/tools/domain-analyzer" element={<DomainAnalyzer />} />
