@@ -10,7 +10,9 @@ export default function BlogPost() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/blog/${slug}.md`)
+    const controller = new AbortController();
+
+    fetch(`/blog/${slug}.md`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('Document not found');
         return res.text();
@@ -18,11 +20,19 @@ export default function BlogPost() {
       .then((text) => {
         setContent(text);
         setLoading(false);
+        document.title = `${slug?.replace(/-/g, ' ').toUpperCase()} | Aegis Core`;
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.name === 'AbortError') {
+          return; 
+        }
         setContent('# 404 - CLASSIFIED\n> The requested intelligence report does not exist or requires higher clearance.');
         setLoading(false);
       });
+
+    return () => {
+      controller.abort();
+    };
   }, [slug]);
 
   return (

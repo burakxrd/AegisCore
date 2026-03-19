@@ -35,17 +35,18 @@ export default function BlogList() {
                 setPosts(sorted);
                 setLoading(false);
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error("Intelligence Index Fetch Error:", err);
                 setError(true);
                 setLoading(false);
-            });
+      });
     }, []);
 
     return (
-        <div className="space-y-8 max-w-6xl mx-auto animate-in fade-in">
+        <div className="space-y-8 w-full max-w-6xl mx-auto animate-in fade-in">
 
             {/* --- Header --- */}
-            <div className="mb-10">
+            <div className="mb-10 w-full text-left">
                 <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
                     Intelligence <span className="text-cyan-500">Reports</span>
                 </h2>
