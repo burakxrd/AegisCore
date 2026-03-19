@@ -7,6 +7,7 @@ import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
 import { SearchBar } from '../components/SearchBar';
 import { InfoCard } from '../components/InfoCard';
 import { TargetLockedBanner } from '../components/ToolWidgets';
+import { Helmet } from 'react-helmet-async';
 
 // --- Types ---
 interface MxRecord {
@@ -121,6 +122,12 @@ export default function DomainAnalyzer() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
+
+      <Helmet>
+      <title>Domain Analyzer | AEGIS CORE</title>
+      <meta name="description" content="DNS records lookup, SSL certificate inspection, SPF and DMARC email security analysis. Free domain intelligence tool." />
+      <link rel="canonical" href="https://aegis.net.tr/tools/domain-analyzer" />
+    </Helmet>
 
       {/* ÜST BİLGİ */}
       <div>

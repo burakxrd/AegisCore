@@ -4,6 +4,7 @@ import { CopyButton } from '../components/CopyButtons';
 import { Link } from 'react-router-dom';
 import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
 import { DragOverlay, SecurityNotice } from '../components/ToolWidgets';
+import { Helmet } from 'react-helmet-async';
 
 function md5(input: Uint8Array): string {
   function md5cycle(x: number[], k: number[]) {
@@ -170,6 +171,11 @@ export default function HashGenerator() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      <Helmet>
+        <title>Hash Generator | AEGIS CORE</title>
+        <meta name="description" content="Generate MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes from text or files. All operations run locally in your browser." />
+        <link rel="canonical" href="https://aegis.net.tr/tools/hash-generator" />
+      </Helmet>
 
       {/* ÜST BİLGİ */}
       <div>

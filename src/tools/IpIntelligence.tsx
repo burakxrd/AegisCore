@@ -6,6 +6,8 @@ import { SystemAlert } from '../components/SystemAlert';
 import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
 import { SearchBar } from '../components/SearchBar';
 import { TargetLockedBanner } from '../components/ToolWidgets';
+import { Helmet } from 'react-helmet-async';
+
 
 interface IpData {
   status: string;
@@ -113,6 +115,12 @@ export default function IpIntelligence() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+
+      <Helmet>
+        <title>IP Intelligence | AEGIS CORE</title>
+        <meta name="description" content="Trace any IP address — geolocation, ISP, ASN, and VPN/proxy detection. Free IP lookup tool." />
+        <link rel="canonical" href="https://aegis.net.tr/tools/ip-intelligence" />
+      </Helmet>
 
       {/* ÜST BİLGİ VE GERİ DÖNÜŞ LİNKİ */}
       <div>

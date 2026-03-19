@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, ChevronRight, Calendar, Tag, ShieldAlert, AlertTriangle, Loader2 } from 'lucide-react';
 import { SystemAlert } from '../components/SystemAlert';
+import { Helmet } from 'react-helmet-async';
 
 interface BlogEntry {
     slug: string;
@@ -45,6 +46,12 @@ export default function BlogList() {
 
     return (
         <div className="space-y-8 w-full max-w-6xl mx-auto animate-in fade-in">
+
+            <Helmet>
+                <title>Intelligence Reports | AEGIS CORE</title>
+                <meta name="description" content="Cybersecurity research, adversary simulations, and technical documentation covering DNS, SSL, malware, network security and more." />
+                <link rel="canonical" href="https://aegis.net.tr/blog" />
+            </Helmet>
 
             {/* --- Header --- */}
             <div className="mb-10 w-full text-left">

@@ -2,13 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Terminal, ChevronRight, ShieldAlert, Network } from 'lucide-react';
+import { Terminal, ChevronRight, Network } from 'lucide-react';
 import { SystemAlert } from '../components/SystemAlert';
+import { Helmet } from 'react-helmet-async';
 
 export default function BlogPost() {
   const { slug } = useParams();
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState('Cybersecurity intelligence report — AEGIS CORE.');
+
+  useEffect(() => {
+    fetch('/blog/blog-index.json')
+      .then(res => res.json())
+      .then((data) => {
+        const post = data.find((p: any) => p.slug === slug);
+        if (post?.summary) setSummary(post.summary);
+      })
+      .catch(() => {});
+  }, [slug]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -21,11 +33,10 @@ export default function BlogPost() {
       .then((text) => {
         setContent(text);
         setLoading(false);
-        document.title = `${slug?.replace(/-/g, ' ').toUpperCase()} | Aegis Core`;
       })
       .catch((err) => {
         if (err.name === 'AbortError') {
-          return; 
+          return;
         }
         setContent('# 404 - CLASSIFIED\n> The requested intelligence report does not exist or requires higher clearance.');
         setLoading(false);
@@ -38,6 +49,12 @@ export default function BlogPost() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in">
+
+      <Helmet>
+        <title>{slug?.replace(/-/g, ' ').toUpperCase()} | AEGIS CORE</title>
+        <meta name="description" content={summary} />
+        <link rel="canonical" href={`https://aegis.net.tr/blog/${slug}`} />
+      </Helmet>
 
       <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
         <Link to="/" className="hover:text-cyan-400 transition-colors flex items-center gap-2">

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { CopyButton } from '../components/CopyButtons';
 import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
 import { DragOverlay, SecurityNotice } from '../components/ToolWidgets';
+import { Helmet } from 'react-helmet-async';
 
 export default function Base64Encoder() {
   const [input, setInput] = useState<string>('');
@@ -157,6 +158,12 @@ export default function Base64Encoder() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+
+      <Helmet>
+        <title>Base64 Codec | AEGIS CORE</title>
+        <meta name="description" content="Encode and decode Base64 strings and files directly in your browser. Supports drag & drop file upload with zero data transmission." />
+        <link rel="canonical" href="https://aegis.net.tr/tools/base64-codec" />
+      </Helmet>
 
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
