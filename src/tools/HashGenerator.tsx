@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Hash, Copy, CheckCircle2, ShieldCheck, Zap, FileUp, Trash2, Check, X, Network, ChevronRight } from 'lucide-react';
+import { Hash, CheckCircle2, ShieldCheck, Zap, FileUp, Trash2, Check, X, Network, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CopyButton } from '../components/CopyButtons';
 
-// Lightweight MD5 implementation (RFC 1321)
-// crypto.subtle MD5 desteklemediği için inline implementasyon
 function md5(input: Uint8Array): string {
   function md5cycle(x: number[], k: number[]) {
     let a = x[0], b = x[1], c = x[2], d = x[3];
@@ -106,7 +105,6 @@ export default function HashGenerator() {
   const [file, setFile] = useState<File | null>(null);
   const [output, setOutput] = useState<string>('');
   const [algorithm, setAlgorithm] = useState<Algorithm>('SHA-256');
-  const [copied, setCopied] = useState<boolean>(false);
   const [expectedHash, setExpectedHash] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -155,13 +153,6 @@ export default function HashGenerator() {
 
     generateHash();
   }, [input, file, algorithm]);
-
-  const handleCopy = () => {
-    if (!output) return;
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleClear = () => {
     setInput('');
@@ -295,14 +286,7 @@ export default function HashGenerator() {
               <ShieldCheck className="w-4 h-4 text-green-500" />
               <span className="text-xs font-bold text-cyan-500 uppercase tracking-widest">{algorithm} Output</span>
             </div>
-            <button
-              onClick={handleCopy}
-              disabled={!output}
-              className="flex items-center gap-2 text-[10px] font-bold bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-700 hover:text-white transition-colors border border-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800"
-            >
-              {copied ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-              {copied ? 'COPIED' : 'COPY'}
-            </button>
+            <CopyButton text={output} />
           </div>
           <textarea
             readOnly

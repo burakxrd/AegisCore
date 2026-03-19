@@ -104,9 +104,10 @@ export default function Dashboard() {
             <input
               type="text"
               value={quickIp}
+              aria-label="Enter IP address for quick lookup" 
               onChange={(e) => {
-                const val = e.target.value.replace(/[^0-9.]/g, '');
-                if (val.length <= 15) setQuickIp(val);
+                const val = e.target.value.replace(/[^0-9.a-fA-F:]/g, '');
+                if (val.length <= 45) setQuickIp(val);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && quickIp.trim()) {
@@ -121,9 +122,10 @@ export default function Dashboard() {
                 if (quickIp.trim()) navigate(`/tools/ip-intelligence?q=${encodeURIComponent(quickIp.trim())}`);
                 else navigate('/tools/ip-intelligence');
               }}
+              aria-label="Search IP" 
               className="absolute right-2 p-2 bg-cyan-500/10 text-cyan-400 rounded-lg hover:bg-cyan-500 hover:text-white transition-all"
             >
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -146,6 +148,7 @@ export default function Dashboard() {
             <input
               type="text"
               value={quickDomain}
+              aria-label="Enter domain name for quick scan"
               onChange={(e) => setQuickDomain(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && quickDomain.trim()) {
@@ -160,6 +163,7 @@ export default function Dashboard() {
                 if (quickDomain.trim()) navigate(`/tools/domain-analyzer?q=${encodeURIComponent(quickDomain.trim())}`);
                 else navigate('/tools/domain-analyzer');
               }}
+              aria-label="Scan Domain"
               className="absolute right-2 p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all"
             >
               <ArrowRight className="w-4 h-4" />
@@ -199,31 +203,6 @@ export default function Dashboard() {
               </Link>
             );
           })}
-        </div>
-      </div>
-      <div className="mt-16 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-slate-600 text-xs font-mono">
-          © {new Date().getFullYear()} AEGIS CORE. All systems operational.
-        </p>
-        <div className="flex items-center gap-6">
-          <Link 
-            to="/privacy-policy" 
-            className="text-slate-500 hover:text-cyan-400 text-xs font-mono transition-colors tracking-wide"
-          >
-            [ Privacy Policy ]
-          </Link>
-          <Link 
-            to="/terms-of-service" 
-            className="text-slate-500 hover:text-cyan-400 text-xs font-mono transition-colors tracking-wide"
-          >
-            [ Terms of Service ]
-          </Link>
-          <a 
-            href="mailto:info@aegis.net.tr" 
-            className="text-slate-500 hover:text-cyan-400 text-xs font-mono transition-colors tracking-wide"
-          >
-            [ Contact ]
-          </a>
         </div>
       </div>
     </div>

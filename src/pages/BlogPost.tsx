@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Terminal, ChevronRight, ShieldAlert, Network } from 'lucide-react';
+import { SystemAlert } from '../components/SystemAlert';
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -62,12 +63,7 @@ export default function BlogPost() {
         )}
       </div>
 
-      <div className="bg-blue-500/5 border border-blue-500/20 p-4 rounded-2xl flex items-center justify-center gap-3">
-        <ShieldAlert className="w-5 h-5 text-blue-500/50" />
-        <p className="text-[10px] text-blue-400/60 font-mono uppercase tracking-widest text-center">
-          Information provided for educational and defensive purposes only.
-        </p>
-      </div>
+      <SystemAlert type="info" message="Information provided for educational and defensive purposes only." />
     </div>
   );
 }

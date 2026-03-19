@@ -1,25 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Terminal, ArrowRightLeft, Copy, CheckCircle2, AlertCircle, Network, ChevronRight, FileUp, Download, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CopyButton } from '../components/CopyButtons';
 
 export default function Base64Encoder() {
   const [input, setInput] = useState<string>('');
   const [output, setOutput] = useState<string>('');
   const [mode, setMode] = useState<'ENCODE' | 'DECODE'>('ENCODE');
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Dosya seçme (click veya drag — her iki modda da çalışır)
   const handleFileAccepted = (newFile: File) => {
     setFile(newFile);
     setInput('');
     setError(null);
   };
 
-  // Metin encode/decode (dosya yoksa)
   useEffect(() => {
     if (file) return;
 
@@ -43,7 +41,6 @@ export default function Base64Encoder() {
     }
   }, [input, mode, file]);
 
-  // ENCODE modunda dosya → Base64
   useEffect(() => {
     if (!file || mode !== 'ENCODE') return;
 
@@ -61,7 +58,6 @@ export default function Base64Encoder() {
     reader.readAsDataURL(file);
   }, [file, mode]);
 
-  // DECODE modunda dosya → text olarak oku ve Base64 olarak input'a koy
   useEffect(() => {
     if (!file || mode !== 'DECODE') return;
 
@@ -69,20 +65,13 @@ export default function Base64Encoder() {
     reader.onload = () => {
       const text = reader.result as string;
       setInput(text.trim());
-      setFile(null); // Dosyayı temizle, artık input'ta text olarak var
+      setFile(null);
     };
     reader.onerror = () => {
       setError('Failed to read file.');
     };
     reader.readAsText(file);
   }, [file, mode]);
-
-  const handleCopy = () => {
-    if (!output) return;
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const toggleMode = () => {
     setMode(prev => prev === 'ENCODE' ? 'DECODE' : 'ENCODE');
@@ -302,14 +291,7 @@ export default function Base64Encoder() {
                   <Download className="w-3.5 h-3.5" /> SAVE AS FILE
                 </button>
               )}
-              <button
-                onClick={handleCopy}
-                disabled={!output}
-                className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors disabled:opacity-30"
-              >
-                {copied ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'COPIED' : 'COPY'}
-              </button>
+              <CopyButton text={output} />
             </div>
           </div>
 

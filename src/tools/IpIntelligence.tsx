@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Globe, MapPin, Server, ShieldAlert, Activity, ChevronRight, Clock, Fingerprint, Network, Crosshair, Terminal, User, Copy, CheckCircle } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { CopyButton } from '../components/CopyButtons';
+import { SystemAlert } from '../components/SystemAlert';
 
 interface IpData {
   status: string;
@@ -20,21 +22,6 @@ interface IpData {
   hosting?: boolean;
   proxy?: boolean;
   mobile?: boolean;
-}
-
-// Copy button component
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <button onClick={handleCopy} className="p-1 text-slate-500 hover:text-cyan-400 transition-colors rounded-lg hover:bg-slate-800/50" title="Copy">
-      {copied ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-    </button>
-  );
 }
 
 export default function IpIntelligence() {
@@ -90,13 +77,12 @@ export default function IpIntelligence() {
       setIpInput(q);
       handleSearch(q);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
 
   const handleMyIp = async () => {
     setMyIpLoading(true);
     try {
-      // Client-side fetch — returns the user's real public IP, not the server's
       const response = await fetch('https://api.ipify.org?format=json');
       const data = await response.json();
       if (data.ip) {
@@ -166,7 +152,7 @@ export default function IpIntelligence() {
               disabled={myIpLoading || loading}
               className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-slate-300 border border-slate-700/50 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-cyan-900 hover:text-cyan-400 hover:border-cyan-700 transition-all disabled:opacity-50"
             >
-              {myIpLoading ? <Activity className="w-4 h-4 animate-spin" /> : <User className="w-4 h-4" />}
+              {myIpLoading ? <Activity className="w-4 h-4 animate-spin" aria-hidden="true" /> : <User className="w-4 h-4" aria-hidden="true" />}
               MY IP
             </button>
           </div>
@@ -176,7 +162,7 @@ export default function IpIntelligence() {
       {/* ARAMA ÇUBUĞU */}
       <div className="bg-slate-900/60 border border-cyan-500/20 p-2 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
         <div className="relative flex items-center">
-          <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" />
+          <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" aria-hidden="true" />
           <input
             type="text"
             aria-label="Target IP Address"
@@ -193,21 +179,13 @@ export default function IpIntelligence() {
             disabled={loading || !ipInput}
             className="absolute right-2 p-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
           >
-            {loading ? <Activity className="w-6 h-6 animate-spin" /> : <Search className="w-6 h-6" />}
+            {loading ? <Activity className="w-6 h-6 animate-spin" aria-hidden="true" /> : <Search className="w-6 h-6" aria-hidden="true" />}
           </button>
         </div>
       </div>
 
       {/* EASTER EGG */}
-      {easterEgg && (
-        <div className="bg-yellow-500/10 border border-yellow-500/50 p-6 rounded-2xl flex items-start gap-4 animate-in fade-in slide-in-from-bottom-4">
-          <ShieldAlert className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
-          <div>
-            <h3 className="text-yellow-500 font-bold tracking-widest uppercase mb-1">System Override</h3>
-            <p className="text-slate-300 font-mono text-sm">{easterEgg}</p>
-          </div>
-        </div>
-      )}
+      {easterEgg && <SystemAlert type="warning" title="System Override" message={easterEgg} className="slide-in-from-bottom-4" />}
 
       {/* BAŞARILI SONUÇ */}
       {result && result.status === 'success' && (
@@ -361,14 +339,12 @@ export default function IpIntelligence() {
 
       {/* HATA DURUMU */}
       {result && result.status === 'fail' && (
-        <div className="bg-red-500/10 border border-red-500/50 p-6 rounded-2xl flex items-start gap-4 animate-in fade-in">
-          <ShieldAlert className="w-6 h-6 text-red-500 shrink-0 mt-1" />
-          <div>
-            <h3 className="text-red-500 font-bold tracking-widest uppercase mb-1">Resolution Failed</h3>
-            <p className="text-slate-300 font-mono text-sm">{result.message}</p>
-            <p className="text-slate-500 font-mono text-xs mt-2">Target: {result.query}</p>
-          </div>
-        </div>
+        <SystemAlert 
+          type="error" 
+          title="Resolution Failed" 
+          message={result.message} 
+          subMessage={`Target: ${result.query}`} 
+        />
       )}
 
     </div>

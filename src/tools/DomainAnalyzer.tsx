@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Globe, Shield, Mail, Server, AlertTriangle, CheckCircle2, Activity, ChevronRight, Network, Crosshair, Terminal, ShieldAlert, Fingerprint, Lock, Copy, CheckCircle } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { CopyButton, CopyAllButton } from '../components/CopyButtons';
+import { SystemAlert } from '../components/SystemAlert';
 
 // --- Types ---
 interface MxRecord {
@@ -33,59 +35,12 @@ interface SslInfo {
   message?: string;
 }
 
-// Küçük kopyalama butonu componenti
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <button
-      onClick={handleCopy}
-      className="p-1.5 text-slate-500 hover:text-cyan-400 transition-colors rounded-lg hover:bg-slate-800/50"
-      title="Copy to clipboard"
-    >
-      {copied ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-    </button>
-  );
-}
-
-// Bir section'daki tüm kayıtları kopyalama butonu
-function CopyAllButton({ items, label }: { items: string[]; label: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    if (!items.length) return;
-    navigator.clipboard.writeText(items.join('\r\n'));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (!items.length) return null;
-
-  return (
-    <button
-      onClick={handleCopy}
-      className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 hover:text-cyan-400 transition-colors px-2 py-1 rounded-lg hover:bg-slate-800/50 uppercase tracking-wider"
-      title={`Copy all ${label}`}
-    >
-      {copied ? <CheckCircle className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-      {copied ? 'COPIED' : 'COPY ALL'}
-    </button>
-  );
-}
-
 export default function DomainAnalyzer() {
   const [domainInput, setDomainInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<DomainIntelligence | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sslInfo, setSslInfo] = useState<SslInfo | null>(null);
-  const [sslLoading, setSslLoading] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
 
   const cleanDomainInput = (input: string) => {
@@ -116,7 +71,6 @@ export default function DomainAnalyzer() {
 
       setResult(dnsData as DomainIntelligence);
 
-      // SSL sonucunu ayrı işle (hata olsa bile DNS sonuçlarını göster)
       if (sslResponse) {
         try {
           const sslData = await sslResponse.json();
@@ -125,8 +79,12 @@ export default function DomainAnalyzer() {
           setSslInfo({ status: "fail", message: "SSL check failed." });
         }
       }
-    } catch (err: any) {
-      setError(err.message || "Target resolution failed. Domain may not exist or DNS is blocking requests.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Target resolution failed. Domain may not exist or DNS is blocking requests.");
+      } else {
+        setError("Target resolution failed. An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -179,7 +137,7 @@ export default function DomainAnalyzer() {
       </div>
 
       {/* ARAMA ÇUBUĞU */}
-      <div className="-mx-8 md:-mx-16 bg-slate-900/60 border border-cyan-500/20 p-2 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
+      <div className="md:-mr-16 bg-slate-900/60 border border-cyan-500/20 p-1.5 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
         <div className="relative flex items-center">
           <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" />
           <input
@@ -188,28 +146,22 @@ export default function DomainAnalyzer() {
             onChange={(e) => setDomainInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
             placeholder="Target Domain (e.g. aegis.net.tr)"
-            className="w-full bg-transparent pl-12 pr-16 py-4 text-xl font-mono text-cyan-400 focus:outline-none placeholder:text-slate-600 tracking-wider"
+            aria-label="Enter target domain to analyze"
+            className="w-full bg-transparent pl-12 pr-16 py-3 text-base font-mono text-cyan-400 focus:outline-none placeholder:text-slate-600 tracking-wider"
           />
           <button
             onClick={() => handleAnalyze()}
             disabled={loading || !domainInput.trim()}
-            className="absolute right-2 p-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
+            aria-label="Analyze Domain"
+            className="absolute right-1.5 p-2.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
           >
-            {loading ? <Activity className="w-6 h-6 animate-spin" /> : <Search className="w-6 h-6" />}
+            {loading ? <Activity className="w-5 h-5 animate-spin" aria-hidden="true" /> : <Search className="w-5 h-5" aria-hidden="true" />}
           </button>
         </div>
       </div>
 
       {/* HATA */}
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/50 p-6 rounded-2xl flex items-start gap-4 animate-in fade-in">
-          <ShieldAlert className="w-6 h-6 text-red-500 shrink-0 mt-1" />
-          <div>
-            <h3 className="text-red-500 font-bold tracking-widest uppercase mb-1">Analysis Failed</h3>
-            <p className="text-slate-300 font-mono text-sm">{error}</p>
-          </div>
-        </div>
-      )}
+      {error && <SystemAlert type="error" title="Analysis Failed" message={error} />}
 
       {/* SONUÇLAR */}
       {result && (

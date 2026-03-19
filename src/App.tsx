@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Loader2 } from 'lucide-react'; 
 
-import Dashboard from './pages/Dashboard';
-import AegisIntelligence from './pages/AegisIntelligence';
-import ToolsCatalog from './pages/ToolsCatalog';
-import BlogPost from './pages/BlogPost';
-import BlogList from './pages/BlogList';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const AegisIntelligence = lazy(() => import('./pages/AegisIntelligence'));
+const ToolsCatalog = lazy(() => import('./pages/ToolsCatalog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const BlogList = lazy(() => import('./pages/BlogList'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 
-import IpIntelligence from './tools/IpIntelligence';
-import DomainAnalyzer from './tools/DomainAnalyzer';
-import Base64 from './tools/Base64';
-import HashGenerator from './tools/HashGenerator';
+const IpIntelligence = lazy(() => import('./tools/IpIntelligence'));
+const DomainAnalyzer = lazy(() => import('./tools/DomainAnalyzer'));
+const Base64 = lazy(() => import('./tools/Base64'));
+const HashGenerator = lazy(() => import('./tools/HashGenerator'));
 
 
 function AppLayout() {
@@ -84,8 +84,11 @@ function AppLayout() {
         <button
           className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-menu"
         >
-          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {isMobileMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
         </button>
       </header>
 
@@ -111,6 +114,7 @@ function AppLayout() {
       <main className={`relative z-10 flex-1 w-full max-w-7xl mx-auto ${isAiPage ? 'p-0 flex flex-col overflow-hidden' : 'p-4 sm:p-6 md:p-10'
         }`}>
         <div key={location.pathname} className="animate-page-in flex-1 flex flex-col min-h-0">
+          <Suspense fallback={<div className="flex h-full items-center justify-center text-cyan-500 font-mono"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/ai" element={<AegisIntelligence />} />
@@ -125,6 +129,7 @@ function AppLayout() {
             <Route path="/tools/hash-generator" element={<HashGenerator />} />
             <Route path="/tools/base64-codec" element={<Base64 />} />
           </Routes>
+          </Suspense>
         </div>
       </main>
 
@@ -136,11 +141,12 @@ function AppLayout() {
               <span className="font-bold text-white tracking-tight">AEGIS CORE</span>
             </div>
             <div className="flex gap-8 text-[10px] uppercase font-bold tracking-widest text-slate-500">
-              <Link to="/" className="hover:text-cyan-500 transition-colors">Documentation</Link>
-              <Link to="/" className="hover:text-cyan-500 transition-colors">Privacy</Link>
+              <Link to="/tools" className="hover:text-cyan-500 transition-colors">Documentation</Link>
+              <Link to="/privacy-policy" className="hover:text-cyan-500 transition-colors">Privacy</Link>
+              <Link to="/terms-of-service" className="hover:text-cyan-500 transition-colors">Terms</Link>
             </div>
             <div className="text-[10px] font-mono text-slate-600">
-              © 2026 AEGIS_CORE
+              © {new Date().getFullYear()} AEGIS_CORE
             </div>
           </div>
         </footer>

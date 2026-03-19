@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, ChevronRight, Calendar, Tag, ShieldAlert, AlertTriangle, Loader2 } from 'lucide-react';
+import { SystemAlert } from '../components/SystemAlert';
 
 interface BlogEntry {
     slug: string;
@@ -131,12 +132,7 @@ export default function BlogList() {
             )}
 
             {/* --- Footer Disclaimer --- */}
-            <div className="bg-blue-500/5 border border-blue-500/20 p-4 rounded-2xl flex items-center justify-center gap-3">
-                <ShieldAlert className="w-5 h-5 text-blue-500/50" />
-                <p className="text-[10px] text-blue-400/60 font-mono uppercase tracking-widest text-center">
-                    All reports are for educational and defensive research purposes only.
-                </p>
-            </div>
+            <SystemAlert type="info" message="All reports are for educational and defensive research purposes only." />
         </div>
     );
 }
