@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Terminal, ArrowRightLeft, Copy, CheckCircle2, AlertCircle, Network, ChevronRight, FileUp, Download, ShieldCheck } from 'lucide-react';
+import { Terminal, ArrowRightLeft, AlertCircle, FileUp, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CopyButton } from '../components/CopyButtons';
+import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
+import { DragOverlay, SecurityNotice } from '../components/ToolWidgets';
 
 export default function Base64Encoder() {
   const [input, setInput] = useState<string>('');
@@ -153,37 +155,14 @@ export default function Base64Encoder() {
     }
   };
 
-  // Drag overlay komponenti
-  const DragOverlay = () => (
-    isDragging ? (
-      <div className="absolute inset-0 bg-cyan-500/10 border-2 border-dashed border-cyan-500 rounded-3xl flex items-center justify-center z-20 backdrop-blur-sm">
-        <div className="flex flex-col items-center gap-2">
-          <FileUp className="w-10 h-10 text-cyan-400 animate-bounce" />
-          <span className="text-cyan-400 font-mono text-sm font-bold tracking-wider">DROP FILE HERE</span>
-        </div>
-      </div>
-    ) : null
-  );
-
   return (
     <div className="max-w-6xl mx-auto space-y-8">
 
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
-            <Link to="/tools" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
-              <Network className="w-4 h-4" />
-              Tools
-            </Link>
-            <ChevronRight className="w-4 h-4 text-slate-600" />
-            <span className="text-cyan-500/70">Base64 Codec</span>
-          </div>
-
-          <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-            <Terminal className="w-8 h-8 text-cyan-500" />
-            Base64 <span className="text-cyan-500">Codec</span>
-          </h2>
-          <p className="text-slate-400 font-mono text-sm mt-2">Encode text or files to Base64, or decode Base64 back to text or file.</p>
+          <ToolBreadcrumb toolName="Base64 Codec" />
+          <ToolPageHeader icon={Terminal} title="Base64" highlight="Codec" description="Encode text or files to Base64, or decode Base64 back to text or file." />
+          <Link to="/blog/base64-encoding-explained" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">📖 Learn how Base64 encoding works →</Link>
         </div>
 
         <div className="flex items-center gap-3">
@@ -217,7 +196,7 @@ export default function Base64Encoder() {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <DragOverlay />
+          <DragOverlay visible={isDragging} />
 
           <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-950/50 flex justify-between items-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
@@ -315,12 +294,7 @@ export default function Base64Encoder() {
       </div>
 
       {/* GÜVENLİK BİLDİRİMİ */}
-      <div className="bg-blue-500/5 border border-blue-500/20 p-4 rounded-2xl flex items-center justify-center gap-3">
-        <ShieldCheck className="w-5 h-5 text-blue-500/50" />
-        <p className="text-[10px] text-blue-400/60 font-mono uppercase tracking-widest text-center">
-          All encoding/decoding operations are performed locally in your browser. Zero data leaves this machine.
-        </p>
-      </div>
+      <SecurityNotice message="All encoding/decoding operations are performed locally in your browser. Zero data leaves this machine." />
 
     </div>
   );

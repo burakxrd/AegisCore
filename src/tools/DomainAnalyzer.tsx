@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Globe, Shield, Mail, Server, AlertTriangle, CheckCircle2, Activity, ChevronRight, Network, Crosshair, Terminal, ShieldAlert, Fingerprint, Lock, Copy, CheckCircle } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Globe, Shield, Mail, Server, AlertTriangle, CheckCircle2, Activity, Fingerprint, Lock, Terminal } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { CopyButton, CopyAllButton } from '../components/CopyButtons';
 import { SystemAlert } from '../components/SystemAlert';
+import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
+import { SearchBar } from '../components/SearchBar';
+import { InfoCard } from '../components/InfoCard';
+import { TargetLockedBanner } from '../components/ToolWidgets';
 
 // --- Types ---
 interface MxRecord {
@@ -116,49 +120,25 @@ export default function DomainAnalyzer() {
   const sslDaysLeft = getSslDaysLeft();
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
 
       {/* ÜST BİLGİ */}
       <div>
-        <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
-          <Link to="/tools" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
-            <Network className="w-4 h-4" />
-            Tools
-          </Link>
-          <ChevronRight className="w-4 h-4 text-slate-600" />
-          <span className="text-cyan-500/70">Domain Analyzer</span>
-        </div>
-
-        <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-          <Globe className="w-8 h-8 text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-          Domain <span className="text-cyan-500">Analyzer</span>
-        </h2>
-        <p className="text-slate-400 font-mono text-sm mt-2">Comprehensive DNS, SSL, and security posture analysis.</p>
+        <ToolBreadcrumb toolName="Domain Analyzer" />
+        <ToolPageHeader icon={Globe} title="Domain" highlight="Analyzer" description="Comprehensive DNS, SSL, and security posture analysis." />
+        <Link to="/blog/dns-records-explained" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">📖 Learn how DNS records work →</Link>
       </div>
 
       {/* ARAMA ÇUBUĞU */}
-      <div className="md:-mr-16 bg-slate-900/60 border border-cyan-500/20 p-1.5 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
-        <div className="relative flex items-center">
-          <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" />
-          <input
-            type="text"
-            value={domainInput}
-            onChange={(e) => setDomainInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
-            placeholder="Target Domain (e.g. aegis.net.tr)"
-            aria-label="Enter target domain to analyze"
-            className="w-full bg-transparent pl-12 pr-16 py-3 text-base font-mono text-cyan-400 focus:outline-none placeholder:text-slate-600 tracking-wider"
-          />
-          <button
-            onClick={() => handleAnalyze()}
-            disabled={loading || !domainInput.trim()}
-            aria-label="Analyze Domain"
-            className="absolute right-1.5 p-2.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
-          >
-            {loading ? <Activity className="w-5 h-5 animate-spin" aria-hidden="true" /> : <Search className="w-5 h-5" aria-hidden="true" />}
-          </button>
-        </div>
-      </div>
+      <SearchBar
+        value={domainInput}
+        onChange={setDomainInput}
+        onSearch={() => handleAnalyze()}
+        loading={loading}
+        disabled={!domainInput.trim()}
+        placeholder="Target Domain (e.g. aegis.net.tr)"
+        ariaLabel="Enter target domain to analyze"
+      />
 
       {/* HATA */}
       {error && <SystemAlert type="error" title="Analysis Failed" message={error} />}
@@ -168,21 +148,13 @@ export default function DomainAnalyzer() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
 
           {/* HEDEF KİLİTLENDİ */}
-          <div className="flex items-center gap-3 bg-cyan-950/30 border border-cyan-500/30 py-3 px-5 rounded-xl">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,1)]" />
-            <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">Target Locked:</span>
-            <span className="text-cyan-400 font-mono font-bold tracking-wider">{result.query}</span>
-          </div>
+          <TargetLockedBanner query={result.query} showCopy={false} />
 
           {/* SSL + SECURITY POSTURE ROW */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* SSL CERTIFICATE */}
-            <div className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-3xl backdrop-blur-md relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
-              <div className="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors" />
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-emerald-500" /> SSL Certificate
-              </h3>
+            <InfoCard color="emerald" title="SSL Certificate" icon={Lock}>
 
               {sslInfo && sslInfo.status === 'success' ? (
                 <div className="space-y-4 font-mono text-sm">
@@ -234,14 +206,10 @@ export default function DomainAnalyzer() {
               ) : (
                 <div className="text-slate-600 font-mono text-sm italic">Checking SSL...</div>
               )}
-            </div>
+            </InfoCard>
 
             {/* SECURITY POSTURE */}
-            <div className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-3xl backdrop-blur-md relative overflow-hidden group hover:border-green-500/30 transition-colors">
-              <div className="absolute -right-10 -top-10 w-32 h-32 bg-green-500/5 rounded-full blur-2xl group-hover:bg-green-500/10 transition-colors" />
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-500" /> Security Posture
-              </h3>
+            <InfoCard color="green" title="Security Posture" icon={Shield}>
               <div className="space-y-4 font-mono text-sm">
                 <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-xl border border-slate-800 hover:border-slate-700 transition-colors">
                   <span className="text-slate-300">SPF Record <span className="text-slate-500 text-xs hidden sm:inline">(Spoofing Protection)</span></span>
@@ -256,19 +224,15 @@ export default function DomainAnalyzer() {
                   {sslInfo?.status === 'success' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertTriangle className="w-5 h-5 text-red-500" />}
                 </div>
               </div>
-            </div>
+            </InfoCard>
           </div>
 
           {/* NS + A/AAAA ROW */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* NS Records */}
-            <div className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-3xl backdrop-blur-md relative overflow-hidden group hover:border-purple-500/30 transition-colors">
-              <div className="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors" />
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Fingerprint className="w-4 h-4 text-purple-500" /> Infrastructure (NS)
-                </h3>
+            <InfoCard color="purple" title="Infrastructure (NS)" icon={Fingerprint}>
+              <div className="flex items-center justify-between mb-4">
                 <CopyAllButton items={result.records.NS} label="NS records" />
               </div>
               <div className="space-y-2 font-mono text-sm">
@@ -281,18 +245,14 @@ export default function DomainAnalyzer() {
                   <div className="text-slate-600 italic">No NS records found.</div>
                 )}
               </div>
-            </div>
+            </InfoCard>
 
             {/* A & AAAA Records */}
-            <div className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-3xl backdrop-blur-md relative overflow-hidden group hover:border-cyan-500/30 transition-colors">
-              <div className="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-colors" />
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Server className="w-4 h-4 text-cyan-500" /> Routing (A / AAAA)
-                </h3>
+            <InfoCard color="cyan" title="Routing (A / AAAA)" icon={Server}>
+              <div className="flex items-center justify-between mb-4">
                 <CopyAllButton items={[...(result.records.A || []), ...(result.records.AAAA || [])]} label="IP records" />
               </div>
-              <div className="space-y-2 font-mono text-sm max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="space-y-2 font-mono text-sm">
                 {result.records.A && result.records.A.map((ip, idx) => (
                   <div key={`a-${idx}`} className="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg border border-slate-700/30 hover:border-cyan-800 transition-colors">
                     <span className="text-cyan-400 font-bold">{ip}</span>
@@ -315,17 +275,13 @@ export default function DomainAnalyzer() {
                   <div className="text-slate-600 italic">No routing records resolved.</div>
                 )}
               </div>
-            </div>
+            </InfoCard>
 
           </div>
 
           {/* MX Records */}
-          <div className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-3xl backdrop-blur-md relative overflow-hidden group hover:border-blue-500/30 transition-colors">
-            <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-500" /> Mail Exchangers (MX)
-              </h3>
+          <InfoCard color="blue" title="Mail Exchangers (MX)" icon={Mail}>
+            <div className="flex items-center justify-between mb-4">
               <CopyAllButton items={(result.records.MX || []).map(r => `${r.priority} ${r.exchange}`)} label="MX records" />
             </div>
             <div className="space-y-2 font-mono text-sm max-h-60 overflow-y-auto pr-2 custom-scrollbar">
@@ -341,7 +297,7 @@ export default function DomainAnalyzer() {
                 <div className="text-slate-600 italic">No MX records returned.</div>
               )}
             </div>
-          </div>
+          </InfoCard>
 
           {/* TXT Records */}
           {result.records.TXT && result.records.TXT.length > 0 && (

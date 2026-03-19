@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Globe, MapPin, Server, ShieldAlert, Activity, ChevronRight, Clock, Fingerprint, Network, Crosshair, Terminal, User, Copy, CheckCircle } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Globe, MapPin, Server, Activity, Clock, Fingerprint, Network, Terminal, User } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { CopyButton } from '../components/CopyButtons';
 import { SystemAlert } from '../components/SystemAlert';
+import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
+import { SearchBar } from '../components/SearchBar';
+import { TargetLockedBanner } from '../components/ToolWidgets';
 
 interface IpData {
   status: string;
@@ -113,23 +116,11 @@ export default function IpIntelligence() {
 
       {/* ÜST BİLGİ VE GERİ DÖNÜŞ LİNKİ */}
       <div>
-        <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
-          <Link to="/tools" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
-            <Network className="w-4 h-4" />
-            Tools
-          </Link>
-          <ChevronRight className="w-4 h-4 text-slate-600" />
-          <span className="text-cyan-500/70">IP Intelligence</span>
-        </div>
+        <ToolBreadcrumb toolName="IP Intelligence" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-              <Globe className="w-8 h-8 text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-              IP <span className="text-cyan-500">Intelligence</span>
-            </h2>
-            <p className="text-slate-400 font-mono text-sm mt-2">Enter an IP address to trace its global origin, ASN, and ISP details.</p>
-          </div>
+          <ToolPageHeader icon={Globe} title="IP" highlight="Intelligence" description="Enter an IP address to trace its global origin, ASN, and ISP details." />
+            <Link to="/blog/understanding-ip-geolocation" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">📖 Learn how IP Geolocation works →</Link>
 
           <div className="flex items-center gap-3">
             {/* IPv4 / IPv6 Tab */}
@@ -160,29 +151,16 @@ export default function IpIntelligence() {
       </div>
 
       {/* ARAMA ÇUBUĞU */}
-      <div className="bg-slate-900/60 border border-cyan-500/20 p-2 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.05)] focus-within:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
-        <div className="relative flex items-center">
-          <Crosshair className="absolute left-4 w-5 h-5 text-cyan-500/50" aria-hidden="true" />
-          <input
-            type="text"
-            aria-label="Target IP Address"
-            value={ipInput}
-            onChange={(e) => handleInputChange(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder={ipMode === 'IPv4' ? "Target IP (e.g. 8.8.8.8)" : "Target IP (e.g. 2001:4860:4860::8888)"}
-            maxLength={ipMode === 'IPv4' ? 15 : 45}
-            className="w-full bg-transparent pl-12 pr-16 py-4 text-xl font-mono text-cyan-400 focus:outline-none placeholder:text-slate-600 tracking-wider"
-          />
-          <button
-            onClick={() => handleSearch()}
-            aria-label="Execute Search"
-            disabled={loading || !ipInput}
-            className="absolute right-2 p-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50"
-          >
-            {loading ? <Activity className="w-6 h-6 animate-spin" aria-hidden="true" /> : <Search className="w-6 h-6" aria-hidden="true" />}
-          </button>
-        </div>
-      </div>
+      <SearchBar
+        value={ipInput}
+        onChange={handleInputChange}
+        onSearch={() => handleSearch()}
+        loading={loading}
+        disabled={!ipInput}
+        placeholder={ipMode === 'IPv4' ? "Target IP (e.g. 8.8.8.8)" : "Target IP (e.g. 2001:4860:4860::8888)"}
+        ariaLabel="Target IP Address"
+        maxLength={ipMode === 'IPv4' ? 15 : 45}
+      />
 
       {/* EASTER EGG */}
       {easterEgg && <SystemAlert type="warning" title="System Override" message={easterEgg} className="slide-in-from-bottom-4" />}
@@ -191,12 +169,7 @@ export default function IpIntelligence() {
       {result && result.status === 'success' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
 
-          <div className="flex items-center gap-3 bg-cyan-950/30 border border-cyan-500/30 py-3 px-5 rounded-xl">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,1)]" />
-            <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">Target Locked:</span>
-            <span className="text-cyan-400 font-mono font-bold tracking-wider">{result.query}</span>
-            <CopyButton text={result.query} />
-          </div>
+          <TargetLockedBanner query={result.query} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 

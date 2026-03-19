@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Hash, CheckCircle2, ShieldCheck, Zap, FileUp, Trash2, Check, X, Network, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Hash, CheckCircle2, ShieldCheck, Zap, FileUp, Trash2, Check, X } from 'lucide-react';
 import { CopyButton } from '../components/CopyButtons';
+import { Link } from 'react-router-dom';
+import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
+import { DragOverlay, SecurityNotice } from '../components/ToolWidgets';
 
 function md5(input: Uint8Array): string {
   function md5cycle(x: number[], k: number[]) {
@@ -171,22 +173,12 @@ export default function HashGenerator() {
 
       {/* ÜST BİLGİ */}
       <div>
-        <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
-          <Link to="/tools" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
-            <Network className="w-4 h-4" />
-            Tools
-          </Link>
-          <ChevronRight className="w-4 h-4 text-slate-600" />
-          <span className="text-cyan-500/70">Hash Generator</span>
-        </div>
+        <ToolBreadcrumb toolName="Hash Generator" />
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-              <Hash className="w-8 h-8 text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-              Hash <span className="text-cyan-500">Generator</span>
-            </h2>
-            <p className="text-slate-400 font-mono text-sm mt-2">Generate cryptographically secure digests for data & file integrity.</p>
+            <ToolPageHeader icon={Hash} title="Hash" highlight="Generator" description="Generate cryptographically secure digests for data & file integrity." />
+            <Link to="/blog/hash-functions-guide" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">📖 Learn about hash algorithms →</Link>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -228,14 +220,7 @@ export default function HashGenerator() {
           onDrop={handleDrop}
         >
           {/* Drag overlay */}
-          {isDragging && (
-            <div className="absolute inset-0 bg-cyan-500/10 border-2 border-dashed border-cyan-500 rounded-3xl flex items-center justify-center z-20 backdrop-blur-sm">
-              <div className="flex flex-col items-center gap-2">
-                <FileUp className="w-10 h-10 text-cyan-400 animate-bounce" />
-                <span className="text-cyan-400 font-mono text-sm font-bold tracking-wider">DROP FILE HERE</span>
-              </div>
-            </div>
-          )}
+          <DragOverlay visible={isDragging} />
 
           <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-950/80 flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -326,12 +311,7 @@ export default function HashGenerator() {
       </div>
 
       {/* GÜVENLİK BİLDİRİMİ */}
-      <div className="bg-blue-500/5 border border-blue-500/20 p-4 rounded-2xl flex items-center justify-center gap-3">
-        <ShieldCheck className="w-5 h-5 text-blue-500/50" />
-        <p className="text-[10px] text-blue-400/60 font-mono uppercase tracking-widest text-center">
-          Terminal operates in offline mode. Cryptographic operations are performed locally via Web Crypto API. Zero data leaves this machine.
-        </p>
-      </div>
+      <SecurityNotice message="Terminal operates in offline mode. Cryptographic operations are performed locally via Web Crypto API. Zero data leaves this machine." />
 
     </div>
   );

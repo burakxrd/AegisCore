@@ -6,5 +6,117 @@
         "date": "2026-03-10",
         "category": "Adversary Simulation",
         "threatLevel": "High"
+    },
+    {
+        "slug": "understanding-ip-geolocation",
+        "title": "Understanding IP Geolocation: How It Works and Why It Matters",
+        "summary": "A technical deep-dive into how IP addresses are mapped to physical locations, the differences between IPv4 and IPv6, and practical cybersecurity applications of geolocation data.",
+        "date": "2026-03-18",
+        "category": "Documentation",
+        "threatLevel": "Info"
+    },
+    {
+        "slug": "dns-records-explained",
+        "title": "DNS Records Explained: A Complete Guide to Domain Name System",
+        "summary": "Comprehensive guide covering A, AAAA, MX, NS, and TXT records, DNS security threats like spoofing and hijacking, and the critical role of SPF, DKIM, and DMARC.",
+        "date": "2026-03-18",
+        "category": "Documentation",
+        "threatLevel": "Info"
+    },
+    {
+        "slug": "hash-functions-guide",
+        "title": "Cryptographic Hash Functions: A Security Practitioner's Guide",
+        "summary": "Comparison of MD5, SHA-1, SHA-256, SHA-384, and SHA-512 algorithms with real-world applications in file integrity, digital forensics, password storage, and malware detection.",
+        "date": "2026-03-19",
+        "category": "Documentation",
+        "threatLevel": "Info"
+    },
+    {
+        "slug": "base64-encoding-explained",
+        "title": "Base64 Encoding Explained: What It Is, How It Works, and When to Use It",
+        "summary": "Technical overview of Base64 encoding mechanics, common use cases in email, APIs, and JWT tokens, and why Base64 is NOT encryption.",
+        "date": "2026-03-19",
+        "category": "Documentation",
+        "threatLevel": "Info"
+    },
+    {
+        "slug": "understanding-firewalls",
+        "title": "Understanding Firewalls: Types, Functions, and Best Practices",
+        "summary": "Complete guide to firewall types including packet filtering, stateful inspection, WAF, and NGFW with configuration best practices and common misconfigurations.",
+        "date": "2026-03-20",
+        "category": "Network Security",
+        "threatLevel": "Medium"
+    },
+    {
+        "slug": "social-engineering-attacks",
+        "title": "Social Engineering Attacks: How Hackers Exploit Human Psychology",
+        "summary": "Deep dive into phishing, pretexting, baiting, tailgating, vishing, and smishing techniques with psychological principles behind each attack and defense strategies.",
+        "date": "2026-03-20",
+        "category": "Threat Intelligence",
+        "threatLevel": "High"
+    },
+    {
+        "slug": "ssl-tls-explained",
+        "title": "SSL/TLS Explained: How HTTPS Keeps Your Data Secure",
+        "summary": "Technical breakdown of the TLS handshake, certificate types (DV, OV, EV), common vulnerabilities, and best practices for modern encryption.",
+        "date": "2026-03-20",
+        "category": "Encryption",
+        "threatLevel": "Medium"
+    },
+    {
+        "slug": "password-security-guide",
+        "title": "Password Security in 2026: Best Practices and Common Mistakes",
+        "summary": "How brute force, dictionary, credential stuffing, and rainbow table attacks work, with guidance on passphrases, password managers, and secure storage using bcrypt and Argon2.",
+        "date": "2026-03-20",
+        "category": "Authentication",
+        "threatLevel": "High"
+    },
+    {
+        "slug": "ddos-attacks-explained",
+        "title": "DDoS Attacks Explained: How They Work and How to Defend Against Them",
+        "summary": "Overview of volumetric, protocol, and application layer DDoS attacks with defense strategies including rate limiting, CDN protection, and anycast routing.",
+        "date": "2026-03-21",
+        "category": "Network Security",
+        "threatLevel": "Critical"
+    },
+    {
+        "slug": "vpn-how-it-works",
+        "title": "How VPNs Work: A Technical Guide to Virtual Private Networks",
+        "summary": "Technical explanation of VPN tunneling, protocol comparison (WireGuard, OpenVPN, IPSec/IKEv2), and honest analysis of what VPNs do and don't protect against.",
+        "date": "2026-03-21",
+        "category": "Privacy & Encryption",
+        "threatLevel": "Info"
+    },
+    {
+        "slug": "malware-types-explained",
+        "title": "Malware Types Explained: Viruses, Trojans, Ransomware, and More",
+        "summary": "Comprehensive guide to viruses, worms, trojans, ransomware, spyware, and rootkits with notable attack examples and modern detection and prevention strategies.",
+        "date": "2026-03-21",
+        "category": "Threat Intelligence",
+        "threatLevel": "High"
+    },
+    {
+        "slug": "two-factor-authentication",
+        "title": "Two-Factor Authentication (2FA): Why It Matters and How It Works",
+        "summary": "Comparison of SMS, TOTP, hardware keys (FIDO2), push notifications, and biometrics with implementation best practices and attack statistics.",
+        "date": "2026-03-22",
+        "category": "Authentication",
+        "threatLevel": "Medium"
+    },
+    {
+        "slug": "incident-response-guide",
+        "title": "Incident Response: A Step-by-Step Guide for Security Teams",
+        "summary": "NIST-based incident response framework covering preparation, detection and analysis, containment and eradication, and post-incident lessons learned.",
+        "date": "2026-03-22",
+        "category": "Security Operations",
+        "threatLevel": "Critical"
+    },
+    {
+        "slug": "network-reconnaissance",
+        "title": "Network Reconnaissance: Techniques Used by Attackers and Defenders",
+        "summary": "Guide to passive and active reconnaissance including OSINT, DNS enumeration, port scanning with Nmap, vulnerability scanning, and defensive countermeasures.",
+        "date": "2026-03-22",
+        "category": "Offensive Security",
+        "threatLevel": "High"
     }
 ]

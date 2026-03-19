@@ -84,6 +84,7 @@ export default function Dashboard() {
       </div>
 
       {/* QUICK ACCESS — IP & DOMAIN */}
+      <h2 className="sr-only">Quick Access</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Quick IP Lookup */}
@@ -96,7 +97,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h3 className="text-white font-bold text-sm">Quick IP Lookup</h3>
-              <p className="text-slate-500 text-xs font-mono">Instant geolocation & ISP data</p>
+              <p className="text-slate-400 text-xs font-mono">Instant geolocation & ISP data</p>
             </div>
           </div>
 
@@ -140,7 +141,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h3 className="text-white font-bold text-sm">Quick Domain Scan</h3>
-              <p className="text-slate-500 text-xs font-mono">DNS, SSL & security analysis</p>
+              <p className="text-slate-400 text-xs font-mono">DNS, SSL & security analysis</p>
             </div>
           </div>
 
@@ -174,7 +175,7 @@ export default function Dashboard() {
 
       {/* TOOL CARDS */}
       <div>
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
           <div className="w-6 h-px bg-slate-700" />
           All Tools
           <div className="flex-1 h-px bg-slate-800/50" />
@@ -197,7 +198,7 @@ export default function Dashboard() {
                 </div>
 
                 <h3 className="text-white font-bold text-sm mb-1 group-hover:text-cyan-400 transition-colors">{tool.title}</h3>
-                <p className="text-slate-500 text-xs font-mono">{tool.description}</p>
+                <p className="text-slate-400 text-xs font-mono">{tool.description}</p>
 
                 <ArrowRight className="absolute bottom-6 right-6 w-4 h-4 text-slate-700 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
               </Link>

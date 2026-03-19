@@ -54,7 +54,7 @@ function AppLayout() {
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-tight text-white">AEGIS <span className="text-cyan-500">CORE</span></h1>
-            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest hidden sm:block">Advanced Defense Protocol</p>
+            <p className="text-[11px] font-mono text-slate-400 uppercase tracking-widest hidden sm:block">Advanced Defense Protocol</p>
           </div>
         </Link>
 
@@ -65,7 +65,7 @@ function AppLayout() {
               to={link.path}
               className={`px-6 py-2 rounded-lg text-xs font-medium uppercase tracking-wider transition-all ${checkIsActive(link.path)
                 ? 'bg-slate-800 text-cyan-400 shadow-inner'
-                : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
+                : 'text-slate-400 hover:text-slate-300 hover:bg-slate-800/50'
                 }`}
             >
               {link.label}
@@ -76,7 +76,7 @@ function AppLayout() {
         <div className="hidden md:flex items-center gap-4">
           <div className="h-8 w-px bg-slate-800" />
           <div className="flex flex-col items-end">
-            <span className="text-[10px] text-slate-500 font-mono">UPLINK_STABLE</span>
+            <span className="text-[11px] text-slate-400 font-mono">UPLINK_STABLE</span>
             <span className="text-xs font-bold text-cyan-500">98.2 MS</span>
           </div>
         </div>
@@ -140,12 +140,12 @@ function AppLayout() {
               <img src="/favicon.ico" alt="AEGIS" className="w-8 h-8 rounded-lg" />
               <span className="font-bold text-white tracking-tight">AEGIS CORE</span>
             </div>
-            <div className="flex gap-8 text-[10px] uppercase font-bold tracking-widest text-slate-500">
+            <div className="flex gap-8 text-[11px] uppercase font-bold tracking-widest text-slate-400">
               <Link to="/tools" className="hover:text-cyan-500 transition-colors">Documentation</Link>
               <Link to="/privacy-policy" className="hover:text-cyan-500 transition-colors">Privacy</Link>
               <Link to="/terms-of-service" className="hover:text-cyan-500 transition-colors">Terms</Link>
             </div>
-            <div className="text-[10px] font-mono text-slate-600">
+            <div className="text-[11px] font-mono text-slate-500">
               © {new Date().getFullYear()} AEGIS_CORE
             </div>
           </div>
