@@ -62,7 +62,7 @@ router.get("/ssl/:domain", async (req, res) => {
     console.error("[AEGIS ERROR] SSL check failed:", error.message);
     return res.status(500).json({
       status: "fail",
-      message: error.message || "SSL handshake failed.",
+      message: "SSL handshake failed.",
     });
   }
 });
