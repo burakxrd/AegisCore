@@ -37,15 +37,15 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 max-w-md w-full text-center">
             <h1 className="text-2xl font-bold text-red-500 mb-4">500</h1>
-            <h2 className="text-xl text-slate-200 mb-2">Bilinmeyen Bir Hata Oluştu</h2>
+            <h2 className="text-xl text-slate-200 mb-2">An Unknown Error Occurred</h2>
             <p className="text-slate-400 mb-6">
-              Uygulama çalışırken beklenmeyen bir hata meydana geldi. Ekibimiz bu sorunu çözmek için çalışıyor.
+              An unexpected error occurred while the application was running. Our team is working to resolve this issue.
             </p>
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
             >
-              Sayfayı Yenile
+              Refresh Page
             </button>
           </div>
         </div>

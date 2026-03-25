@@ -11,10 +11,15 @@ let blogIndexPromise: Promise<BlogEntry[]> | null = null;
 
 export async function getBlogIndex(): Promise<BlogEntry[]> {
     if (!blogIndexPromise) {
-        blogIndexPromise = fetch('/blog/blog-index.json').then((res) => {
-            if (!res.ok) throw new Error('Failed to load blog index');
-            return res.json();
-        });
+        blogIndexPromise = fetch('/blog/blog-index.json')
+            .then((res) => {
+                if (!res.ok) throw new Error('Failed to load blog index');
+                return res.json();
+            })
+            .catch((err) => {
+                blogIndexPromise = null;
+                throw err;
+            });
     }
     return blogIndexPromise;
 }

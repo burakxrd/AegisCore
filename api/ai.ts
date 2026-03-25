@@ -27,8 +27,11 @@ router.post("/", async (req, res) => {
       try {
         const contents = [];
         if (history && Array.isArray(history)) {
-          for (const msg of history) {
-            contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
+          const safeHistory = history.slice(-20);
+          for (const msg of safeHistory) {
+            if (typeof msg.text !== 'string') continue;
+            const role = msg.role === 'user' ? 'user' : 'model';
+            contents.push({ role, parts: [{ text: msg.text.slice(0, 500) }] });
           }
         }
         contents.push({ role: 'user', parts: [{ text: message }] });

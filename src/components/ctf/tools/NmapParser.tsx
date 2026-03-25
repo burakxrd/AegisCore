@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Terminal, Play, Zap, Trash2, ChevronDown, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
 import { getServiceProfile, PORT_HINTS, type ChecklistEntry } from '../../../data/ctf-service-checklists';
+import { logError } from '../../../utils/logger';
 
 // ─── Props ────────────────────────────────────────────────────────
 interface NmapParserProps {
@@ -35,19 +36,19 @@ const LS_CHECKS_KEY = 'aegis-ctf-nmap-checks';
 
 function loadNmapOutput(): string {
   try { return localStorage.getItem(LS_NMAP_KEY) ?? ''; }
-  catch { return ''; }
+  catch (err) { logError('NmapParser: localStorage read failed', err); return ''; }
 }
 function saveNmapOutput(v: string) {
-  try { localStorage.setItem(LS_NMAP_KEY, v); } catch { /* */ }
+  try { localStorage.setItem(LS_NMAP_KEY, v); } catch (err) { logError('NmapParser: localStorage write failed', err); }
 }
 function loadChecks(): Record<string, boolean> {
   try {
     const raw = localStorage.getItem(LS_CHECKS_KEY);
     return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
+  } catch (err) { logError('NmapParser: localStorage read failed', err); return {}; }
 }
 function saveChecks(v: Record<string, boolean>) {
-  try { localStorage.setItem(LS_CHECKS_KEY, JSON.stringify(v)); } catch { /* */ }
+  try { localStorage.setItem(LS_CHECKS_KEY, JSON.stringify(v)); } catch (err) { logError('NmapParser: localStorage write failed', err); }
 }
 
 // ─── Nmap Output Parser ─────────────────────────────────────────
@@ -134,7 +135,8 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
     setExpandedPorts(new Set());
     try {
       localStorage.removeItem(LS_CHECKS_KEY);
-    } catch { /* */ }
+      localStorage.removeItem(LS_NMAP_KEY);
+    } catch (err) { logError('NmapParser: localStorage clear failed', err); }
   }, []);
 
   // ─── Render a single checklist entry ───────────────────────────
@@ -297,15 +299,27 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
                   OS: <span className="text-yellow-400">{analysis.osHint}</span>
                 </span>
               )}
-              {analysis.ports.length > 0 && (
-                <span className="ml-auto text-[10px] font-mono text-slate-600 uppercase tracking-widest">
-                  {Object.values(checks).filter(Boolean).length} / {analysis.ports.reduce((sum, p) => {
-                    const svcName = p.service.toLowerCase();
-                    const profile = getServiceProfile(PORT_HINTS[p.port] || svcName);
-                    return sum + profile.checklist.length;
-                  }, 0)} checks completed
-                </span>
-              )}
+              {analysis.ports.length > 0 && (() => {
+                const currentCheckKeys = new Set(
+                  analysis.ports.flatMap((p) =>
+                    getServiceProfile(PORT_HINTS[p.port] || p.service.toLowerCase())
+                      .checklist.map((_, idx) => `${p.port}-${idx}`)
+                  )
+                );
+                const completedCount = Object.entries(checks)
+                  .filter(([k, v]) => v && currentCheckKeys.has(k)).length;
+                const totalChecks = analysis.ports.reduce((sum, p) => {
+                  const svcName = p.service.toLowerCase();
+                  const profile = getServiceProfile(PORT_HINTS[p.port] || svcName);
+                  return sum + profile.checklist.length;
+                }, 0);
+                
+                return (
+                  <span className="ml-auto text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+                    {completedCount} / {totalChecks} checks completed
+                  </span>
+                );
+              })()}
             </div>
           </div>
 
@@ -314,7 +328,7 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
             <div className="flex items-center gap-3 bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-4">
               <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0" />
               <p className="text-sm text-yellow-400/90">
-                Nmap çıktısında açık port bulunamadı. Çıktı formatının standart Nmap formatında olduğundan emin olun.
+                No open ports found in Nmap output. Make sure the output is in standard Nmap format.
               </p>
             </div>
           )}
