@@ -39,7 +39,6 @@ async function startServer() {
   if (!process.env.GEMINI_API_KEY) {
     logger.error("GEMINI_API_KEY is not set in .env file");
     logger.warn("AI endpoint will not function without API key");
-    process.exit(1);
   }
 
   logger.info("Initializing AEGIS CORE server...");

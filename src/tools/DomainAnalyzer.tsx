@@ -47,7 +47,7 @@ export default function DomainAnalyzer() {
   const [error, setError] = useState<string | null>(null);
   const [sslInfo, setSslInfo] = useState<SslInfo | null>(null);
   const [searchParams] = useSearchParams();
-  const abortControllerRef = React.useRef<AbortController>(null);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   const cleanDomainInput = (input: string) => {
     return input.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].toLowerCase();
@@ -132,10 +132,10 @@ export default function DomainAnalyzer() {
     <div className="w-full max-w-4xl mx-auto space-y-6">
 
       <Helmet>
-      <title>Domain Analyzer | AEGIS CORE</title>
-      <meta name="description" content="DNS records lookup, SSL certificate inspection, SPF and DMARC email security analysis. Free domain intelligence tool." />
-      <link rel="canonical" href="https://aegis.net.tr/tools/domain-analyzer" />
-    </Helmet>
+        <title>Domain Analyzer | AEGIS CORE</title>
+        <meta name="description" content="DNS records lookup, SSL certificate inspection, SPF and DMARC email security analysis. Free domain intelligence tool." />
+        <link rel="canonical" href="https://aegis.net.tr/tools/domain-analyzer" />
+      </Helmet>
 
       {/* ÜST BİLGİ */}
       <div>
