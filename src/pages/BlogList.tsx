@@ -4,14 +4,7 @@ import { FileText, ChevronRight, Calendar, Tag, ShieldAlert, AlertTriangle, Load
 import { SystemAlert } from '../components/SystemAlert';
 import { Helmet } from 'react-helmet-async';
 
-interface BlogEntry {
-    slug: string;
-    title: string;
-    summary: string;
-    date: string;
-    category: string;
-    threatLevel: 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
-}
+import { getBlogIndex, BlogEntry } from '../data/blogService';
 
 const threatLevelConfig: Record<string, { color: string; border: string; bg: string }> = {
     Critical: { color: 'text-red-400', border: 'border-red-500/30', bg: 'bg-red-500/10' },
@@ -27,11 +20,7 @@ export default function BlogList() {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        fetch('/blog/blog-index.json')
-            .then((res) => {
-                if (!res.ok) throw new Error('Failed to load blog index');
-                return res.json();
-            })
+        getBlogIndex()
             .then((data: BlogEntry[]) => {
                 const sorted = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
                 setPosts(sorted);

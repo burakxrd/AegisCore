@@ -6,7 +6,7 @@ const router = Router();
 // Non-streaming endpoint (kept as fallback)
 router.post("/", async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, history } = req.body;
     if (!message || typeof message !== "string") return res.status(400).json({ error: "Invalid input." });
     if (message.length > 2000) return res.status(400).json({ error: "Input too long." });
 
@@ -25,9 +25,17 @@ router.post("/", async (req, res) => {
 
     for (const model of modelsToTry) {
       try {
+        const contents = [];
+        if (history && Array.isArray(history)) {
+          for (const msg of history) {
+            contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
+          }
+        }
+        contents.push({ role: 'user', parts: [{ text: message }] });
+
         const response = await ai.models.generateContent({
           model: model,
-          contents: message,
+          contents: contents,
           config: {
             systemInstruction: "You are the AEGIS Core Intelligence. Your tone is professional, high-tech, and slightly cold. You provide expert cybersecurity and technology advice. Keep responses concise and technical."
           }

@@ -35,6 +35,8 @@ export default function AegisIntelligence() {
 
     const userMsg = input;
     setInput('');
+    const historyPayload = messages.map(m => ({ role: m.role, text: m.text }));
+    
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsLoading(true);
 
@@ -42,7 +44,7 @@ export default function AegisIntelligence() {
       const response = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg })
+        body: JSON.stringify({ message: userMsg, history: historyPayload })
       });
 
       const data = await response.json();

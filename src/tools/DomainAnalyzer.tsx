@@ -47,6 +47,7 @@ export default function DomainAnalyzer() {
   const [error, setError] = useState<string | null>(null);
   const [sslInfo, setSslInfo] = useState<SslInfo | null>(null);
   const [searchParams] = useSearchParams();
+  const abortControllerRef = React.useRef<AbortController>(null);
 
   const cleanDomainInput = (input: string) => {
     return input.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].toLowerCase();
@@ -62,10 +63,16 @@ export default function DomainAnalyzer() {
     setSslInfo(null);
 
     try {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
+
       // DNS + SSL sorgularını paralel at
       const [dnsResponse, sslResponse] = await Promise.all([
-        fetch(`/api/tools/domain/${target}`),
-        fetch(`/api/tools/domain/ssl/${target}`).catch(() => null)
+        fetch(`/api/tools/domain/${target}`, { signal }),
+        fetch(`/api/tools/domain/ssl/${target}`, { signal }).catch(() => null)
       ]);
 
       const dnsData = await dnsResponse.json();
@@ -85,6 +92,7 @@ export default function DomainAnalyzer() {
         }
       }
     } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') return;
       if (err instanceof Error) {
         setError(err.message || "Target resolution failed. Domain may not exist or DNS is blocking requests.");
       } else {

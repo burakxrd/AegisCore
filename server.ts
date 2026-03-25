@@ -66,7 +66,9 @@ async function startServer() {
       contentSecurityPolicy: {
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-          "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cloudflareinsights.com", "https://static.cloudflareinsights.com", "https://pagead2.googlesyndication.com", "https://partner.googleadservices.com", "https://adservice.google.com", "https://www.googletagservices.com", "https://*.adtrafficquality.google", "https://www.googletagmanager.com"],
+          "script-src": process.env.NODE_ENV === "production"
+            ? ["'self'", "'unsafe-inline'", "https://cloudflareinsights.com", "https://static.cloudflareinsights.com", "https://pagead2.googlesyndication.com", "https://partner.googleadservices.com", "https://adservice.google.com", "https://www.googletagservices.com", "https://*.adtrafficquality.google", "https://www.googletagmanager.com"]
+            : ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cloudflareinsights.com", "https://static.cloudflareinsights.com", "https://pagead2.googlesyndication.com", "https://partner.googleadservices.com", "https://adservice.google.com", "https://www.googletagservices.com", "https://*.adtrafficquality.google", "https://www.googletagmanager.com"],
           "style-src": ["'self'", "'unsafe-inline'"],
           "img-src": ["'self'", "data:", "https://picsum.photos", "https://grainy-gradients.vercel.app", "https://pagead2.googlesyndication.com", "https://googleads.g.doubleclick.net", "https://*.doubleclick.net", "https://www.google.com", "https://*.adtrafficquality.google"],
           "connect-src": ["'self'", "ws:", "wss:", "https://*.run.app", "https://cloudflareinsights.com", "https://dns.google", "http://ip-api.com", "https://api.ipify.org", "https://googleads.g.doubleclick.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://www.google-analytics.com"],

@@ -27,6 +27,13 @@ router.get("/:ip", async (req, res) => {
     const data = await response.json();
 
     if (data.status === "fail") {
+      if (data.message && data.message.includes("rate limit")) {
+        return res.status(429).json({
+          status: "fail",
+          message: "Uplink rate limit exceeded. Neural query throttled. Please try again soon.",
+          query: ip
+        });
+      }
       return res.status(404).json({
         status: "fail",
         message: data.message || "IP not found or invalid.",

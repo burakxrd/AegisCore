@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Terminal, ChevronRight, Network } from 'lucide-react';
 import { SystemAlert } from '../components/SystemAlert';
+import { getBlogIndex } from '../data/blogService';
 import { Helmet } from 'react-helmet-async';
 
 export default function BlogPost() {
@@ -13,8 +14,7 @@ export default function BlogPost() {
   const [summary, setSummary] = useState('Cybersecurity intelligence report — AEGIS CORE.');
 
   useEffect(() => {
-    fetch('/blog/blog-index.json')
-      .then(res => res.json())
+    getBlogIndex()
       .then((data) => {
         const post = data.find((p: any) => p.slug === slug);
         if (post?.summary) setSummary(post.summary);
