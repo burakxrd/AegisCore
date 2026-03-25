@@ -14,6 +14,7 @@ const IpIntelligence = lazy(() => import('./tools/IpIntelligence'));
 const DomainAnalyzer = lazy(() => import('./tools/DomainAnalyzer'));
 const Base64 = lazy(() => import('./tools/Base64'));
 const HashGenerator = lazy(() => import('./tools/HashGenerator'));
+const CTFWorkspace = lazy(() => import('./pages/CTFWorkspace'));
 
 
 function AppLayout() {
@@ -36,10 +37,10 @@ function AppLayout() {
     if (path !== '/' && location.pathname.startsWith(path)) return true;
     return location.pathname === path;
   };
-  const isAiPage = location.pathname === '/ai';
+  const isFullscreenPage = location.pathname === '/ai' || location.pathname === '/tools/ctf-workspace';
 
   return (
-    <div className={`min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-cyan-500/30 flex flex-col relative overflow-x-hidden ${isAiPage ? 'overflow-hidden h-screen' : ''}`}>
+    <div className={`min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-cyan-500/30 flex flex-col relative overflow-x-hidden ${isFullscreenPage ? 'overflow-hidden h-screen' : ''}`}>
 
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/5 blur-[120px] rounded-full" />
@@ -111,7 +112,7 @@ function AppLayout() {
         </div>
       )}
 
-      <main className={`relative z-10 flex-1 w-full max-w-7xl mx-auto ${isAiPage ? 'p-0 flex flex-col overflow-hidden' : 'p-4 sm:p-6 md:p-10'
+      <main className={`relative z-10 flex-1 w-full ${isFullscreenPage ? 'max-w-full' : 'max-w-7xl'} mx-auto ${isFullscreenPage ? 'p-0 flex flex-col overflow-hidden' : 'p-4 sm:p-6 md:p-10'
         }`}>
         <div key={location.pathname} className="animate-page-in flex-1 flex flex-col min-h-0">
           <Suspense fallback={<div className="flex h-full items-center justify-center text-cyan-500 font-mono"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
@@ -128,12 +129,13 @@ function AppLayout() {
             <Route path="/tools/domain-analyzer" element={<DomainAnalyzer />} />
             <Route path="/tools/hash-generator" element={<HashGenerator />} />
             <Route path="/tools/base64-codec" element={<Base64 />} />
+            <Route path="/tools/ctf-workspace" element={<CTFWorkspace />} />
           </Routes>
           </Suspense>
         </div>
       </main>
 
-      {!isAiPage && (
+      {!isFullscreenPage && (
         <footer className="relative z-10 border-t border-slate-800/50 py-8 px-6 bg-slate-950/80 backdrop-blur-md mt-auto">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
