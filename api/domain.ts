@@ -9,8 +9,9 @@ async function resolveDns(domain: string, type: string) {
     const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`);
     const data = await response.json();
     return data.Answer || [];
-  } catch (e) {
-    return [];
+  } catch (error: any) {
+    console.error(`[AEGIS DNS ERROR] Failed resolving ${type} for ${domain}:`, error.message);
+    throw new Error("DNS_RESOLUTION_FAILED");
   }
 }
 
@@ -122,11 +123,12 @@ router.get("/:domain", async (req, res) => {
 
     return res.json(results);
 
-  } catch (error) {
-    console.error("[AEGIS ERROR] DoH Analyzer error:", error);
+  } catch (error: any) {
+    console.error(`[AEGIS FATAL] DoH Analyzer error for ${req.params.domain}:`, error.message || "Unknown Error");
+
     return res.status(500).json({
       status: "fail",
-      message: "Uplink severed. DoH resolution failed.",
+      message: "Uplink severed. DoH resolution failed or target is unreachable.",
       query: req.params.domain
     });
   }
