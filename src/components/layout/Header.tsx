@@ -6,7 +6,7 @@ export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
 
-    -    useEffect(() => {
+    useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
