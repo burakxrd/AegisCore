@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Shield, Terminal, Search, ChevronDown, ChevronUp, CheckCircle2, Zap, FileText } from 'lucide-react';
+import { Shield, Terminal, Search, Zap, FileText } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
+import { ToolPageHeader, SectionCard, CommandListSection, TipsSection } from '../ui';
 
 // ─── Types ───────────────────────────────────────────────────────
 interface BinaryExploit {
@@ -35,7 +36,7 @@ const BINARIES: BinaryExploit[] = [
     {
         bin: 'vim',
         description: 'Escape to shell from within the editor.',
-        sudo: 'sudo vim -c \':!/bin/sh\'',
+        sudo: 'sudo vim -c \':/bin/sh\'',
         suid: '/usr/bin/vim -c \':py import os; os.execl("/bin/sh", "sh", "-pc", "reset; exec sh -p")\''
     },
     {
@@ -83,8 +84,6 @@ const TIPS = [
 // ─── Component ────────────────────────────────────────────────────
 export default function LinuxSUID() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [showEnum, setShowEnum] = useState(true);
-    const [showTips, setShowTips] = useState(false);
 
     // Filter binaries based on search query
     const filteredBinaries = useMemo(() => {
@@ -94,49 +93,25 @@ export default function LinuxSUID() {
 
     return (
         <div className="space-y-6">
-            {/* ── Section Title ── */}
-            <div className="flex items-center gap-3 pt-2">
-                <div className="w-9 h-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-yellow-400" />
-                </div>
-                <div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">Linux <span className="text-yellow-400">PrivEsc</span></h3>
-                    <p className="text-[11px] text-slate-500 font-mono">ENUMERATION & GTFOBINS_PAYLOADS</p>
-                </div>
-            </div>
+            <ToolPageHeader
+                icon={Shield}
+                title="Linux"
+                highlight="PrivEsc"
+                subtitle="ENUMERATION & GTFOBINS_PAYLOADS"
+                color="yellow"
+            />
 
             {/* ── Quick Enum Commands ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowEnum(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <Search className="w-3.5 h-3.5 text-slate-400" />
-                        Quick Enumeration One-Liners
-                    </h4>
-                    {showEnum ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showEnum && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {ENUM_CMDS.map(src => (
-                            <div key={src.label} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/cmd">
-                                <div className="flex items-center justify-between mb-1.5">
-                                    <span className="text-[10px] font-bold font-mono text-yellow-400/70 uppercase tracking-widest">{src.label}</span>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] text-slate-600 font-mono hidden sm:block">{src.note}</span>
-                                        <CopyButton text={src.cmd} />
-                                    </div>
-                                </div>
-                                <code className="text-xs font-mono text-green-400/80 break-all leading-relaxed">{src.cmd}</code>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <CommandListSection
+                title="Quick Enumeration One-Liners"
+                icon={Search}
+                commands={ENUM_CMDS}
+                color="yellow"
+                defaultOpen
+            />
 
             {/* ── GTFOBins Search & Payloads ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
+            <SectionCard>
                 <div className="flex items-center justify-between flex-wrap gap-4">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                         <Terminal className="w-3.5 h-3.5 text-yellow-400" />
@@ -219,28 +194,10 @@ export default function LinuxSUID() {
                         ))}
                     </div>
                 )}
-            </div>
+            </SectionCard>
 
             {/* ── Tips ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden mb-6">
-                <button
-                    onClick={() => setShowTips(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">PrivEsc Checklists & Tips</h4>
-                    {showTips ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showTips && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {TIPS.map((tip, i) => (
-                            <div key={i} className="flex items-start gap-3 bg-slate-900/30 border border-slate-800/30 rounded-xl p-4">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-yellow-500/60 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">{tip}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <TipsSection title="PrivEsc Checklists & Tips" tips={TIPS} color="yellow" className="mb-6" />
         </div>
     );
 }

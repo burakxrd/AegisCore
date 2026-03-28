@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Unlock, Terminal, FileCode, Search, ChevronDown, ChevronUp, CheckCircle2, Zap, Flame } from 'lucide-react';
+import { Unlock, Terminal, FileCode, Flame } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
+import { ToolPageHeader, SectionCard, FormField, ToggleSwitch, CommandCard, CollapsibleSection, TipsSection } from '../ui';
 
 // ─── Props ────────────────────────────────────────────────────────
 interface HashCrackingProps {
@@ -43,8 +44,6 @@ export default function HashCracking({ rhost }: HashCrackingProps) {
     const [wordlist, setWordlist] = useState('/usr/share/wordlists/rockyou.txt');
     const [hashIndex, setHashIndex] = useState(0);
     const [useRules, setUseRules] = useState(false);
-    const [showWordlists, setShowWordlists] = useState(false);
-    const [showTips, setShowTips] = useState(false);
 
     const activeHash = HASH_TYPES[hashIndex];
 
@@ -65,61 +64,45 @@ export default function HashCracking({ rhost }: HashCrackingProps) {
 
     return (
         <div className="space-y-6">
-            {/* ── Section Title ── */}
-            <div className="flex items-center gap-3 pt-2">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                    <Unlock className="w-4 h-4 text-purple-400" />
-                </div>
-                <div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">Hash <span className="text-purple-400">Cracking</span></h3>
-                    <p className="text-[11px] text-slate-500 font-mono">HASHCAT & JOHN_THE_RIPPER</p>
-                </div>
-            </div>
+            <ToolPageHeader
+                icon={Unlock}
+                title="Hash"
+                highlight="Cracking"
+                subtitle="HASHCAT & JOHN_THE_RIPPER"
+                color="purple"
+            />
 
             {/* ── Configuration ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">File Paths</h4>
-
+            <SectionCard title="File Paths">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1.5">Hash File Path</label>
-                        <input
-                            type="text"
-                            value={hashPath}
-                            onChange={e => setHashPath(e.target.value)}
-                            placeholder="C:\Users\Target\hashes.txt or /tmp/hashes.txt"
-                            className="w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-3 text-sm font-mono text-purple-400 placeholder-slate-600 focus:outline-none focus:border-purple-500/50 focus:shadow-[0_0_15px_-4px_rgba(168,85,247,0.2)] transition-all"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1.5">Wordlist Path</label>
-                        <input
-                            type="text"
-                            value={wordlist}
-                            onChange={e => setWordlist(e.target.value)}
-                            placeholder="/usr/share/wordlists/rockyou.txt"
-                            className="w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-3 text-sm font-mono text-purple-400 placeholder-slate-600 focus:outline-none focus:border-purple-500/50 focus:shadow-[0_0_15px_-4px_rgba(168,85,247,0.2)] transition-all"
-                        />
-                    </div>
+                    <FormField
+                        label="Hash File Path"
+                        value={hashPath}
+                        onChange={e => setHashPath(e.target.value)}
+                        placeholder="C:\Users\Target\hashes.txt or /tmp/hashes.txt"
+                        color="purple"
+                    />
+                    <FormField
+                        label="Wordlist Path"
+                        value={wordlist}
+                        onChange={e => setWordlist(e.target.value)}
+                        placeholder="/usr/share/wordlists/rockyou.txt"
+                        color="purple"
+                    />
                 </div>
 
                 <div className="flex flex-wrap gap-4 items-center pt-2">
-                    <div
-                        onClick={() => setUseRules(!useRules)}
-                        className="flex items-center gap-2 cursor-pointer group"
-                    >
-                        <div className={`w-8 h-4 rounded-full transition-all relative ${useRules ? 'bg-purple-500' : 'bg-slate-700'}`}>
-                            <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${useRules ? 'left-[18px]' : 'left-0.5'}`} />
-                        </div>
-                        <span className="text-xs text-slate-400 font-mono group-hover:text-slate-300 transition-colors">
-                            Apply Hashcat Rules (best64.rule)
-                        </span>
-                    </div>
+                    <ToggleSwitch
+                        checked={useRules}
+                        onChange={setUseRules}
+                        label="Apply Hashcat Rules (best64.rule)"
+                        color="purple"
+                    />
                 </div>
-            </div>
+            </SectionCard>
 
             {/* ── Hash Type Selector ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
+            <SectionCard>
                 <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Hash Type Identifier</h4>
                     <span className="text-[10px] font-mono text-slate-500 bg-slate-800/50 px-2 py-1 rounded">
@@ -142,102 +125,37 @@ export default function HashCracking({ rhost }: HashCrackingProps) {
                         </button>
                     ))}
                 </div>
-            </div>
+            </SectionCard>
 
             {/* ── Generated Commands ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Hashcat Card */}
-                <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden group/cmd transition-colors hover:border-purple-500/30">
-                    <div className="bg-slate-900/80 px-4 py-3 border-b border-slate-800/60 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Flame className="w-4 h-4 text-purple-400" />
-                            <span className="text-sm font-bold font-mono text-purple-400">Hashcat</span>
-                        </div>
-                        <span className="text-[10px] text-slate-500 font-mono">GPU Accelerated</span>
-                    </div>
-                    <div className="p-5 flex flex-col gap-4">
-                        <code className="text-xs font-mono text-green-400/90 break-all leading-relaxed">
-                            {hashcatCmd}
-                        </code>
-                        <div className="flex justify-end">
-                            <CopyButton text={hashcatCmd} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* John The Ripper Card */}
-                <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden group/cmd transition-colors hover:border-purple-500/30">
-                    <div className="bg-slate-900/80 px-4 py-3 border-b border-slate-800/60 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Terminal className="w-4 h-4 text-purple-400" />
-                            <span className="text-sm font-bold font-mono text-purple-400">John The Ripper</span>
-                        </div>
-                        <span className="text-[10px] text-slate-500 font-mono">CPU Fallback</span>
-                    </div>
-                    <div className="p-5 flex flex-col gap-4">
-                        <code className="text-xs font-mono text-green-400/90 break-all leading-relaxed">
-                            {johnCmd}
-                        </code>
-                        <div className="flex justify-end">
-                            <CopyButton text={johnCmd} />
-                        </div>
-                    </div>
-                </div>
+                <CommandCard icon={Flame} label="Hashcat" note="GPU Accelerated" command={hashcatCmd} color="purple" />
+                <CommandCard icon={Terminal} label="John The Ripper" note="CPU Fallback" command={johnCmd} color="purple" />
             </div>
 
             {/* ── Wordlist Quick Select ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowWordlists(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <FileCode className="w-3.5 h-3.5 text-slate-400" />
-                        Quick Wordlist Select
-                    </h4>
-                    {showWordlists ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showWordlists && (
-                    <div className="px-5 pb-5 space-y-1.5 animate-page-in">
-                        {WORDLISTS.map((wl, i) => (
-                            <div
-                                key={i}
-                                onClick={() => setWordlist(wl.path)}
-                                className="flex items-center justify-between bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/wl hover:border-purple-500/20 transition-colors cursor-pointer"
-                            >
-                                <div>
-                                    <span className="text-xs font-mono font-bold text-slate-300 group-hover/wl:text-purple-400 transition-colors block">{wl.label}</span>
-                                    <span className="text-[10px] font-mono text-slate-500 mt-0.5 block">{wl.note}</span>
-                                </div>
-                                <div className="opacity-0 group-hover/wl:opacity-100 transition-opacity">
-                                    <span className="text-[10px] text-purple-500/50 font-mono uppercase tracking-widest font-bold">Use</span>
-                                </div>
+            <CollapsibleSection title="Quick Wordlist Select" icon={FileCode}>
+                <div className="space-y-1.5">
+                    {WORDLISTS.map((wl, i) => (
+                        <div
+                            key={i}
+                            onClick={() => setWordlist(wl.path)}
+                            className="flex items-center justify-between bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/wl hover:border-purple-500/20 transition-colors cursor-pointer"
+                        >
+                            <div>
+                                <span className="text-xs font-mono font-bold text-slate-300 group-hover/wl:text-purple-400 transition-colors block">{wl.label}</span>
+                                <span className="text-[10px] font-mono text-slate-500 mt-0.5 block">{wl.note}</span>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            <div className="opacity-0 group-hover/wl:opacity-100 transition-opacity">
+                                <span className="text-[10px] text-purple-500/50 font-mono uppercase tracking-widest font-bold">Use</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </CollapsibleSection>
 
             {/* ── Tips ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden mb-6">
-                <button
-                    onClick={() => setShowTips(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Cracking Tips</h4>
-                    {showTips ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showTips && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {TIPS.map((tip, i) => (
-                            <div key={i} className="flex items-start gap-3 bg-slate-900/30 border border-slate-800/30 rounded-xl p-4">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-purple-500/60 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">{tip}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <TipsSection title="Cracking Tips" tips={TIPS} color="purple" className="mb-6" />
         </div>
     );
 }

@@ -3,6 +3,7 @@ import { Terminal, Play, Zap, Trash2, ChevronDown, AlertTriangle, CheckCircle2 }
 import { CopyButton } from '../../CopyButtons';
 import { getServiceProfile, PORT_HINTS, type ChecklistEntry } from '../../../data/ctf-service-checklists';
 import { logError } from '../../../utils/logger';
+import { ToolPageHeader, SectionCard, CollapsibleSection } from '../ui';
 
 // ─── Props ────────────────────────────────────────────────────────
 interface NmapParserProps {
@@ -196,21 +197,17 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
 
   return (
     <>
-      {/* Section Title */}
-      <div className="flex items-center gap-3 pt-2">
-        <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-          <Terminal className="w-4.5 h-4.5 text-cyan-400" />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-white tracking-tight">Nmap <span className="text-cyan-400">Parser</span></h3>
-          <p className="text-[11px] text-slate-500 font-mono">SCAN_COMMAND_GENERATOR & OUTPUT_ANALYZER</p>
-        </div>
-      </div>
+      <ToolPageHeader
+        icon={Terminal}
+        title="Nmap"
+        highlight="Parser"
+        subtitle="SCAN_COMMAND_GENERATOR & OUTPUT_ANALYZER"
+        color="cyan"
+      />
 
       {/* ── Command Generator ── */}
-      <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Scan Commands</h4>
+      <SectionCard title="Scan Commands">
+        <div className="flex items-center justify-end -mt-2">
           <button
             onClick={() => setShowCommands(!showCommands)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold tracking-wide hover:bg-cyan-500/20 hover:border-cyan-400/50 hover:shadow-[0_0_20px_-4px_rgba(6,182,212,0.3)] transition-all cursor-pointer active:scale-95"
@@ -238,12 +235,11 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
             ))}
           </div>
         )}
-      </div>
+      </SectionCard>
 
       {/* ── Output Analyzer ── */}
-      <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Output Analyzer</h4>
+      <SectionCard title="Output Analyzer">
+        <div className="flex items-center justify-end -mt-2">
           <div className="flex items-center gap-2">
             {nmapOutput && (
               <button
@@ -273,7 +269,7 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
           className="w-full bg-[#0b0f19] border border-slate-800/60 rounded-xl px-4 py-4 text-sm font-mono text-slate-300 placeholder-slate-600 resize-y focus:outline-none focus:border-cyan-500/40 focus:shadow-[0_0_20px_-6px_rgba(6,182,212,0.15)] transition-all leading-relaxed"
           spellCheck={false}
         />
-      </div>
+      </SectionCard>
 
       {/* ══════════════════════════════════════════════════════════ */}
       {/* ── ANALYSIS RESULTS ── */}
@@ -281,7 +277,7 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
         <div className="space-y-4 animate-page-in">
 
           {/* Summary bar */}
-          <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5">
+          <SectionCard>
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
@@ -321,7 +317,7 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
                 );
               })()}
             </div>
-          </div>
+          </SectionCard>
 
           {/* No ports warning */}
           {analysis.ports.length === 0 && (

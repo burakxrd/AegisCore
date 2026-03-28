@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Monitor, Users, ShieldAlert, Network, FileSearch, ChevronDown, ChevronUp, CheckCircle2, Terminal, Key } from 'lucide-react';
+import { Monitor, Users, ShieldAlert, Network, FileSearch, Terminal, Key } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
+import { ToolPageHeader, SectionCard, CommandListSection, TipsSection } from '../ui';
 
 // ─── Props ────────────────────────────────────────────────────────
 interface WindowsEnumProps {
@@ -86,8 +87,6 @@ const TIPS = [
 // ─── Component ────────────────────────────────────────────────────
 export default function WindowsEnum({ lhost, rhost }: WindowsEnumProps) {
     const [activeTab, setActiveTab] = useState<string>('system');
-    const [showTools, setShowTools] = useState(true);
-    const [showTips, setShowTips] = useState(false);
 
     // Dinamik IP'yi burada alıyoruz
     const effectiveLhost = lhost || '10.10.X.X';
@@ -101,16 +100,13 @@ export default function WindowsEnum({ lhost, rhost }: WindowsEnumProps) {
 
     return (
         <div className="space-y-6">
-            {/* ── Section Title ── */}
-            <div className="flex items-center gap-3 pt-2">
-                <div className="w-9 h-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
-                    <Terminal className="w-4 h-4 text-yellow-400" />
-                </div>
-                <div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">Windows <span className="text-yellow-400">Enumeration</span></h3>
-                    <p className="text-[11px] text-slate-500 font-mono">LOCAL_RECON & PRIVESC_VECTORS</p>
-                </div>
-            </div>
+            <ToolPageHeader
+                icon={Terminal}
+                title="Windows"
+                highlight="Enumeration"
+                subtitle="LOCAL_RECON & PRIVESC_VECTORS"
+                color="yellow"
+            />
 
             {/* ── Category Tabs ── */}
             <div className="flex flex-wrap gap-2">
@@ -130,7 +126,7 @@ export default function WindowsEnum({ lhost, rhost }: WindowsEnumProps) {
             </div>
 
             {/* ── Active Category Commands ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-3 animate-page-in">
+            <SectionCard className="animate-page-in">
                 {ENUM_DATA.find(c => c.id === activeTab)?.commands.map((item, idx) => (
                     <div key={idx} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl overflow-hidden group/cmd transition-colors hover:border-yellow-500/20">
                         <div className="bg-slate-900/80 px-4 py-2 border-b border-slate-800/60 flex items-center justify-between">
@@ -147,58 +143,19 @@ export default function WindowsEnum({ lhost, rhost }: WindowsEnumProps) {
                         </div>
                     </div>
                 ))}
-            </div>
+            </SectionCard>
 
             {/* ── Automated Tools / Downloaders ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowTools(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <Key className="w-3.5 h-3.5 text-slate-400" />
-                        Automated Enum & Execution
-                    </h4>
-                    {showTools ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showTools && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {AUTO_TOOLS.map(src => (
-                            <div key={src.label} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/cmd">
-                                <div className="flex items-center justify-between mb-1.5">
-                                    <span className="text-[10px] font-bold font-mono text-purple-400/80 uppercase tracking-widest">{src.label}</span>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] text-slate-600 font-mono hidden sm:block">{src.note}</span>
-                                        <CopyButton text={src.cmd} />
-                                    </div>
-                                </div>
-                                <code className="text-xs font-mono text-red-400/80 break-all leading-relaxed">{src.cmd}</code>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <CommandListSection
+                title="Automated Enum & Execution"
+                icon={Key}
+                commands={AUTO_TOOLS}
+                color="purple"
+                defaultOpen
+            />
 
             {/* ── Tips ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden mb-6">
-                <button
-                    onClick={() => setShowTips(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Windows Enum Tips</h4>
-                    {showTips ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showTips && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {TIPS.map((tip, i) => (
-                            <div key={i} className="flex items-start gap-3 bg-slate-900/30 border border-slate-800/30 rounded-xl p-4">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-yellow-500/60 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">{tip}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <TipsSection title="Windows Enum Tips" tips={TIPS} color="yellow" className="mb-6" />
         </div>
     );
 }

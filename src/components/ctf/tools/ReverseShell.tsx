@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Terminal, Zap, Copy, ChevronDown, ChevronUp, CheckCircle2, Shield, RefreshCw } from 'lucide-react';
+import { Terminal, Zap, Shield, RefreshCw } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
+import { ToolPageHeader, SectionCard, FormField, CollapsibleSection } from '../ui';
 
 // ─── Props ────────────────────────────────────────────────────────
 interface ReverseShellProps {
@@ -356,8 +357,6 @@ export default function ReverseShell({ rhost, lhost }: ReverseShellProps) {
     const [activeCategory, setActiveCategory] = useState<Category>('bash');
     const [osFilter, setOsFilter] = useState<'all' | 'linux' | 'windows'>('all');
     const [selectedShell, setSelectedShell] = useState<ShellEntry | null>(null);
-    const [showStabilize, setShowStabilize] = useState(false);
-    const [showListeners, setShowListeners] = useState(true);
 
     const effectiveLhost = customLhost || lhost || '$LHOST';
     const effectivePort = port || '4444';
@@ -382,20 +381,16 @@ export default function ReverseShell({ rhost, lhost }: ReverseShellProps) {
 
     return (
         <>
-            {/* Section Title */}
-            <div className="flex items-center gap-3 pt-2">
-                <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                    <Terminal className="w-4 h-4 text-red-400" />
-                </div>
-                <div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">Reverse Shell <span className="text-red-400">Generator</span></h3>
-                    <p className="text-[11px] text-slate-500 font-mono">PAYLOAD_BUILDER & LISTENER_REFERENCE</p>
-                </div>
-            </div>
+            <ToolPageHeader
+                icon={Terminal}
+                title="Reverse Shell"
+                highlight="Generator"
+                subtitle="PAYLOAD_BUILDER & LISTENER_REFERENCE"
+                color="red"
+            />
 
             {/* ── Connection Config ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Connection Config</h4>
+            <SectionCard title="Connection Config">
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* LHOST override */}
@@ -467,11 +462,10 @@ export default function ReverseShell({ rhost, lhost }: ReverseShellProps) {
                         ))}
                     </div>
                 </div>
-            </div>
+            </SectionCard>
 
             {/* ── Category Tabs ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Language / Tool</h4>
+            <SectionCard title="Language / Tool">
                 <div className="flex flex-wrap gap-2">
                     {CATEGORIES.map(cat => {
                         const count = SHELLS.filter(s => {
@@ -527,7 +521,7 @@ export default function ReverseShell({ rhost, lhost }: ReverseShellProps) {
                         </button>
                     ))}
                 </div>
-            </div>
+            </SectionCard>
 
             {/* ── Generated Payload ── */}
             {selectedShell && (
@@ -568,68 +562,44 @@ export default function ReverseShell({ rhost, lhost }: ReverseShellProps) {
             )}
 
             {/* ── Listener Commands ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowListeners(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <Shield className="w-3.5 h-3.5 text-slate-400" />
-                        Start Your Listener
-                    </h4>
-                    {showListeners ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showListeners && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {LISTENERS.map(listener => {
-                            const cmd = listener.cmd(effectivePort);
-                            return (
-                                <div key={listener.label} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 flex items-center gap-3 group/cmd">
-                                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest w-24 flex-shrink-0">{listener.label}</span>
-                                    <code className="flex-1 text-xs font-mono text-green-400/80 break-all">{cmd}</code>
-                                    <CopyButton text={cmd} />
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+            <CollapsibleSection title="Start Your Listener" icon={Shield} defaultOpen={true}>
+                <div className="space-y-2">
+                    {LISTENERS.map(listener => {
+                        const cmd = listener.cmd(effectivePort);
+                        return (
+                            <div key={listener.label} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 flex items-center gap-3 group/cmd">
+                                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest w-24 flex-shrink-0">{listener.label}</span>
+                                <code className="flex-1 text-xs font-mono text-green-400/80 break-all">{cmd}</code>
+                                <CopyButton text={cmd} />
+                            </div>
+                        );
+                    })}
+                </div>
+            </CollapsibleSection>
 
             {/* ── Shell Stabilization ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowStabilize(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
-                        Shell Stabilization
-                    </h4>
-                    {showStabilize ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showStabilize && (
-                    <div className="px-5 pb-5 space-y-3 animate-page-in">
-                        <p className="text-[11px] text-slate-500 font-mono">
-                            Raw reverse shells break on Ctrl+C and lack tab completion. Stabilize immediately after catching the shell.
-                        </p>
-                        {STABILIZE_STEPS.map((step, i) => (
-                            <div key={i} className="bg-slate-900/30 border border-slate-800/30 rounded-xl p-4 space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold font-mono text-cyan-500/60 bg-cyan-500/10 border border-cyan-500/20 w-5 h-5 rounded-md flex items-center justify-center">{i + 1}</span>
-                                        <span className="text-xs font-bold text-white">{step.title}</span>
-                                    </div>
-                                    <CopyButton text={step.cmd} />
+            <CollapsibleSection title="Shell Stabilization" icon={RefreshCw}>
+                <div className="space-y-3">
+                    <p className="text-[11px] text-slate-500 font-mono">
+                        Raw reverse shells break on Ctrl+C and lack tab completion. Stabilize immediately after catching the shell.
+                    </p>
+                    {STABILIZE_STEPS.map((step, i) => (
+                        <div key={i} className="bg-slate-900/30 border border-slate-800/30 rounded-xl p-4 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-bold font-mono text-cyan-500/60 bg-cyan-500/10 border border-cyan-500/20 w-5 h-5 rounded-md flex items-center justify-center">{i + 1}</span>
+                                    <span className="text-xs font-bold text-white">{step.title}</span>
                                 </div>
-                                <div className="bg-[#0b0f19] border border-slate-800/50 rounded-lg px-3 py-2">
-                                    <pre className="text-xs font-mono text-green-400/80 whitespace-pre-wrap">{step.cmd}</pre>
-                                </div>
-                                <p className="text-[10px] text-slate-500 font-mono">{step.note}</p>
+                                <CopyButton text={step.cmd} />
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            <div className="bg-[#0b0f19] border border-slate-800/50 rounded-lg px-3 py-2">
+                                <pre className="text-xs font-mono text-green-400/80 whitespace-pre-wrap">{step.cmd}</pre>
+                            </div>
+                            <p className="text-[10px] text-slate-500 font-mono">{step.note}</p>
+                        </div>
+                    ))}
+                </div>
+            </CollapsibleSection>
         </>
     );
 }

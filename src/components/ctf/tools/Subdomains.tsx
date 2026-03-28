@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Globe, Zap, BookOpen, ChevronDown, ChevronUp, CheckCircle2, Copy, Trash2, List, Filter } from 'lucide-react';
+import { Globe, Zap, BookOpen, Copy, Trash2, List, Filter } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
+import { ToolPageHeader, SectionCard, FormField, CollapsibleSection, CommandListSection, TipsSection, ToggleSwitch } from '../ui';
 
 // ─── Props ────────────────────────────────────────────────────────
 interface SubdomainsProps {
@@ -179,9 +180,7 @@ export default function Subdomains({ rhost }: SubdomainsProps) {
         silent: true,
         recursive: false,
     });
-    const [showWordlists, setShowWordlists] = useState(false);
-    const [showPassive, setShowPassive] = useState(true);
-    const [showTips, setShowTips] = useState(false);
+
 
     // Results parser state
     const [rawOutput, setRawOutput] = useState('');
@@ -227,28 +226,23 @@ export default function Subdomains({ rhost }: SubdomainsProps) {
 
     return (
         <>
-            {/* Section Title */}
-            <div className="flex items-center gap-3 pt-2">
-                <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <Globe className="w-4 h-4 text-cyan-400" />
-                </div>
-                <div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">Subdomain <span className="text-cyan-400">Enumeration</span></h3>
-                    <p className="text-[11px] text-slate-500 font-mono">COMMAND_GENERATOR & RESULTS_PARSER</p>
-                </div>
-            </div>
+            <ToolPageHeader
+                icon={Globe}
+                title="Subdomain"
+                highlight="Enumeration"
+                subtitle="COMMAND_GENERATOR & RESULTS_PARSER"
+                color="cyan"
+            />
 
             {/* ── Target Domain ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-3">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Target Domain</h4>
+            <SectionCard title="Target Domain">
                 <div>
-                    <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1.5">Domain</label>
-                    <input
-                        type="text"
+                    <FormField
+                        label="Domain"
                         value={opts.domain}
                         onChange={e => setOpt('domain', e.target.value)}
                         placeholder={rhost || 'target.htb / example.com'}
-                        className="w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-3 text-sm font-mono text-cyan-400 placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_15px_-4px_rgba(6,182,212,0.2)] transition-all"
+                        color="cyan"
                     />
                     {!opts.domain && rhost && (
                         <p className="text-[10px] font-mono text-slate-600 mt-1">
@@ -256,7 +250,7 @@ export default function Subdomains({ rhost }: SubdomainsProps) {
                         </p>
                     )}
                 </div>
-            </div>
+            </SectionCard>
 
             {/* ── Tool Selector ── */}
             <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
@@ -338,26 +332,20 @@ export default function Subdomains({ rhost }: SubdomainsProps) {
 
                 {/* Toggles */}
                 <div className="flex gap-5 pt-1 flex-wrap">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <div
-                            onClick={() => setOpt('silent', !opts.silent)}
-                            className={`w-8 h-4 rounded-full transition-all relative cursor-pointer ${opts.silent ? 'bg-cyan-500' : 'bg-slate-700'}`}
-                        >
-                            <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${opts.silent ? 'left-4.5' : 'left-0.5'}`} />
-                        </div>
-                        <span className="text-xs text-slate-400 font-mono">Silent / Clean output</span>
-                    </label>
+                    <ToggleSwitch
+                        checked={opts.silent}
+                        onChange={v => setOpt('silent', v)}
+                        label="Silent / Clean output"
+                        color="cyan"
+                    />
 
                     {tool === 'amass' && (
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <div
-                                onClick={() => setOpt('recursive', !opts.recursive)}
-                                className={`w-8 h-4 rounded-full transition-all relative cursor-pointer ${opts.recursive ? 'bg-cyan-500' : 'bg-slate-700'}`}
-                            >
-                                <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${opts.recursive ? 'left-4.5' : 'left-0.5'}`} />
-                            </div>
-                            <span className="text-xs text-slate-400 font-mono">Recursive brute force</span>
-                        </label>
+                        <ToggleSwitch
+                            checked={opts.recursive}
+                            onChange={v => setOpt('recursive', v)}
+                            label="Recursive brute force"
+                            color="cyan"
+                        />
                     )}
                 </div>
             </div>
@@ -382,71 +370,47 @@ export default function Subdomains({ rhost }: SubdomainsProps) {
             </div>
 
             {/* ── Passive Recon Quick Commands ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowPassive(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <Globe className="w-3.5 h-3.5 text-slate-400" />
-                        Passive Recon — One-Liners
-                    </h4>
-                    {showPassive ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showPassive && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {PASSIVE_SOURCES.map(src => {
-                            const cmd = src.cmd(effectiveDomain);
-                            return (
-                                <div key={src.label} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/cmd">
-                                    <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-[10px] font-bold font-mono text-cyan-400/70 uppercase tracking-widest">{src.label}</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-slate-600 font-mono hidden sm:block">{src.note}</span>
-                                            <CopyButton text={cmd} />
-                                        </div>
+            <CollapsibleSection title="Passive Recon — One-Liners" icon={Globe} defaultOpen={true}>
+                <div className="space-y-2">
+                    {PASSIVE_SOURCES.map(src => {
+                        const cmd = src.cmd(effectiveDomain);
+                        return (
+                            <div key={src.label} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/cmd">
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[10px] font-bold font-mono text-cyan-400/70 uppercase tracking-widest">{src.label}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] text-slate-600 font-mono hidden sm:block">{src.note}</span>
+                                        <CopyButton text={cmd} />
                                     </div>
-                                    <code className="text-xs font-mono text-green-400/80 break-all leading-relaxed">{cmd}</code>
                                 </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+                                <code className="text-xs font-mono text-green-400/80 break-all leading-relaxed">{cmd}</code>
+                            </div>
+                        );
+                    })}
+                </div>
+            </CollapsibleSection>
 
             {/* ── Wordlist Quick Reference ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowWordlists(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                        Wordlist Quick Reference
-                    </h4>
-                    {showWordlists ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showWordlists && (
-                    <div className="px-5 pb-5 space-y-1.5 animate-page-in">
-                        {WORDLISTS.map(wl => (
-                            <div
-                                key={wl.path}
-                                onClick={() => setOpt('wordlist', wl.path)}
-                                className="flex items-center gap-3 bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/wl hover:border-cyan-500/20 transition-colors cursor-pointer"
-                            >
-                                <div className="flex-1 min-w-0">
-                                    <span className="text-xs font-mono font-bold text-slate-300 group-hover/wl:text-cyan-400 transition-colors">{wl.label}</span>
-                                    <span className="text-[10px] font-mono text-slate-500 ml-3">{wl.note}</span>
-                                </div>
-                                <div className="flex-shrink-0 flex items-center gap-2">
-                                    <span className="text-[10px] text-cyan-500/50 font-mono group-hover/wl:text-cyan-400 transition-colors">USE</span>
-                                    <CopyButton text={wl.path} />
-                                </div>
+            <CollapsibleSection title="Wordlist Quick Reference" icon={BookOpen}>
+                <div className="space-y-1.5">
+                    {WORDLISTS.map(wl => (
+                        <div
+                            key={wl.path}
+                            onClick={() => setOpt('wordlist', wl.path)}
+                            className="flex items-center gap-3 bg-[#0b0f19] border border-slate-800/50 rounded-xl px-4 py-3 group/wl hover:border-cyan-500/20 transition-colors cursor-pointer"
+                        >
+                            <div className="flex-1 min-w-0">
+                                <span className="text-xs font-mono font-bold text-slate-300 group-hover/wl:text-cyan-400 transition-colors">{wl.label}</span>
+                                <span className="text-[10px] font-mono text-slate-500 ml-3">{wl.note}</span>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            <div className="flex-shrink-0 flex items-center gap-2">
+                                <span className="text-[10px] text-cyan-500/50 font-mono group-hover/wl:text-cyan-400 transition-colors">USE</span>
+                                <CopyButton text={wl.path} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </CollapsibleSection>
 
             {/* ── Results Parser ── */}
             <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
@@ -555,25 +519,7 @@ export default function Subdomains({ rhost }: SubdomainsProps) {
             </div>
 
             {/* ── Tips ── */}
-            <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => setShowTips(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-800/20 transition-colors cursor-pointer"
-                >
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Recon Tips</h4>
-                    {showTips ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                </button>
-                {showTips && (
-                    <div className="px-5 pb-5 space-y-2 animate-page-in">
-                        {TIPS.map((tip, i) => (
-                            <div key={i} className="flex items-start gap-3 bg-slate-900/30 border border-slate-800/30 rounded-xl p-4">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-500/60 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">{tip}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <TipsSection title="Recon Tips" tips={TIPS} color="cyan" />
         </>
     );
 }
