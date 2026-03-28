@@ -5,6 +5,8 @@ import ComingSoon from '../components/ctf/tools/ComingSoon';
 import { useCTFWorkspace } from '../hooks/useCTFWorkspace';
 import { PANEL_MAP } from '../config/ctf-tools';
 
+import DisclaimerModal from '../components/ctf/ui/DisclaimerModal';
+
 export default function CTFWorkspace() {
   const {
     activePanel,
@@ -14,13 +16,17 @@ export default function CTFWorkspace() {
     lhost,
     setLhost,
     rhost,
-    setRhost
+    setRhost,
+    hasAcceptedDisclaimer,
+    acceptDisclaimer
   } = useCTFWorkspace();
 
   const PanelComponent = PANEL_MAP[activePanel];
 
   return (
-    <div className="flex h-[calc(100vh-73px)] overflow-hidden bg-slate-950">
+    <>
+      {!hasAcceptedDisclaimer && <DisclaimerModal onAccept={acceptDisclaimer} />}
+      <div className={`flex h-[calc(100vh-73px)] overflow-hidden bg-slate-950 transition-all duration-500 ${!hasAcceptedDisclaimer ? 'blur-md pointer-events-none select-none opacity-60' : ''}`}>
 
       {/* ═══ LEFT SIDEBAR ═══ */}
       <Sidebar
@@ -50,6 +56,7 @@ export default function CTFWorkspace() {
 
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 }

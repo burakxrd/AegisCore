@@ -87,7 +87,7 @@ export default function ToolsCatalog() {
           {/* Center — Text Content */}
           <div className="flex-1 text-center sm:text-left min-w-0">
             <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
-              <span className="inline-block px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-mono">Coming Soon</span>
+              <span className="inline-block px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-mono">NEW</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">
               CTF & Red Team Ops <span className="text-cyan-400">Workspace</span>

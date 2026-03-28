@@ -26,6 +26,23 @@ function saveGlobalState(lhost: string, rhost: string) {
 export function useCTFWorkspace() {
   const [initialState] = useState(() => loadGlobalState());
 
+  const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(() => {
+    try {
+      return localStorage.getItem('aegis_ctf_disclaimer_v1') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const acceptDisclaimer = () => {
+    try {
+      localStorage.setItem('aegis_ctf_disclaimer_v1', 'true');
+    } catch (err) {
+      logError('Failed to save disclaimer state', err);
+    }
+    setHasAcceptedDisclaimer(true);
+  };
+
   const [searchParams, setSearchParams] = useSearchParams();
   const activePanel = searchParams.get('tool') || 'nmap-parser';
 
@@ -57,6 +74,8 @@ export function useCTFWorkspace() {
     lhost,
     setLhost,
     rhost,
-    setRhost
+    setRhost,
+    hasAcceptedDisclaimer,
+    acceptDisclaimer
   };
 }
