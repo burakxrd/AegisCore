@@ -6,3 +6,12 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Development Notes
+TODO.md
