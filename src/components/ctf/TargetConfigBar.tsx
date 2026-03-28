@@ -1,14 +1,29 @@
 import React from 'react';
 import { Globe, Crosshair } from 'lucide-react';
-import { validateInput, ipv4Schema, ipv6Schema } from '../../utils/validators';
+import { isValidIpInput } from '../../utils/validators';
 
-function isValidIpInput(value: string): boolean {
-  return validateInput(ipv4Schema, value).success ||
-    validateInput(ipv6Schema, value).success;
-}
+function formatIPv4Input(value: string): string {
+  let val = value.replace(/[^0-9.]/g, '');
 
-function sanitizeIp(value: string): string {
-  return value.replace(/[^0-9a-fA-F.:]/g, '');
+  if (val.startsWith('.')) {
+    val = val.substring(1);
+  }
+
+  val = val.replace(/\.\.+/g, '.');
+
+  let parts = val.split('.');
+  if (parts.length > 4) {
+    parts = parts.slice(0, 4);
+  }
+
+  const validParts = parts.map(part => {
+    if (part !== '' && parseInt(part, 10) > 255) {
+      return part.slice(0, -1);
+    }
+    return part;
+  });
+
+  return validParts.join('.');
 }
 
 // ─── Props ────────────────────────────────────────────────────────
@@ -33,9 +48,12 @@ export default function TargetConfigBar({ lhost, rhost, onLhostChange, onRhostCh
           <input
             type="text"
             value={lhost}
-            onChange={(e) => onLhostChange(sanitizeIp(e.target.value))}
+            onChange={(e) => onLhostChange(formatIPv4Input(e.target.value))}
             placeholder="10.10.14.xx"
-            className={`w-full bg-slate-900/70 border rounded-xl px-4 py-3 text-sm font-mono text-cyan-400 placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_15px_-4px_rgba(6,182,212,0.2)] transition-all ${lhostError ? 'border-red-500/50' : 'border-slate-700/60'}`}
+            className={`w-full bg-slate-900/70 border rounded-xl px-4 py-3 text-sm font-mono text-cyan-400 placeholder-slate-600 focus:outline-none transition-all ${lhostError
+              ? 'border-red-500/50 focus:border-red-500/50 focus:shadow-[0_0_15px_-4px_rgba(239,68,68,0.2)]'
+              : 'border-slate-700/60 focus:border-cyan-500/50 focus:shadow-[0_0_15px_-4px_rgba(6,182,212,0.2)]'
+              }`}
           />
           <Globe className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
         </div>
@@ -48,9 +66,12 @@ export default function TargetConfigBar({ lhost, rhost, onLhostChange, onRhostCh
           <input
             type="text"
             value={rhost}
-            onChange={(e) => onRhostChange(sanitizeIp(e.target.value))}
+            onChange={(e) => onRhostChange(formatIPv4Input(e.target.value))}
             placeholder="10.10.10.xx"
-            className={`w-full bg-slate-900/70 border rounded-xl px-4 py-3 text-sm font-mono text-red-400 placeholder-slate-600 focus:outline-none focus:border-red-500/50 focus:shadow-[0_0_15px_-4px_rgba(239,68,68,0.2)] transition-all ${rhostError ? 'border-red-500/50' : 'border-slate-700/60'}`}
+            className={`w-full bg-slate-900/70 border rounded-xl px-4 py-3 text-sm font-mono text-red-400 placeholder-slate-600 focus:outline-none transition-all ${rhostError
+              ? 'border-red-500/50 focus:border-red-500/50 focus:shadow-[0_0_15px_-4px_rgba(239,68,68,0.2)]'
+              : 'border-slate-700/60 focus:border-red-500/50 focus:shadow-[0_0_15px_-4px_rgba(239,68,68,0.2)]'
+              }`}
           />
           <Crosshair className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
         </div>

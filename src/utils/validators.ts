@@ -1,18 +1,33 @@
 import { z } from 'zod';
 
-// Reusable basic schemas
-export const ipv4Schema = z.string().regex(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, { message: "Please enter a valid IPv4 address" });
-export const ipv6Schema = z.string().regex(/^[a-fA-F0-9:]+$/, { message: "Please enter a valid IPv6 address" });
-export const domainSchema = z.string().regex(/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,}$/, { message: "Please enter a valid domain name" });
-export const portSchema = z.number().int().min(1).max(65535, { message: "Port number must be between 1 and 65535" });
+// ─── IP Schemas ───────────────────────────────────────────────────
+export const ipv4Schema = z.string().ip({ version: "v4", message: "Invalid IPv4 address" });
+export const ipv6Schema = z.string().ip({ version: "v6", message: "Invalid IPv6 address" });
 
-// Helper function to safely validate directly in components without deeply understanding Zod errors
+// General IP address validation (v4 or v6)
+export const ipSchema = z.union([ipv4Schema, ipv6Schema]);
+
+// ─── Domain & Port Schemas ────────────────────────────────────────
+export const domainSchema = z.string().regex(/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,}$/, { message: "Invalid domain name" });
+
+export const portSchema = z.coerce
+  .number({ invalid_type_error: "Port must be a number" })
+  .int()
+  .min(1, { message: "Port cannot be less than 1" })
+  .max(65535, { message: "Port cannot be greater than 65535" });
+
+// ─── Helper Functions ─────────────────────────────────────────────
+
 export function validateInput<T>(schema: z.ZodType<T>, value: unknown) {
   const result = schema.safeParse(value);
   if (result.success) {
     return { success: true, data: result.data, error: null };
   } else {
-    // Extract the first error message for simplicity
     return { success: false, data: null, error: result.error.issues[0].message };
   }
+}
+
+export function isValidIpInput(value: unknown): boolean {
+  const result = ipSchema.safeParse(value);
+  return result.success;
 }

@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Search, Zap, BookOpen } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
-import { ToolPageHeader, SectionCard, CollapsibleSection, TipsSection, ToggleSwitch } from '../ui';
-
+import { ToolPageHeader, SectionCard, CollapsibleSection, TipsSection, ToggleSwitch, FormField } from '../ui';
 // ─── Types ────────────────────────────────────────────────────────
 interface WebFuzzingProps {
     rhost: string;
@@ -145,17 +144,15 @@ export default function WebFuzzing({ rhost }: WebFuzzingProps) {
 
     // ─── Input helper ──────────────────────────────────────────────
     const Field = ({ label, field, placeholder, hint }: { label: string; field: keyof FuzzOptions; placeholder?: string; hint?: string }) => (
-        <div>
-            <label className="block text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1.5">{label}</label>
-            <input
-                type="text"
-                value={opts[field] as string}
-                onChange={e => setOpt(field, e.target.value as any)}
-                placeholder={placeholder}
-                className="w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-3 py-2.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_12px_-4px_rgba(6,182,212,0.2)] transition-all"
-            />
-            {hint && <p className="text-[10px] text-slate-600 font-mono mt-1">{hint}</p>}
-        </div>
+        <FormField
+            label={label}
+            type="text"
+            value={opts[field] as string}
+            onChange={e => setOpt(field, e.target.value as any)}
+            placeholder={placeholder}
+            hint={hint}
+            color="cyan"
+        />
     );
 
     return (
@@ -177,8 +174,8 @@ export default function WebFuzzing({ rhost }: WebFuzzingProps) {
                             key={t}
                             onClick={() => setTool(t)}
                             className={`px-5 py-2 rounded-xl text-xs font-bold tracking-wider transition-all cursor-pointer border ${tool === t
-                                    ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400 shadow-[0_0_16px_-4px_rgba(6,182,212,0.3)]'
-                                    : 'bg-slate-900/50 border-slate-700/40 text-slate-500 hover:text-slate-300 hover:border-slate-600'
+                                ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400 shadow-[0_0_16px_-4px_rgba(6,182,212,0.3)]'
+                                : 'bg-slate-900/50 border-slate-700/40 text-slate-500 hover:text-slate-300 hover:border-slate-600'
                                 }`}
                         >
                             {t}
@@ -196,8 +193,8 @@ export default function WebFuzzing({ rhost }: WebFuzzingProps) {
                             key={ft.id}
                             onClick={() => setFuzzType(ft.id)}
                             className={`flex flex-col items-center gap-1 p-3 rounded-xl text-center transition-all cursor-pointer border ${fuzzType === ft.id
-                                    ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
-                                    : 'bg-slate-900/40 border-slate-700/30 text-slate-500 hover:text-slate-300 hover:border-slate-600'
+                                ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
+                                : 'bg-slate-900/40 border-slate-700/30 text-slate-500 hover:text-slate-300 hover:border-slate-600'
                                 }`}
                         >
                             <span className="text-xs font-bold">{ft.label}</span>

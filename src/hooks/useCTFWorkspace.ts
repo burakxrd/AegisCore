@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { logError } from '../utils/logger';
 import { useDebounce } from './useDebounce';
 
@@ -23,23 +24,28 @@ function saveGlobalState(lhost: string, rhost: string) {
 }
 
 export function useCTFWorkspace() {
-  // Use a lazy initial state function so we only run localStorage parse once
   const [initialState] = useState(() => loadGlobalState());
 
-  const [activePanel, setActivePanel] = useState('nmap-parser');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activePanel = searchParams.get('tool') || 'nmap-parser';
+
+  const setActivePanel = (panel: string) => {
+    setSearchParams(prev => {
+      const nextParams = new URLSearchParams(prev);
+      nextParams.set('tool', panel);
+      return nextParams;
+    });
+  };
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Global variables
   const [lhost, setLhost] = useState<string>(initialState.lhost ?? '');
   const [rhost, setRhost] = useState<string>(initialState.rhost ?? '');
 
-  // Debounced variables for heavy operations (like saving to disk or re-parsing)
   const debouncedLhost = useDebounce(lhost, 500);
   const debouncedRhost = useDebounce(rhost, 500);
 
   useEffect(() => {
-    // We only save to local storage when the debounced versions change
-    // This dramatically reduces disk writing when typing IP addresses.
     saveGlobalState(debouncedLhost, debouncedRhost);
   }, [debouncedLhost, debouncedRhost]);
 
@@ -49,8 +55,8 @@ export function useCTFWorkspace() {
     sidebarOpen,
     setSidebarOpen,
     lhost,
-    setLhost, // React binds input to lhost
+    setLhost,
     rhost,
-    setRhost  // React binds input to rhost
+    setRhost
   };
 }

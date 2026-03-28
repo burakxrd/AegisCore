@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Network } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { KILL_CHAIN, COLOR_MAP } from '../../data/ctf-menu';
@@ -12,7 +12,16 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activePanel, onSelectPanel, isOpen, onToggle }: SidebarProps) {
-  const [expandedCategory, setExpandedCategory] = useState('enumeration');
+  const [expandedCategory, setExpandedCategory] = useState<string>('');
+
+  useEffect(() => {
+    const parentCategory = KILL_CHAIN.find(cat =>
+      cat.items.some(item => item.id === activePanel)
+    );
+    if (parentCategory) {
+      setExpandedCategory(parentCategory.id);
+    }
+  }, [activePanel]);
 
   const toggleCategory = (id: string) => {
     setExpandedCategory((prev) => (prev === id ? '' : id));

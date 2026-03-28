@@ -30,11 +30,16 @@ interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     hint?: string;
     color?: ThemeColor;
+    error?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────
-export function FormField({ label, hint, color = 'cyan', className, ...rest }: FormFieldProps) {
+export function FormField({ label, hint, color = 'cyan', className, error, ...rest }: FormFieldProps) {
     const cv = colorVariants[color];
+
+    const borderClass = error ? 'border-red-500/50' : 'border-slate-700/60';
+    const focusBorderClass = error ? 'focus:border-red-500/50' : cv.focusBorder;
+    const focusShadowClass = error ? 'focus:shadow-[0_0_15px_-4px_rgba(239,68,68,0.2)]' : cv.focusShadow;
 
     return (
         <div>
@@ -43,7 +48,7 @@ export function FormField({ label, hint, color = 'cyan', className, ...rest }: F
             </label>
             <input
                 {...rest}
-                className={`w-full bg-slate-900/70 border border-slate-700/60 rounded-xl px-4 py-3 text-sm font-mono ${cv.text} placeholder-slate-600 focus:outline-none ${cv.focusBorder} ${cv.focusShadow} transition-all ${className ?? ''}`}
+                className={`w-full bg-slate-900/70 border rounded-xl px-4 py-3 text-sm font-mono ${cv.text} placeholder-slate-600 focus:outline-none transition-all ${borderClass} ${focusBorderClass} ${focusShadowClass} ${className ?? ''}`}
             />
             {hint && <p className="text-[10px] text-slate-600 font-mono mt-1">{hint}</p>}
         </div>
