@@ -76,9 +76,9 @@ export default function Dashboard() {
             to="/ai"
             className="shrink-0 flex items-center gap-3 px-6 py-3.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-sm tracking-wider transition-all shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 group"
           >
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-5 h-5" aria-hidden="true" />
             ASK AI
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
           </Link>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center border border-cyan-500/20">
-              <Crosshair className="w-5 h-5 text-cyan-500" />
+              <Crosshair className="w-5 h-5 text-cyan-500" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-white font-bold text-sm">Quick IP Lookup</h3>
@@ -137,7 +137,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
-              <Network className="w-5 h-5 text-blue-500" />
+              <Network className="w-5 h-5 text-blue-500" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-white font-bold text-sm">Quick Domain Scan</h3>
@@ -167,7 +167,7 @@ export default function Dashboard() {
               aria-label="Scan Domain"
               className="absolute right-2 p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all"
             >
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -190,7 +190,7 @@ export default function Dashboard() {
 
           <div className="w-20 h-20 shrink-0 bg-cyan-950/40 border border-cyan-500/20 rounded-2xl flex items-center justify-center group-hover:border-cyan-500/40 transition-colors">
             <div className="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center">
-              <Shield className="w-6 h-6 text-cyan-400" />
+              <Shield className="w-6 h-6 text-cyan-400" aria-hidden="true" />
             </div>
           </div>
 
@@ -205,7 +205,7 @@ export default function Dashboard() {
           <div className="shrink-0 z-10 w-full md:w-auto mt-4 md:mt-0">
             <div className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-900/80 hover:bg-cyan-500/10 text-cyan-400 border border-slate-700 hover:border-cyan-500/40 rounded-xl font-bold text-sm transition-all group-hover:text-cyan-300">
               Launch Workspace
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
             </div>
           </div>
         </Link>
@@ -224,13 +224,13 @@ export default function Dashboard() {
                 <div className={`absolute -right-6 -top-6 w-20 h-20 ${colors.glow} rounded-full blur-2xl group-hover:scale-150 transition-transform`} />
 
                 <div className={`w-10 h-10 ${colors.bg} rounded-xl flex items-center justify-center ${colors.border} border mb-4`}>
-                  <Icon className={`w-5 h-5 ${colors.text}`} />
+                  <Icon className={`w-5 h-5 ${colors.text}`} aria-hidden="true" />
                 </div>
 
                 <h3 className="text-white font-bold text-sm mb-1 group-hover:text-cyan-400 transition-colors">{tool.title}</h3>
                 <p className="text-slate-400 text-xs font-mono">{tool.description}</p>
 
-                <ArrowRight className="absolute bottom-6 right-6 w-4 h-4 text-slate-700 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="absolute bottom-6 right-6 w-4 h-4 text-slate-700 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" aria-hidden="true" />
               </Link>
             );
           })}
