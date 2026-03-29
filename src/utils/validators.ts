@@ -18,19 +18,21 @@ export const portSchema = z.coerce
   .max(65535, { message: "Port cannot be greater than 65535" });
 
 // ─── Command Argument Schemas ─────────────────────────────────────
-const COMMAND_INJECTION_CHARS = /[&|;`$"'\\<>(){}[\]!#]/g;
+// Two versions: without /g for test() (avoids sticky lastIndex), with /g for replace()
+const COMMAND_INJECTION_PATTERN = /[&|;`$"'\\<>(){}[\]!#%\n\r\0\t]/;
+const COMMAND_INJECTION_CHARS = /[&|;`$"'\\<>(){}[\]!#%\n\r\0\t]/g;
 
 export const commandArgSchema = z.string()
   .min(1, { message: "Argument cannot be empty" })
   .refine(
-    (val) => !COMMAND_INJECTION_CHARS.test(val),
+    (val) => !COMMAND_INJECTION_PATTERN.test(val),
     { message: "Argument contains invalid characters" }
   );
 
 export const passwordSchema = z.string()
   .min(8, { message: "Password must be at least 8 characters" })
   .refine(
-    (val) => !COMMAND_INJECTION_CHARS.test(val),
+    (val) => !COMMAND_INJECTION_PATTERN.test(val),
     { message: "Password contains invalid characters" }
   );
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Globe, MapPin, Server, Activity, Clock, Fingerprint, Network, Terminal, User } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CopyButton } from '../components/CopyButtons';
@@ -47,7 +47,7 @@ export default function IpIntelligence() {
     return null;
   };
 
-  const handleSearch = async (overrideIp?: string) => {
+  const handleSearch = useCallback(async (overrideIp?: string) => {
     const cleanIp = (overrideIp || ipInput).trim();
     if (!cleanIp) return;
 
@@ -71,7 +71,7 @@ export default function IpIntelligence() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [ipInput]);
 
   // Auto-search from Dashboard quick lookup
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function IpIntelligence() {
       setIpInput(q);
       handleSearch(q);
     }
-  }, []);
+  }, [searchParams, handleSearch]);
 
 
   const handleMyIp = async () => {

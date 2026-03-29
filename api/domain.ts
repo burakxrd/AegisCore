@@ -1,22 +1,39 @@
 import { Router } from "express";
 import tls from "node:tls";
+import dns from "node:dns/promises";
 
 const router = Router();
+
+// ─── SSRF Protection ──────────────────────────────────────────────
+function isPrivateIp(ip: string): boolean {
+  return /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|::1|fe80:|fc|fd)/.test(ip);
+}
 
 // Google DNS-over-HTTPS (DoH) API ile filtresiz sorgu
 async function resolveDns(domain: string, type: string) {
   try {
-    const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`);
+    const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`, {
+      signal: AbortSignal.timeout(5000)
+    });
     const data = await response.json();
     return data.Answer || [];
   } catch (error: any) {
-    console.error(`[AEGIS DNS ERROR] Failed resolving ${type} for ${domain}:`, error.message);
+    console.error(`[AEGIS DNS ERROR] Failed resolving ${type} for ${domain}:`, error?.message || "Unknown error");
     throw new Error("DNS_RESOLUTION_FAILED");
   }
 }
 
 // SSL sertifika bilgisini çeken yardımcı fonksiyon
-function checkSsl(domain: string): Promise<any> {
+async function checkSsl(domain: string): Promise<any> {
+  // SSRF koruması: önce DNS çözümle, private IP'ye bağlanmayı engelle
+  const addresses = await dns.resolve4(domain).catch(() => []);
+  if (addresses.length === 0) {
+    throw new Error("Domain could not be resolved");
+  }
+  if (addresses.some(isPrivateIp)) {
+    throw new Error("Domain resolves to a private/reserved IP address");
+  }
+
   return new Promise((resolve, reject) => {
     const socket = tls.connect(443, domain, { servername: domain, timeout: 5000 }, () => {
       const cert = socket.getPeerCertificate();
@@ -49,9 +66,9 @@ function checkSsl(domain: string): Promise<any> {
 // SSL sertifika kontrolü
 router.get("/ssl/:domain", async (req, res) => {
   try {
-    const { domain } = req.params;
+    const domain = req.params.domain?.trim();
 
-    const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const domainRegex = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63})*\.[a-zA-Z]{2,}$/;
     if (!domain || !domainRegex.test(domain)) {
       return res.status(400).json({ status: "fail", message: "Invalid domain format." });
     }
@@ -60,7 +77,7 @@ router.get("/ssl/:domain", async (req, res) => {
     return res.json({ status: "success", ...sslData });
 
   } catch (error: any) {
-    console.error("[AEGIS ERROR] SSL check failed:", error.message);
+    console.error("[AEGIS ERROR] SSL check failed:", error?.message || "Unknown error");
     return res.status(500).json({
       status: "fail",
       message: "SSL handshake failed.",
@@ -71,13 +88,13 @@ router.get("/ssl/:domain", async (req, res) => {
 // DNS kayıt analizi
 router.get("/:domain", async (req, res) => {
   try {
-    const { domain } = req.params;
+    const domain = req.params.domain?.trim();
 
     if (!domain) {
       return res.status(400).json({ status: "fail", message: "Target domain missing." });
     }
 
-    const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const domainRegex = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63})*\.[a-zA-Z]{2,}$/;
     if (!domainRegex.test(domain)) {
       return res.status(400).json({ status: "fail", message: "Invalid domain format." });
     }
@@ -124,7 +141,7 @@ router.get("/:domain", async (req, res) => {
     return res.json(results);
 
   } catch (error: any) {
-    console.error(`[AEGIS FATAL] DoH Analyzer error for ${req.params.domain}:`, error.message || "Unknown Error");
+    console.error(`[AEGIS FATAL] DoH Analyzer error for ${req.params.domain}:`, error?.message || "Unknown error");
 
     return res.status(500).json({
       status: "fail",

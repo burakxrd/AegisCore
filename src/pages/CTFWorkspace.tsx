@@ -23,14 +23,17 @@ export default function CTFWorkspace() {
 
   const PanelComponent = PANEL_MAP[activePanel];
 
+  const disclaimerRef = React.useCallback((el: HTMLDivElement | null) => {
+    if (el) el.inert = !hasAcceptedDisclaimer;
+  }, [hasAcceptedDisclaimer]);
+
   return (
     <>
       {!hasAcceptedDisclaimer && <DisclaimerModal onAccept={acceptDisclaimer} />}
       <div 
+        ref={disclaimerRef}
         className={`flex h-[calc(100vh-73px)] overflow-hidden bg-slate-950 transition-all duration-500 ${!hasAcceptedDisclaimer ? 'blur-md pointer-events-none select-none opacity-60' : ''}`}
         aria-hidden={!hasAcceptedDisclaimer}
-        tabIndex={!hasAcceptedDisclaimer ? -1 : undefined}
-        inert={!hasAcceptedDisclaimer ? true : undefined}
       >
 
       {/* ═══ LEFT SIDEBAR ═══ */}

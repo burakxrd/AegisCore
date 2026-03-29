@@ -5,6 +5,7 @@ import { SystemAlert } from '../components/SystemAlert';
 import { Helmet } from 'react-helmet-async';
 
 import { getBlogIndex, BlogEntry } from '../data/blogService';
+import { logError } from '../utils/logger';
 
 const threatLevelConfig: Record<string, { color: string; border: string; bg: string }> = {
     Critical: { color: 'text-red-400', border: 'border-red-500/30', bg: 'bg-red-500/10' },
@@ -27,7 +28,7 @@ export default function BlogList() {
                 setLoading(false);
             })
             .catch((err) => {
-                console.error("Intelligence Index Fetch Error:", err);
+                logError("Intelligence Index Fetch Error", err);
                 setError(true);
                 setLoading(false);
       });

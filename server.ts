@@ -52,7 +52,11 @@ async function startServer() {
 
   app.use(compression());
 
-  // app.set("trust proxy", 1); // Removed: prevents X-Forwarded-For spoofing if not behind a trusted proxy
+  // Production'da Cloudflare/Nginx arkasında çalışırken gerçek client IP'sini almak için gerekli.
+  // Development'ta proxy olmadığı için kapalı — X-Forwarded-For spoofing'i önlenir.
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
 
   app.use((req, res, next) => {
     res.setHeader('Connection', 'keep-alive');
@@ -64,16 +68,25 @@ async function startServer() {
     helmet({
       contentSecurityPolicy: {
         directives: {
-          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          "default-src": ["'self'"],
           "script-src": process.env.NODE_ENV === "production"
             ? ["'self'", "'unsafe-inline'", "https://cloudflareinsights.com", "https://static.cloudflareinsights.com", "https://pagead2.googlesyndication.com", "https://partner.googleadservices.com", "https://adservice.google.com", "https://www.googletagservices.com", "https://*.adtrafficquality.google", "https://www.googletagmanager.com"]
             : ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cloudflareinsights.com", "https://static.cloudflareinsights.com", "https://pagead2.googlesyndication.com", "https://partner.googleadservices.com", "https://adservice.google.com", "https://www.googletagservices.com", "https://*.adtrafficquality.google", "https://www.googletagmanager.com"],
           "style-src": ["'self'", "'unsafe-inline'"],
           "img-src": ["'self'", "data:", "https://picsum.photos", "https://grainy-gradients.vercel.app", "https://pagead2.googlesyndication.com", "https://googleads.g.doubleclick.net", "https://*.doubleclick.net", "https://www.google.com", "https://*.adtrafficquality.google"],
-          "connect-src": ["'self'", "ws:", "wss:", "https://*.run.app", "https://cloudflareinsights.com", "https://dns.google", "http://ip-api.com", "https://api.ipify.org", "https://googleads.g.doubleclick.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://www.google-analytics.com"],
+          "connect-src": process.env.NODE_ENV === "production"
+            ? ["'self'", "https://cloudflareinsights.com", "https://dns.google", "http://ip-api.com", "https://api.ipify.org", "https://googleads.g.doubleclick.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://www.google-analytics.com"]
+            : ["'self'", "ws:", "wss:", "https://cloudflareinsights.com", "https://dns.google", "http://ip-api.com", "https://api.ipify.org", "https://googleads.g.doubleclick.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://www.google-analytics.com"],
           "frame-src": ["'self'", "https://googleads.g.doubleclick.net", "https://*.adtrafficquality.google", "https://tpc.googlesyndication.com", "https://www.google.com", "https://*.googlesyndication.com", "https://*.doubleclick.net"],
+          "object-src": ["'none'"],
+          "base-uri": ["'self'"],
+          "form-action": ["'self'"],
+          "frame-ancestors": ["'self'"],
+          "upgrade-insecure-requests": [],
         },
       },
+      crossOriginEmbedderPolicy: false,
+      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     })
   );
 
@@ -84,7 +97,7 @@ async function startServer() {
 
   app.use(cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, "")) || origin.endsWith(".run.app")) {
+      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
         callback(null, true);
       } else {
         logger.warn(`Blocked CORS request from: ${origin}`);
@@ -118,18 +131,6 @@ async function startServer() {
   app.use("/api/ai", aiLimiter, aiRoutes);
   app.use("/api/tools/ip", toolsLimiter, ipRoutes);
   app.use("/api/tools/domain", toolsLimiter, domainRoutes);
-
-  app.get("/api/health", (req, res) => {
-    res.json({
-      status: "operational",
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      memory: {
-        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-      }
-    });
-  });
 
   if (process.env.NODE_ENV !== "production") {
     logger.info("Running in DEVELOPMENT mode");
@@ -170,7 +171,6 @@ async function startServer() {
     logger.info(`    Server: http://localhost:${PORT}`);
     logger.info(`    Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.ai(`    AI Endpoint: POST /api/ai`);
-    logger.info(`    Health Check: GET /api/health`);
     logger.success("═══════════════════════════════════════\n");
   });
 

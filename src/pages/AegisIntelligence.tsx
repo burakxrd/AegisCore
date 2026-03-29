@@ -35,7 +35,7 @@ export default function AegisIntelligence() {
 
     const userMsg = input;
     setInput('');
-    const historyPayload = messages.map(m => ({ role: m.role, text: m.text }));
+    const historyPayload = messages.slice(-20).map(m => ({ role: m.role, text: m.text }));
     
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsLoading(true);

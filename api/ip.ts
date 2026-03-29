@@ -65,7 +65,7 @@ router.get("/:ip", async (req, res) => {
     return res.json(formattedData);
 
   } catch (error) {
-    console.error("[AEGIS ERROR] IP API query failed:", error);
+    console.error("[AEGIS ERROR] IP API query failed:", error instanceof Error ? error.message : "Unknown error");
     return res.status(500).json({
       status: "fail",
       message: "Uplink severed. Unable to resolve IP.",

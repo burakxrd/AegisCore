@@ -62,7 +62,7 @@ router.post("/", async (req, res) => {
     }
 
   } catch (error: any) {
-    console.error("[AEGIS ERROR] AI request failed:", error.message);
+    console.error("[AEGIS ERROR] AI request failed:", error?.message || "Unknown error");
     res.status(500).json({ error: "Neural link failure. Core dump saved." });
   }
 });

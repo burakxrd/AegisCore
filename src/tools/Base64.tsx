@@ -46,34 +46,50 @@ export default function Base64Encoder() {
 
   useEffect(() => {
     if (!file || mode !== 'ENCODE') return;
+    let cancelled = false;
 
     const reader = new FileReader();
     reader.onload = () => {
+      if (cancelled) return;
       const result = reader.result as string;
       const base64 = result.split(',')[1] || result;
       setOutput(base64);
       setError(null);
     };
     reader.onerror = () => {
+      if (cancelled) return;
       setError('Failed to read file.');
       setOutput('');
     };
     reader.readAsDataURL(file);
+
+    return () => {
+      cancelled = true;
+      reader.abort();
+    };
   }, [file, mode]);
 
   useEffect(() => {
     if (!file || mode !== 'DECODE') return;
+    let cancelled = false;
 
     const reader = new FileReader();
     reader.onload = () => {
+      if (cancelled) return;
       const text = reader.result as string;
       setInput(text.trim());
       setFile(null);
     };
     reader.onerror = () => {
+      if (cancelled) return;
       setError('Failed to read file.');
     };
     reader.readAsText(file);
+
+    return () => {
+      cancelled = true;
+      reader.abort();
+    };
   }, [file, mode]);
 
   const toggleMode = () => {

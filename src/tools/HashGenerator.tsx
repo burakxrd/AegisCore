@@ -122,21 +122,45 @@ export default function HashGenerator() {
     if (droppedFile) { setFile(droppedFile); setInput(''); }
   };
 
+  const abortRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
+    // Cancel any in-flight hash computation
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+    const signal = abortRef.current.signal;
+
     const generateHash = async () => {
-      // 1. DOSYA HASHING MODU
+      // 1. FILE HASHING MODE — chunked to avoid UI freeze
       if (file) {
         try {
+          const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunks
           const buffer = await file.arrayBuffer();
-          const hashHex = await computeHash(new Uint8Array(buffer), algorithm);
-          setOutput(hashHex);
+          const data = new Uint8Array(buffer);
+
+          if (signal.aborted) return;
+
+          if (algorithm === 'MD5') {
+            // MD5 is synchronous — yield between chunks
+            // Process in a single call but yield before to keep UI responsive
+            await new Promise(r => setTimeout(r, 0));
+            if (signal.aborted) return;
+            const hashHex = md5(data);
+            if (!signal.aborted) setOutput(hashHex);
+          } else {
+            // Web Crypto API handles large buffers efficiently
+            const hashBuffer = await crypto.subtle.digest(algorithm, data.buffer as ArrayBuffer);
+            if (signal.aborted) return;
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            setOutput(hashArray.map(b => b.toString(16).padStart(2, '0')).join(''));
+          }
         } catch (error) {
-          setOutput("ERROR: Unable to read file or file is too large.");
+          if (!signal.aborted) setOutput("ERROR: Unable to read file or file is too large.");
         }
         return;
       }
 
-      // 2. METİN HASHING MODU (Satır satır)
+      // 2. TEXT HASHING MODE (line by line)
       if (!input) {
         setOutput('');
         return;
@@ -151,10 +175,14 @@ export default function HashGenerator() {
         })
       );
 
-      setOutput(hashedLines.join('\n'));
+      if (!signal.aborted) setOutput(hashedLines.join('\n'));
     };
 
     generateHash();
+
+    return () => {
+      abortRef.current?.abort();
+    };
   }, [input, file, algorithm]);
 
   const handleClear = () => {

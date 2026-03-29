@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Globe, Shield, Mail, Server, AlertTriangle, CheckCircle2, Activity, Fingerprint, Lock, Terminal } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CopyButton, CopyAllButton } from '../components/CopyButtons';
@@ -53,7 +53,7 @@ export default function DomainAnalyzer() {
     return input.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].toLowerCase();
   };
 
-  const handleAnalyze = async (overrideDomain?: string) => {
+  const handleAnalyze = useCallback(async (overrideDomain?: string) => {
     const target = cleanDomainInput(overrideDomain || domainInput);
     if (!target) return;
 
@@ -101,7 +101,7 @@ export default function DomainAnalyzer() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [domainInput]);
 
   // Auto-search from Dashboard quick lookup
   useEffect(() => {
@@ -110,7 +110,11 @@ export default function DomainAnalyzer() {
       setDomainInput(q);
       handleAnalyze(q);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, [searchParams, handleAnalyze]);
 
 
   // Güvenlik Postürü Analizi
