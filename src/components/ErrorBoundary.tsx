@@ -1,15 +1,17 @@
 import React, { Component, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface Props {
   children?: ReactNode;
   fallback?: ReactNode;
+  pathname?: string;
 }
 
 interface State {
   hasError: boolean;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryClass extends Component<Props, State> {
   public state: State = {
     hasError: false
   };
@@ -24,6 +26,12 @@ export class ErrorBoundary extends Component<Props, State> {
       console.error('Uncaught error:', error, errorInfo);
     }
     // In production, this error could be reported to a service like Sentry
+  }
+
+  public componentDidUpdate(prevProps: Props) {
+    if (this.state.hasError && this.props.pathname !== prevProps.pathname) {
+      this.setState({ hasError: false });
+    }
   }
 
   public render() {
@@ -54,4 +62,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
+}
+
+export function ErrorBoundary(props: Omit<Props, 'pathname'>) {
+    const location = useLocation();
+    return <ErrorBoundaryClass {...props} pathname={location.pathname} />;
 }

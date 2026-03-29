@@ -24,9 +24,9 @@ interface ParsedPort {
 const getNmapCommands = (rhost: string): { label: string; cmd: string }[] => {
   const target = rhost || '$RHOST';
   return [
-    { label: 'Quick TCP Scan',       cmd: `nmap -sC -sV -oN initial_scan.txt ${target}` },
-    { label: 'Full Port Scan',       cmd: `nmap -p- --min-rate 10000 -oN all_ports.txt ${target}` },
-    { label: 'UDP Top 100',          cmd: `nmap -sU --top-ports 100 -oN udp_scan.txt ${target}` },
+    { label: 'Quick TCP Scan', cmd: `nmap -sC -sV -oN initial_scan.txt ${target}` },
+    { label: 'Full Port Scan', cmd: `nmap -p- --min-rate 10000 -oN all_ports.txt ${target}` },
+    { label: 'UDP Top 100', cmd: `nmap -sU --top-ports 100 -oN udp_scan.txt ${target}` },
     { label: 'Aggressive + Scripts', cmd: `nmap -A -T4 --script=vuln -oN vuln_scan.txt ${target}` },
   ];
 };
@@ -39,8 +39,18 @@ function loadNmapOutput(): string {
   try { return localStorage.getItem(LS_NMAP_KEY) ?? ''; }
   catch (err) { logError('NmapParser: localStorage read failed', err); return ''; }
 }
-function saveNmapOutput(v: string) {
-  try { localStorage.setItem(LS_NMAP_KEY, v); } catch (err) { logError('NmapParser: localStorage write failed', err); }
+function saveNmapOutput(v: string): boolean {
+  try {
+    localStorage.setItem(LS_NMAP_KEY, v);
+    return true;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+      logError('NmapParser: localStorage quota exceeded — output not saved', err);
+      return false;
+    }
+    logError('NmapParser: localStorage write failed', err);
+    return false;
+  }
 }
 function loadChecks(): Record<string, boolean> {
   try {
@@ -85,8 +95,11 @@ function parseNmapOutput(output: string): { ports: ParsedPort[]; osHint: string 
 }
 
 // ─── Replace placeholders in commands ────────────────────────────
-function replaceVars(cmd: string, rhost: string, lhost: string): string {
-  return cmd.replace(/\$RHOST/g, rhost || '$RHOST').replace(/\$LHOST/g, lhost || '$LHOST');
+function replaceVars(cmd: string, rhost: string, lhost: string, port?: number): string {
+  return cmd
+    .replace(/\$RHOST/g, rhost || '$RHOST')
+    .replace(/\$LHOST/g, lhost || '$LHOST')
+    .replace(/\$PORT/g, port ? String(port) : '$PORT');
 }
 
 // ─── Component ───────────────────────────────────────────────────
@@ -96,10 +109,7 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
   const [analysis, setAnalysis] = useState<ReturnType<typeof parseNmapOutput> | null>(null);
   const [checks, setChecks] = useState<Record<string, boolean>>(loadChecks);
   const [expandedPorts, setExpandedPorts] = useState<Set<number>>(new Set());
-
-  // Persist
-  useEffect(() => { saveNmapOutput(nmapOutput); }, [nmapOutput]);
-  useEffect(() => { saveChecks(checks); }, [checks]);
+  const [storageWarning, setStorageWarning] = useState(false);
 
   // Toggle a checklist item
   const toggleCheck = useCallback((key: string) => {
@@ -173,7 +183,7 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
             {item.commands && item.commands.length > 0 && (
               <div className="space-y-1.5">
                 {item.commands.map((cmd, ci) => {
-                  const resolved = replaceVars(cmd, rhost, lhost);
+                  const resolved = replaceVars(cmd, rhost, lhost, port);
                   return (
                     <div
                       key={ci}
@@ -263,12 +273,22 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
 
         <textarea
           value={nmapOutput}
-          onChange={(e) => setNmapOutput(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setNmapOutput(val);
+            const saved = saveNmapOutput(val);
+            if (!saved) setStorageWarning(true);
+          }}
           placeholder="Paste your Nmap scan output here..."
           rows={12}
           className="w-full bg-[#0b0f19] border border-slate-800/60 rounded-xl px-4 py-4 text-sm font-mono text-slate-300 placeholder-slate-600 resize-y focus:outline-none focus:border-cyan-500/40 focus:shadow-[0_0_20px_-6px_rgba(6,182,212,0.15)] transition-all leading-relaxed"
           spellCheck={false}
         />
+        {storageWarning && (
+          <p className="text-[10px] font-mono text-yellow-500/70 mt-1">
+            ⚠ Output too large to save — will be lost on refresh.
+          </p>
+        )}
       </SectionCard>
 
       {/* ══════════════════════════════════════════════════════════ */}
@@ -309,7 +329,7 @@ export default function NmapParser({ rhost, lhost }: NmapParserProps) {
                   const profile = getServiceProfile(PORT_HINTS[p.port] || svcName);
                   return sum + profile.checklist.length;
                 }, 0);
-                
+
                 return (
                   <span className="ml-auto text-[10px] font-mono text-slate-600 uppercase tracking-widest">
                     {completedCount} / {totalChecks} checks completed

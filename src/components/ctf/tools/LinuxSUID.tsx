@@ -81,8 +81,14 @@ const TIPS = [
     'If you find a custom SUID binary, you might need to reverse engineer it or look for Path Hijacking/Shared Library Hijacking opportunities.',
 ];
 
+// ─── Props ────────────────────────────────────────────────────────
+interface LinuxSUIDProps {
+    rhost?: string;
+    lhost?: string;
+}
+
 // ─── Component ────────────────────────────────────────────────────
-export default function LinuxSUID() {
+export default function LinuxSUID({ rhost, lhost }: LinuxSUIDProps) {
     const [searchQuery, setSearchQuery] = useState('');
 
     // Filter binaries based on search query

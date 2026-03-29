@@ -1,45 +1,74 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { logError } from '../utils/logger';
-import { useDebounce } from './useDebounce';
 
 const LS_KEY = 'aegis-ctf-workspace';
+const DISCLAIMER_KEY = 'aegis_ctf_disclaimer_v1';
+const DEBOUNCE_MS = 500;
 
-function loadGlobalState() {
+// ─── localStorage helpers ─────────────────────────────────────────
+
+function loadGlobalState(): { lhost: string; rhost: string } {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) return JSON.parse(raw);
   } catch (err) {
     logError('Failed to load global state from localStorage', err);
   }
-  return {};
+  return { lhost: '', rhost: '' };
 }
 
-function saveGlobalState(lhost: string, rhost: string) {
+function saveGlobalState(lhost: string, rhost: string): void {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify({ lhost, rhost }));
   } catch (err) {
-    logError('Failed to save global state to localStorage', err);
+    if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+      logError('localStorage quota exceeded — workspace state not saved', err);
+    } else {
+      logError('Failed to save global state to localStorage', err);
+    }
   }
 }
 
-export function useCTFWorkspace() {
-  const [initialState] = useState(() => loadGlobalState());
+// ─── Disclaimer helpers ───────────────────────────────────────────
+// localStorage + sessionStorage çift kontrol:
+// DevTools'tan önceden set edilmiş localStorage tek başına yetmez,
+// her yeni oturumda gerçek tıklama gerekir.
 
-  const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(() => {
-    try {
-      return localStorage.getItem('aegis_ctf_disclaimer_v1') === 'true';
-    } catch {
-      return false;
-    }
-  });
+function loadDisclaimerState(): boolean {
+  try {
+    const sessionAccepted = sessionStorage.getItem(DISCLAIMER_KEY) === 'true';
+    const localAccepted = localStorage.getItem(DISCLAIMER_KEY) === 'true';
+    return sessionAccepted && localAccepted;
+  } catch {
+    return false;
+  }
+}
+
+function saveDisclaimerState(): void {
+  try {
+    localStorage.setItem(DISCLAIMER_KEY, 'true');
+    sessionStorage.setItem(DISCLAIMER_KEY, 'true');
+  } catch (err) {
+    logError('Failed to save disclaimer state', err);
+  }
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────
+
+export function useCTFWorkspace() {
+  // loadGlobalState tek seferde çalışır
+  const [{ lhost, rhost }, setHostState] = useState(() => loadGlobalState());
+
+  const setLhost = (lhost: string) => setHostState(prev => ({ ...prev, lhost }));
+  const setRhost = (rhost: string) => setHostState(prev => ({ ...prev, rhost }));
+
+  const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(
+    () => loadDisclaimerState()
+  );
 
   const acceptDisclaimer = () => {
-    try {
-      localStorage.setItem('aegis_ctf_disclaimer_v1', 'true');
-    } catch (err) {
-      logError('Failed to save disclaimer state', err);
-    }
+    saveDisclaimerState();
     setHasAcceptedDisclaimer(true);
   };
 
@@ -48,23 +77,28 @@ export function useCTFWorkspace() {
 
   const setActivePanel = (panel: string) => {
     setSearchParams(prev => {
-      const nextParams = new URLSearchParams(prev);
-      nextParams.set('tool', panel);
-      return nextParams;
+      const next = new URLSearchParams(prev);
+      next.set('tool', panel);
+      return next;
     });
   };
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const [lhost, setLhost] = useState<string>(initialState.lhost ?? '');
-  const [rhost, setRhost] = useState<string>(initialState.rhost ?? '');
-
-  const debouncedLhost = useDebounce(lhost, 500);
-  const debouncedRhost = useDebounce(rhost, 500);
+  // lhost ve rhost birlikte tek timer'da debounce ediliyor
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    saveGlobalState(debouncedLhost, debouncedRhost);
-  }, [debouncedLhost, debouncedRhost]);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    debounceTimer.current = setTimeout(() => {
+      saveGlobalState(lhost, rhost);
+    }, DEBOUNCE_MS);
+
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [lhost, rhost]);
 
   return {
     activePanel,
@@ -76,6 +110,6 @@ export function useCTFWorkspace() {
     rhost,
     setRhost,
     hasAcceptedDisclaimer,
-    acceptDisclaimer
+    acceptDisclaimer,
   };
 }

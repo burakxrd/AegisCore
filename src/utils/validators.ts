@@ -3,12 +3,13 @@ import { z } from 'zod';
 // ─── IP Schemas ───────────────────────────────────────────────────
 export const ipv4Schema = z.string().ip({ version: "v4", message: "Invalid IPv4 address" });
 export const ipv6Schema = z.string().ip({ version: "v6", message: "Invalid IPv6 address" });
-
-// General IP address validation (v4 or v6)
 export const ipSchema = z.union([ipv4Schema, ipv6Schema]);
 
 // ─── Domain & Port Schemas ────────────────────────────────────────
-export const domainSchema = z.string().regex(/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,}$/, { message: "Invalid domain name" });
+export const domainSchema = z.string().regex(
+  /^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,}$/,
+  { message: "Invalid domain name" }
+);
 
 export const portSchema = z.coerce
   .number({ invalid_type_error: "Port must be a number" })
@@ -16,8 +17,24 @@ export const portSchema = z.coerce
   .min(1, { message: "Port cannot be less than 1" })
   .max(65535, { message: "Port cannot be greater than 65535" });
 
-// ─── Helper Functions ─────────────────────────────────────────────
+// ─── Command Argument Schemas ─────────────────────────────────────
+const COMMAND_INJECTION_CHARS = /[&|;`$"'\\<>(){}[\]!#]/g;
 
+export const commandArgSchema = z.string()
+  .min(1, { message: "Argument cannot be empty" })
+  .refine(
+    (val) => !COMMAND_INJECTION_CHARS.test(val),
+    { message: "Argument contains invalid characters" }
+  );
+
+export const passwordSchema = z.string()
+  .min(8, { message: "Password must be at least 8 characters" })
+  .refine(
+    (val) => !COMMAND_INJECTION_CHARS.test(val),
+    { message: "Password contains invalid characters" }
+  );
+
+// ─── Helper Functions ─────────────────────────────────────────────
 export function validateInput<T>(schema: z.ZodType<T>, value: unknown) {
   const result = schema.safeParse(value);
   if (result.success) {
@@ -28,6 +45,29 @@ export function validateInput<T>(schema: z.ZodType<T>, value: unknown) {
 }
 
 export function isValidIpInput(value: unknown): boolean {
-  const result = ipSchema.safeParse(value);
-  return result.success;
+  return ipSchema.safeParse(value).success;
+}
+
+export function isValidIpv4(value: unknown): boolean {
+  return ipv4Schema.safeParse(value).success;
+}
+
+/**
+ * Shell metacharacter'larını temizler.
+ * Komut üretimi yapan tüm tool'larda kullanılmalı.
+ */
+export function sanitizeCommandArg(value: string): string {
+  return value.replace(COMMAND_INJECTION_CHARS, '');
+}
+
+/**
+ * Dosya path'lerindeki tehlikeli karakterleri temizler.
+ * Windows ve Linux path'leri için ayrı ayrı çalışır.
+ */
+export function sanitizeFilePath(value: string, os: 'windows' | 'linux' = 'linux'): string {
+  const cleaned = value.replace(COMMAND_INJECTION_CHARS, '');
+  if (os === 'windows') {
+    return cleaned.replace(/[/]/g, '\\');
+  }
+  return cleaned;
 }

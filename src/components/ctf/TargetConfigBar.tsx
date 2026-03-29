@@ -1,6 +1,6 @@
 import React from 'react';
 import { Globe, Crosshair } from 'lucide-react';
-import { isValidIpInput } from '../../utils/validators';
+import { isValidIpv4 } from '../../utils/validators';
 
 function formatIPv4Input(value: string): string {
   let val = value.replace(/[^0-9.]/g, '');
@@ -17,7 +17,8 @@ function formatIPv4Input(value: string): string {
   }
 
   const validParts = parts.map(part => {
-    if (part !== '' && parseInt(part, 10) > 255) {
+    const num = parseInt(part, 10);
+    if (part !== '' && (isNaN(num) || num > 255)) {
       return part.slice(0, -1);
     }
     return part;
@@ -35,8 +36,8 @@ interface TargetConfigBarProps {
 }
 
 export default function TargetConfigBar({ lhost, rhost, onLhostChange, onRhostChange }: TargetConfigBarProps) {
-  const lhostError = lhost && !isValidIpInput(lhost);
-  const rhostError = rhost && !isValidIpInput(rhost);
+  const lhostError = lhost && !isValidIpv4(lhost);
+  const rhostError = rhost && !isValidIpv4(rhost);
 
   return (
     <div className="flex flex-col sm:flex-row gap-4">

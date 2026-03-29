@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { Shield, Terminal, Server, Clock, Key, UserPlus, Database, FileCode } from 'lucide-react';
 import { CopyButton } from '../../CopyButtons';
 import { ToolPageHeader, SectionCard, FormField, TipsSection } from '../ui';
+import { sanitizeCommandArg, sanitizeFilePath } from '../../../utils/validators';
 
-// ─── Props ────────────────────────────────────────────────────────
 interface PersistenceProps {
     lhost: string;
     rhost: string;
 }
 
-// ─── Types ───────────────────────────────────────────────────────
 type OSType = 'windows' | 'linux';
 
 interface PersistenceMethod {
@@ -20,7 +19,6 @@ interface PersistenceMethod {
     generateCmd: (lhost: string, lport: string, payloadPath: string, adminPass: string) => string;
 }
 
-// ─── Persistence Database ─────────────────────────────────────────
 const METHODS: Record<OSType, PersistenceMethod[]> = {
     windows: [
         {
@@ -92,7 +90,6 @@ const TIPS = [
     'Adding users (net user / useradd) is highly visible in event logs. Use it only if stealth is not a priority.',
 ];
 
-// ─── Component ────────────────────────────────────────────────────
 export default function Persistence({ lhost }: PersistenceProps) {
     const [os, setOs] = useState<OSType>('windows');
     const [lport, setLport] = useState('4444');
@@ -106,6 +103,12 @@ export default function Persistence({ lhost }: PersistenceProps) {
         if (newOs === 'windows') setPayloadPath('C:\\ProgramData\\update.exe');
         else setPayloadPath('/tmp/.hidden_payload');
     };
+
+    // map'e girmeden bir kez sanitize et
+    const safeLhost = sanitizeCommandArg(effectiveLhost);
+    const safeLport = sanitizeCommandArg(lport);
+    const safePayloadPath = sanitizeFilePath(payloadPath, os);
+    const safeAdminPass = sanitizeCommandArg(adminPass);
 
     return (
         <div className="space-y-6">
@@ -149,8 +152,8 @@ export default function Persistence({ lhost }: PersistenceProps) {
                 <button
                     onClick={() => handleOsSwitch('windows')}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold font-mono transition-all ${os === 'windows'
-                            ? 'bg-purple-500/20 text-purple-400 shadow-[0_0_10px_-2px_rgba(168,85,247,0.2)]'
-                            : 'text-slate-500 hover:text-slate-300'
+                        ? 'bg-purple-500/20 text-purple-400 shadow-[0_0_10px_-2px_rgba(168,85,247,0.2)]'
+                        : 'text-slate-500 hover:text-slate-300'
                         }`}
                 >
                     <Server className="w-4 h-4" /> Windows
@@ -158,8 +161,8 @@ export default function Persistence({ lhost }: PersistenceProps) {
                 <button
                     onClick={() => handleOsSwitch('linux')}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold font-mono transition-all ${os === 'linux'
-                            ? 'bg-purple-500/20 text-purple-400 shadow-[0_0_10px_-2px_rgba(168,85,247,0.2)]'
-                            : 'text-slate-500 hover:text-slate-300'
+                        ? 'bg-purple-500/20 text-purple-400 shadow-[0_0_10px_-2px_rgba(168,85,247,0.2)]'
+                        : 'text-slate-500 hover:text-slate-300'
                         }`}
                 >
                     <Terminal className="w-4 h-4" /> Linux
@@ -169,7 +172,7 @@ export default function Persistence({ lhost }: PersistenceProps) {
             {/* ── Generated Commands ── */}
             <div className="space-y-4 animate-page-in">
                 {METHODS[os].map((method) => {
-                    const cmd = method.generateCmd(effectiveLhost, lport, payloadPath, adminPass);
+                    const cmd = method.generateCmd(safeLhost, safeLport, safePayloadPath, safeAdminPass);
 
                     return (
                         <div key={method.id} className="bg-[#0b0f19] border border-slate-800/50 rounded-xl overflow-hidden group/cmd transition-colors hover:border-purple-500/30">

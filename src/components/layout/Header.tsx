@@ -18,9 +18,8 @@ export default function Header() {
     ];
 
     const checkIsActive = (path: string) => {
-        if (path === '/' && location.pathname !== '/') return false;
-        if (path !== '/' && location.pathname.startsWith(path)) return true;
-        return location.pathname === path;
+        if (path === '/') return location.pathname === '/';
+        return location.pathname === path || location.pathname.startsWith(`${path}/`);
     };
 
     return (

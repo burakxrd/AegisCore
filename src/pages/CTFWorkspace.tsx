@@ -26,7 +26,12 @@ export default function CTFWorkspace() {
   return (
     <>
       {!hasAcceptedDisclaimer && <DisclaimerModal onAccept={acceptDisclaimer} />}
-      <div className={`flex h-[calc(100vh-73px)] overflow-hidden bg-slate-950 transition-all duration-500 ${!hasAcceptedDisclaimer ? 'blur-md pointer-events-none select-none opacity-60' : ''}`}>
+      <div 
+        className={`flex h-[calc(100vh-73px)] overflow-hidden bg-slate-950 transition-all duration-500 ${!hasAcceptedDisclaimer ? 'blur-md pointer-events-none select-none opacity-60' : ''}`}
+        aria-hidden={!hasAcceptedDisclaimer}
+        tabIndex={!hasAcceptedDisclaimer ? -1 : undefined}
+        inert={!hasAcceptedDisclaimer ? true : undefined}
+      >
 
       {/* ═══ LEFT SIDEBAR ═══ */}
       <Sidebar

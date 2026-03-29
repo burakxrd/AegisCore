@@ -46,6 +46,12 @@ const FUZZ_TYPES: { id: FuzzType; label: string; desc: string }[] = [
     { id: 'backup', label: 'Backup', desc: 'Backup & config leaks' },
 ];
 
+const TOOL_TYPE_SUPPORT: Record<Tool, FuzzType[]> = {
+    ffuf: ['directory', 'extension', 'vhost', 'parameter', 'backup'],
+    gobuster: ['directory', 'extension', 'vhost', 'backup'],
+    feroxbuster: ['directory', 'extension', 'backup'],
+};
+
 // ─── Command Builders ─────────────────────────────────────────────
 function buildCommand(tool: Tool, type: FuzzType, opts: FuzzOptions, rhost: string): string {
     const target = rhost || '$RHOST';
@@ -121,6 +127,13 @@ const TIPS: Record<FuzzType, string[]> = {
 export default function WebFuzzing({ rhost }: WebFuzzingProps) {
     const [tool, setTool] = useState<Tool>('ffuf');
     const [fuzzType, setFuzzType] = useState<FuzzType>('directory');
+
+    const handleToolChange = (newTool: Tool) => {
+        setTool(newTool);
+        if (!TOOL_TYPE_SUPPORT[newTool].includes(fuzzType)) {
+            setFuzzType(TOOL_TYPE_SUPPORT[newTool][0]);
+        }
+    };
     const [opts, setOpts] = useState<FuzzOptions>({
         protocol: 'http',
         port: '',
@@ -172,7 +185,7 @@ export default function WebFuzzing({ rhost }: WebFuzzingProps) {
                     {(['ffuf', 'gobuster', 'feroxbuster'] as Tool[]).map(t => (
                         <button
                             key={t}
-                            onClick={() => setTool(t)}
+                            onClick={() => handleToolChange(t)}
                             className={`px-5 py-2 rounded-xl text-xs font-bold tracking-wider transition-all cursor-pointer border ${tool === t
                                 ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400 shadow-[0_0_16px_-4px_rgba(6,182,212,0.3)]'
                                 : 'bg-slate-900/50 border-slate-700/40 text-slate-500 hover:text-slate-300 hover:border-slate-600'
@@ -188,19 +201,29 @@ export default function WebFuzzing({ rhost }: WebFuzzingProps) {
             <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 space-y-4">
                 <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Fuzzing Type</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    {FUZZ_TYPES.map(ft => (
-                        <button
-                            key={ft.id}
-                            onClick={() => setFuzzType(ft.id)}
-                            className={`flex flex-col items-center gap-1 p-3 rounded-xl text-center transition-all cursor-pointer border ${fuzzType === ft.id
-                                ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
-                                : 'bg-slate-900/40 border-slate-700/30 text-slate-500 hover:text-slate-300 hover:border-slate-600'
-                                }`}
-                        >
-                            <span className="text-xs font-bold">{ft.label}</span>
-                            <span className="text-[10px] text-slate-500 leading-tight text-center hidden sm:block">{ft.desc}</span>
-                        </button>
-                    ))}
+                    {FUZZ_TYPES.map(ft => {
+                        const isSupported = TOOL_TYPE_SUPPORT[tool].includes(ft.id);
+                        return (
+                            <button
+                                key={ft.id}
+                                onClick={() => isSupported && setFuzzType(ft.id)}
+                                disabled={!isSupported}
+                                className={`flex flex-col items-center justify-center gap-1 p-3 rounded-xl text-center transition-all border ${!isSupported
+                                    ? 'opacity-30 cursor-not-allowed'
+                                    : fuzzType === ft.id
+                                        ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400 cursor-pointer'
+                                        : 'bg-slate-900/40 border-slate-700/30 text-slate-500 hover:text-slate-300 hover:border-slate-600 cursor-pointer'
+                                    }`}
+                            >
+                                <span className="text-xs font-bold">{ft.label}</span>
+                                {!isSupported ? (
+                                    <span className="text-[9px] text-slate-600 mt-0.5 leading-tight">not supported</span>
+                                ) : (
+                                    <span className="text-[10px] text-slate-500 leading-tight text-center hidden sm:block">{ft.desc}</span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 

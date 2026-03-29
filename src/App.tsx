@@ -5,6 +5,7 @@ import { Menu, X, Loader2 } from 'lucide-react';
 // Layout Components
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const AegisIntelligence = lazy(() => import('./pages/AegisIntelligence'));
@@ -62,10 +63,13 @@ function AppLayout() {
   );
 }
 
+
 export default function App() {
   return (
     <BrowserRouter>
-      <AppLayout />
+      <ErrorBoundary>
+        <AppLayout />
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

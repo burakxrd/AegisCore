@@ -15,7 +15,7 @@ export const PANEL_MAP: Record<string, React.FC<{ lhost: string; rhost: string }
   'subdomains': ({ lhost, rhost }) => <Subdomains lhost={lhost} rhost={rhost} />,
   'reverse-shell': ({ lhost, rhost }) => <ReverseShell lhost={lhost} rhost={rhost} />,
   'web-exploits': ({ lhost, rhost }) => <WebExploits lhost={lhost} rhost={rhost} />,
-  'linux-suid': () => <LinuxSUID />,
+  'linux-suid': ({ lhost, rhost }) => <LinuxSUID lhost={lhost} rhost={rhost} />,
   'windows-enum': ({ lhost, rhost }) => <WindowsEnum lhost={lhost} rhost={rhost} />,
   'hash-cracking': ({ lhost, rhost }) => <HashCracking lhost={lhost} rhost={rhost} />,
   'persistence': ({ lhost, rhost }) => <Persistence lhost={lhost} rhost={rhost} />,

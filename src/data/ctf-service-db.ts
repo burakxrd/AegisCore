@@ -8,7 +8,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
       {
         label: 'Banner Grabbing',
         description: 'Verify the version and check if there is a known vulnerability.',
-        commands: ['nc -vn $RHOST 22', 'searchsploit OpenSSH'],
+        commands: ['nc -vn $RHOST $PORT', 'searchsploit OpenSSH'],
       },
       {
         label: 'Brute Force',
@@ -109,7 +109,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
         label: 'SSL/TLS Certificate Inspection',
         description: 'The CN (Common Name) and SAN (Subject Alt Names) fields in the certificate might contain hidden hostnames/subdomains.',
         commands: [
-          'openssl s_client -connect $RHOST:443 -showcerts </dev/null 2>/dev/null | openssl x509 -noout -text | grep -E "CN=|DNS:"',
+          'openssl s_client -connect $RHOST:$PORT -showcerts </dev/null 2>/dev/null | openssl x509 -noout -text | grep -E "CN=|DNS:"',
           'sslscan $RHOST',
         ],
       },
@@ -118,7 +118,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
         description: 'Check for known SSL vulnerabilities like Heartbleed, POODLE, BEAST.',
         commands: [
           'testssl.sh $RHOST',
-          'nmap --script ssl-heartbleed -p 443 $RHOST',
+          'nmap --script ssl-heartbleed -p $PORT $RHOST',
         ],
       },
       {
@@ -148,7 +148,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
       {
         label: 'Banner & Version Check',
         description: 'Check the FTP version and search for known vulnerabilities.',
-        commands: ['nc -vn $RHOST 21', 'searchsploit vsftpd', 'searchsploit proftpd'],
+        commands: ['nc -vn $RHOST $PORT', 'searchsploit vsftpd', 'searchsploit proftpd'],
       },
       {
         label: 'File Listing & Download',
@@ -202,7 +202,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
         label: 'Vulnerability Check',
         description: 'Check for EternalBlue (MS17-010) and other SMB vulnerabilities.',
         commands: [
-          'nmap --script smb-vuln* -p 445 $RHOST',
+          'nmap --script smb-vuln* -p $PORT $RHOST',
           'searchsploit samba',
         ],
       },
@@ -226,7 +226,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
         label: 'Nmap Scripts',
         description: 'Run MySQL NSE scripts.',
         commands: [
-          'nmap --script mysql-info,mysql-enum,mysql-databases,mysql-brute -p 3306 $RHOST',
+          'nmap --script mysql-info,mysql-enum,mysql-databases,mysql-brute -p $PORT $RHOST',
         ],
       },
       {
@@ -347,18 +347,18 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
         description: 'Find valid users with VRFY/EXPN commands.',
         commands: [
           'smtp-user-enum -M VRFY -U users.txt -t $RHOST',
-          'nmap --script smtp-enum-users -p 25 $RHOST',
+          'nmap --script smtp-enum-users -p $PORT $RHOST',
         ],
       },
       {
         label: 'Open Relay Check',
         description: 'Check if the SMTP server is an open relay.',
-        commands: ['nmap --script smtp-open-relay -p 25 $RHOST'],
+        commands: ['nmap --script smtp-open-relay -p $PORT $RHOST'],
       },
       {
         label: 'Banner Grabbing',
         description: 'Grab the SMTP banner and check the version.',
-        commands: ['nc -vn $RHOST 25', 'telnet $RHOST 25'],
+        commands: ['nc -vn $RHOST $PORT', 'telnet $RHOST $PORT'],
       },
       {
         label: 'Vulnerability Check',
@@ -374,12 +374,12 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
       {
         label: 'NLA Check',
         description: 'Check if Network Level Authentication is active.',
-        commands: ['nmap --script rdp-ntlm-info -p 3389 $RHOST'],
+        commands: ['nmap --script rdp-ntlm-info -p $PORT $RHOST'],
       },
       {
         label: 'BlueKeep Check',
         description: 'Check for CVE-2019-0708 (BlueKeep) vulnerability.',
-        commands: ['nmap --script rdp-vuln-ms12-020 -p 3389 $RHOST'],
+        commands: ['nmap --script rdp-vuln-ms12-020 -p $PORT $RHOST'],
       },
       {
         label: 'Brute Force',
@@ -400,7 +400,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
       {
         label: 'Banner Grabbing',
         description: 'Grab the banner, it might leak device/OS information.',
-        commands: ['telnet $RHOST', 'nc -vn $RHOST 23'],
+        commands: ['telnet $RHOST', 'nc -vn $RHOST $PORT'],
       },
       {
         label: 'Default Credentials',
@@ -426,8 +426,8 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
         label: 'Brute Force',
         description: 'Brute force the VNC password.',
         commands: [
-          'hydra -s 5900 -P /usr/share/wordlists/rockyou.txt $RHOST vnc',
-          'nmap --script vnc-brute -p 5900 $RHOST',
+          'hydra -s $PORT -P /usr/share/wordlists/rockyou.txt $RHOST vnc',
+          'nmap --script vnc-brute -p $PORT $RHOST',
         ],
       },
       {
@@ -446,7 +446,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
         description: 'Check if anonymous LDAP queries are allowed.',
         commands: [
           'ldapsearch -x -H ldap://$RHOST -b "dc=<domain>,dc=<tld>" -s sub "(objectclass=*)"',
-          'nmap --script ldap-rootdse -p 389 $RHOST',
+          'nmap --script ldap-rootdse -p $PORT $RHOST',
         ],
       },
       {
@@ -468,7 +468,7 @@ export const SERVICE_DB: Record<string, ServiceProfile> = {
       {
         label: 'Share Listing',
         description: 'List publicly accessible NFS shares.',
-        commands: ['showmount -e $RHOST', 'nmap --script nfs-ls,nfs-showmount -p 2049 $RHOST'],
+        commands: ['showmount -e $RHOST', 'nmap --script nfs-ls,nfs-showmount -p $PORT $RHOST'],
       },
       {
         label: 'Mount & Inspect',

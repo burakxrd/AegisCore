@@ -52,7 +52,7 @@ async function startServer() {
 
   app.use(compression());
 
-  app.set("trust proxy", 1);
+  // app.set("trust proxy", 1); // Removed: prevents X-Forwarded-For spoofing if not behind a trusted proxy
 
   app.use((req, res, next) => {
     res.setHeader('Connection', 'keep-alive');
@@ -95,28 +95,29 @@ async function startServer() {
     credentials: true
   }));
 
-  const limiter = rateLimit({
+  const createLimiter = (max: number, message: string) => rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 20,
-    message: { error: "Too many requests. Neural link throttled." },
+    max,
+    message: { error: message },
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res) => {
       logger.warn(`Rate limit exceeded from IP: ${req.ip}`);
-      res.status(429).json({ error: "Too many requests. Neural link throttled." });
+      res.status(429).json({ error: message });
     },
   });
 
-  app.use("/api/", limiter);
+  const aiLimiter = createLimiter(15, "Too many AI requests. Neural link throttled.");
+  const toolsLimiter = createLimiter(40, "Too many tool requests. Please wait a minute.");
   app.use(express.json({ limit: "1mb" }));
 
   app.use(requestLogger);
 
 
   // api calls
-  app.use("/api/ai", aiRoutes);
-  app.use("/api/tools/ip", ipRoutes);
-  app.use("/api/tools/domain", domainRoutes);
+  app.use("/api/ai", aiLimiter, aiRoutes);
+  app.use("/api/tools/ip", toolsLimiter, ipRoutes);
+  app.use("/api/tools/domain", toolsLimiter, domainRoutes);
 
   app.get("/api/health", (req, res) => {
     res.json({
