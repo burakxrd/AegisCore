@@ -31,6 +31,12 @@ function saveGlobalState(lhost: string, rhost: string): void {
 }
 
 // ─── Disclaimer helpers ───────────────────────────────────────────
+// GÜVENLİK NOTU: Bu mekanizma güvenlik gating'i DEĞİLDİR.
+// Sadece UX seviyesinde kullanıcıya sorumluluk hatırlatıcısıdır.
+// Client-side bypass'a karşı koruma amacı taşımaz — tüm CTF
+// işlemleri zaten client-side'dır ve sunucu tarafında hassas
+// işlem tetiklemez.
+//
 // localStorage + sessionStorage çift kontrol:
 // DevTools'tan önceden set edilmiş localStorage tek başına yetmez,
 // her yeni oturumda gerçek tıklama gerekir.

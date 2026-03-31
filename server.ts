@@ -53,9 +53,11 @@ async function startServer() {
   app.use(compression());
 
   // Production'da Cloudflare/Nginx arkasında çalışırken gerçek client IP'sini almak için gerekli.
-  // Development'ta proxy olmadığı için kapalı — X-Forwarded-For spoofing'i önlenir.
+  // "loopback" = sadece 127.0.0.1/::1 üzerinden gelen proxy header'larına güven.
+  // Bu, X-Forwarded-For spoof'unu önler (doğrudan bağlantılarda header yok sayılır).
+  // Not: Cloudflare Tunnel (cloudflared) loopback üzerinden bağlanır, bu yüzden uyumludur.
   if (process.env.NODE_ENV === "production") {
-    app.set("trust proxy", 1);
+    app.set("trust proxy", "loopback");
   }
 
   app.use((req, res, next) => {
@@ -90,6 +92,11 @@ async function startServer() {
     })
   );
 
+  app.use((req, res, next) => {
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()');
+    next();
+  });
+
   const allowedOrigins = [
     process.env.APP_URL,
     "http://localhost:3000",
@@ -105,7 +112,8 @@ async function startServer() {
       }
     },
     methods: ["GET", "POST"],
-    credentials: true
+    // credentials kaldırıldı — cookie/session-based auth kullanılmıyor.
+    // Gereksiz credentials: true, preflight isteklerini zorunlu kılar.
   }));
 
   const createLimiter = (max: number, message: string) => rateLimit({
@@ -114,6 +122,8 @@ async function startServer() {
     message: { error: message },
     standardHeaders: true,
     legacyHeaders: false,
+    skipFailedRequests: false,
+    skipSuccessfulRequests: false,
     handler: (req, res) => {
       logger.warn(`Rate limit exceeded from IP: ${req.ip}`);
       res.status(429).json({ error: message });
@@ -121,7 +131,7 @@ async function startServer() {
   });
 
   const aiLimiter = createLimiter(15, "Too many AI requests. Neural link throttled.");
-  const toolsLimiter = createLimiter(40, "Too many tool requests. Please wait a minute.");
+  const toolsLimiter = createLimiter(20, "Too many tool requests. Please wait a minute.");
   app.use(express.json({ limit: "1mb" }));
 
   app.use(requestLogger);
@@ -188,6 +198,13 @@ async function startServer() {
       logger.success("Server closed");
       process.exit(0);
     });
+  });
+
+  process.on('unhandledRejection', (reason: unknown) => {
+    logger.error(`Unhandled promise rejection: ${reason instanceof Error ? reason.message : String(reason)}`);
+    if (process.env.NODE_ENV !== "production" && reason instanceof Error) {
+      console.error(reason.stack);
+    }
   });
 }
 

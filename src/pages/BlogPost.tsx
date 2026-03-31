@@ -25,6 +25,14 @@ export default function BlogPost() {
   useEffect(() => {
     const controller = new AbortController();
 
+    // Defense-in-depth: slug doğrulama — path traversal önlemi
+    const SAFE_SLUG = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
+    if (!slug || !SAFE_SLUG.test(slug)) {
+      setContent('# 400 - INVALID REQUEST\n> Invalid document identifier.');
+      setLoading(false);
+      return;
+    }
+
     fetch(`/blog/${slug}.md`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('Document not found');

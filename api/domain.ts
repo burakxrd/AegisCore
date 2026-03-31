@@ -6,17 +6,42 @@ const router = Router();
 
 // ─── SSRF Protection ──────────────────────────────────────────────
 function isPrivateIp(ip: string): boolean {
-  return /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|::1|fe80:|fc|fd)/.test(ip);
+  const normalized = ip.toLowerCase().trim();
+
+  // IPv4 private/reserved ranges
+  if (/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|100\.(6[4-9]|[7-9]\d|1[0-2]\d)\.|198\.1[89]\.|198\.51\.100\.|203\.0\.113\.|224\.|240\.)/.test(normalized)) return true;
+
+  // IPv6 private/reserved ranges
+  if (/^(::1$|::$|fe80:|fc|fd|ff0[0-9a-f]:)/.test(normalized)) return true;
+
+  // IPv4-mapped IPv6 (::ffff:x.x.x.x) — recursively check the v4 part
+  const v4MappedMatch = normalized.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (v4MappedMatch) return isPrivateIp(v4MappedMatch[1]);
+
+  return false;
 }
 
-// Google DNS-over-HTTPS (DoH) API ile filtresiz sorgu
+// Google DNS-over-HTTPS (DoH) API — A/AAAA kayıtlarında private IP filtresi uygulanır
 async function resolveDns(domain: string, type: string) {
   try {
     const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`, {
       signal: AbortSignal.timeout(5000)
     });
     const data = await response.json();
-    return data.Answer || [];
+    const answers = data.Answer || [];
+
+    // A ve AAAA kayıtları için private/reserved IP'leri filtrele
+    if (type === "A" || type === "AAAA") {
+      return answers.filter((record: any) => {
+        if (isPrivateIp(record.data)) {
+          console.warn(`[AEGIS SSRF] Filtered private IP ${record.data} from ${type} record of ${domain}`);
+          return false;
+        }
+        return true;
+      });
+    }
+
+    return answers;
   } catch (error: any) {
     console.error(`[AEGIS DNS ERROR] Failed resolving ${type} for ${domain}:`, error?.message || "Unknown error");
     throw new Error("DNS_RESOLUTION_FAILED");
@@ -25,8 +50,12 @@ async function resolveDns(domain: string, type: string) {
 
 // SSL sertifika bilgisini çeken yardımcı fonksiyon
 async function checkSsl(domain: string): Promise<any> {
-  // SSRF koruması: önce DNS çözümle, private IP'ye bağlanmayı engelle
-  const addresses = await dns.resolve4(domain).catch(() => []);
+  // SSRF koruması: DNS çözümle, private IP'ye bağlanmayı engelle (IPv4 + IPv6)
+  const [v4Addresses, v6Addresses] = await Promise.all([
+    dns.resolve4(domain).catch(() => []),
+    dns.resolve6(domain).catch(() => []),
+  ]);
+  const addresses = [...v4Addresses, ...v6Addresses];
   if (addresses.length === 0) {
     throw new Error("Domain could not be resolved");
   }
