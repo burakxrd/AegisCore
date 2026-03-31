@@ -66,7 +66,10 @@ async function checkSsl(domain: string): Promise<any> {
   const ip = addresses[0];
 
   return new Promise((resolve, reject) => {
-    const socket = tls.connect(443, ip, { servername: domain, timeout: 5000 }, () => {
+    // rejectUnauthorized: false — recon aracı olarak süresi dolmuş/geçersiz
+    // sertifikaları da inceleyebilmek için TLS doğrulaması devre dışı.
+    // SSRF koruması zaten IP seviyesinde yukarıda yapılıyor.
+    const socket = tls.connect(443, ip, { servername: domain, timeout: 5000, rejectUnauthorized: false }, () => {
       const cert = socket.getPeerCertificate();
       if (!cert || !cert.subject) {
         socket.destroy();
@@ -86,7 +89,10 @@ async function checkSsl(domain: string): Promise<any> {
       socket.destroy();
     });
 
-    socket.on("error", (err) => reject(err));
+    socket.on("error", (err) => {
+      socket.destroy();
+      reject(err);
+    });
     socket.on("timeout", () => {
       socket.destroy();
       reject(new Error("Connection timed out"));
@@ -99,8 +105,9 @@ router.get("/ssl/:domain", async (req, res) => {
   try {
     const domain = req.params.domain?.trim();
 
+    // ReDoS koruması: regex'ten ÖNCE uzunluk kontrolü (RFC 1035: max 253 karakter)
     const domainRegex = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63})*\.[a-zA-Z]{2,}$/;
-    if (!domain || !domainRegex.test(domain)) {
+    if (!domain || domain.length > 253 || !domainRegex.test(domain)) {
       return res.status(400).json({ status: "fail", message: "Invalid domain format." });
     }
 
@@ -125,8 +132,9 @@ router.get("/:domain", async (req, res) => {
       return res.status(400).json({ status: "fail", message: "Target domain missing." });
     }
 
+    // ReDoS koruması: regex'ten ÖNCE uzunluk kontrolü (RFC 1035: max 253 karakter)
     const domainRegex = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63})*\.[a-zA-Z]{2,}$/;
-    if (!domainRegex.test(domain)) {
+    if (domain.length > 253 || !domainRegex.test(domain)) {
       return res.status(400).json({ status: "fail", message: "Invalid domain format." });
     }
 

@@ -104,7 +104,16 @@ async function startServer() {
 
   app.use(cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+      // Production'da Origin header'ı olmayan istekleri reddet.
+      // curl/Postman/Python gibi otomasyon araçları Origin göndermez —
+      // bu kontrol, API'nin dışarıdan bedavaya sömürülmesini engeller.
+      if (!origin) {
+        if (process.env.NODE_ENV !== "production") {
+          return callback(null, true); // Dev'de izin ver (test kolaylığı)
+        }
+        return callback(null, false);
+      }
+      if (allowedOrigins.includes(origin.replace(/\/$/, ""))) {
         callback(null, true);
       } else {
         logger.warn(`Blocked CORS request from: ${origin}`);
