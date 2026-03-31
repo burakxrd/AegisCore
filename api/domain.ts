@@ -34,8 +34,10 @@ async function checkSsl(domain: string): Promise<any> {
     throw new Error("Domain resolves to a private/reserved IP address");
   }
 
+  const ip = addresses[0];
+
   return new Promise((resolve, reject) => {
-    const socket = tls.connect(443, domain, { servername: domain, timeout: 5000 }, () => {
+    const socket = tls.connect(443, ip, { servername: domain, timeout: 5000 }, () => {
       const cert = socket.getPeerCertificate();
       if (!cert || !cert.subject) {
         socket.destroy();
