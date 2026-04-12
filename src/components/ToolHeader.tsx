@@ -1,6 +1,7 @@
 import React from 'react';
 import { Network, ChevronRight, LucideIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { LangLink } from './layout/LangLink';
+import { useTranslation } from '../i18n';
 
 // --- Breadcrumb ---
 interface ToolBreadcrumbProps {
@@ -8,12 +9,14 @@ interface ToolBreadcrumbProps {
 }
 
 export function ToolBreadcrumb({ toolName }: ToolBreadcrumbProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
-      <Link to="/tools" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
+      <LangLink to="/tools" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
         <Network className="w-4 h-4" />
-        Tools
-      </Link>
+        {t('breadcrumb.tools')}
+      </LangLink>
       <ChevronRight className="w-4 h-4 text-slate-600" />
       <span className="text-cyan-500/70">{toolName}</span>
     </div>

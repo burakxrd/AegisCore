@@ -1,0 +1,308 @@
+{
+  "common": {
+    "brand": "AEGIS CORE",
+    "loading": "Loading...",
+    "error": "Error",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "generate": "Generate",
+    "clear": "CLEAR",
+    "search": "Search",
+    "close": "Close",
+    "back": "Back",
+    "new": "NEW",
+    "learnMore": "Learn more",
+    "selectFile": "SELECT FILE",
+    "removeFile": "Remove File",
+    "dropFileHere": "DROP FILE HERE",
+    "saveAsFile": "SAVE AS FILE",
+    "targetLocked": "Target Locked:",
+    "executeSearch": "Execute Search"
+  },
+  "header": {
+    "subtitle": "Advanced Defense Protocol",
+    "nav": {
+      "dashboard": "DASHBOARD",
+      "ai": "AI",
+      "tools": "TOOLS",
+      "blogs": "BLOGS"
+    },
+    "uplink": "UPLINK_STABLE",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "documentation": "Documentation",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "languageSwitcher": {
+    "en": "English",
+    "tr": "Türkçe"
+  },
+  "dashboard": {
+    "hero": {
+      "welcome": "Welcome to",
+      "description": "Your centralized cybersecurity intelligence interface. Analyze IPs, inspect domains, generate hashes, and query AI-powered threat intelligence — all in one place.",
+      "askAi": "ASK AI"
+    },
+    "quickIp": {
+      "title": "Quick IP Lookup",
+      "description": "Instant geolocation & ISP data",
+      "placeholder": "e.g. 8.8.8.8",
+      "ariaLabel": "Enter IP address for quick lookup"
+    },
+    "quickDomain": {
+      "title": "Quick Domain Scan",
+      "description": "DNS, SSL & security analysis",
+      "placeholder": "e.g. google.com",
+      "ariaLabel": "Enter domain name for quick scan"
+    },
+    "toolkit": {
+      "sectionTitle": "Security Protocol Toolkit",
+      "ctfTitle": "CTF & Red Team Ops",
+      "ctfHighlight": "Workspace",
+      "ctfDescription": "Interactive kill chain visualization, automated Nmap vector analysis, and advanced tooling for CTF environments.",
+      "launchWorkspace": "Launch Workspace"
+    },
+    "tools": {
+      "ipIntelligence": {
+        "title": "IP Intelligence",
+        "description": "Trace origin, ASN, and ISP"
+      },
+      "domainAnalyzer": {
+        "title": "Domain Analyzer",
+        "description": "DNS, SSL, and security posture"
+      },
+      "hashGenerator": {
+        "title": "Hash Generator",
+        "description": "MD5, SHA-1, SHA-256 and more"
+      },
+      "base64Codec": {
+        "title": "Base64 Codec",
+        "description": "Encode and decode with file support"
+      }
+    }
+  },
+  "toolsCatalog": {
+    "title": "Security Protocol",
+    "titleHighlight": "Toolkit",
+    "subtitle": "Select a module to initiate standalone analysis interface.",
+    "ctfTitle": "CTF & Red Team Ops",
+    "ctfHighlight": "Workspace",
+    "ctfDescription": "Interactive kill chain visualization, automated Nmap vector analysis, and advanced tooling for CTF environments.",
+    "launchWorkspace": "Launch Workspace",
+    "tools": {
+      "ipIntelligence": {
+        "name": "IP Intelligence",
+        "description": "Advanced IP tracking, geolocation, ASN details, and ISP identification."
+      },
+      "domainAnalyzer": {
+        "name": "Domain Analyzer",
+        "description": "Comprehensive DNS lookup and email security (SPF/DMARC) checks."
+      },
+      "hashGenerator": {
+        "name": "Hash Generator",
+        "description": "Bulk generate secure hashes (MD5, SHA-1, SHA-256) for data integrity verification."
+      },
+      "base64Codec": {
+        "name": "Base64 Codec",
+        "description": "Encode and decode Base64 strings safely within your local browser environment."
+      }
+    }
+  },
+  "blogList": {
+    "title": "Intelligence",
+    "titleHighlight": "Reports",
+    "subtitle": "Classified field reports, adversary simulations, and security research documentation.",
+    "loading": "Decrypting intelligence archive...",
+    "error": "SIGNAL LOST — Failed to retrieve intelligence index.",
+    "empty": "No intelligence reports available at this clearance level.",
+    "disclaimer": "All reports are for educational and defensive research purposes only."
+  },
+  "ipIntelligence": {
+    "pageTitle": "IP Intelligence | AEGIS CORE",
+    "metaDescription": "Trace any IP address — geolocation, ISP, ASN, and VPN/proxy detection. Free IP lookup tool.",
+    "breadcrumb": "IP Intelligence",
+    "title": "IP",
+    "highlight": "Intelligence",
+    "description": "Enter an IP address to trace its global origin, ASN, and ISP details.",
+    "learnLink": "📖 Learn how IP Geolocation works →",
+    "myIp": "MY IP",
+    "placeholder4": "Target IP (e.g. 8.8.8.8)",
+    "placeholder6": "Target IP (e.g. 2001:4860:4860::8888)",
+    "ariaLabel": "Target IP Address",
+    "easterEggs": {
+      "localhost": "THERE IS NO PLACE LIKE 127.0.0.1 [LOCALHOST / LOOPBACK]",
+      "void": "THE VOID [NON-ROUTABLE META-ADDRESS]",
+      "private": "INTERNAL SYSTEM DETECTED [PRIVATE NETWORK IP - NOT PUBLICLY ROUTABLE]",
+      "detectFailed": "DETECTION FAILED [COULD NOT RESOLVE YOUR IP]"
+    },
+    "results": {
+      "geoTitle": "Geolocation & SATELLITE",
+      "country": "COUNTRY",
+      "regionCity": "REGION / CITY",
+      "coordinates": "COORDINATES",
+      "timezone": "TIMEZONE",
+      "unknown": "UNKNOWN",
+      "openSatellite": "OPEN SATELLITE VIEW",
+      "networkTitle": "Network Data",
+      "isp": "ISP",
+      "privacy": "PRIVACY",
+      "hosting": "HOSTING",
+      "vpnProxy": "VPN/PROXY",
+      "mobile": "MOBILE",
+      "asn": "ASN",
+      "hostname": "HOSTNAME",
+      "noReverseDns": "NO REVERSE DNS"
+    },
+    "error": {
+      "title": "Resolution Failed",
+      "fallback": "Uplink severed. Unable to resolve IP."
+    }
+  },
+  "domainAnalyzer": {
+    "pageTitle": "Domain Analyzer | AEGIS CORE",
+    "metaDescription": "DNS records lookup, SSL certificate inspection, SPF and DMARC email security analysis. Free domain intelligence tool.",
+    "breadcrumb": "Domain Analyzer",
+    "title": "Domain",
+    "highlight": "Analyzer",
+    "description": "Comprehensive DNS, SSL, and security posture analysis.",
+    "learnLink": "📖 Learn how DNS records work →",
+    "placeholder": "Target Domain (e.g. aegis.net.tr)",
+    "ariaLabel": "Enter target domain to analyze",
+    "errorTitle": "Analysis Failed",
+    "ssl": {
+      "title": "SSL Certificate",
+      "subject": "SUBJECT",
+      "issuer": "ISSUER",
+      "protocol": "PROTOCOL",
+      "expires": "EXPIRES",
+      "serial": "SERIAL",
+      "expired": "EXPIRED",
+      "noSsl": "No SSL certificate detected",
+      "checking": "Checking SSL..."
+    },
+    "security": {
+      "title": "Security Posture",
+      "spf": "SPF Record",
+      "spfSub": "(Spoofing Protection)",
+      "dmarc": "DMARC Record",
+      "dmarcSub": "(Mail Authentication)",
+      "sslTls": "SSL/TLS",
+      "sslTlsSub": "(Encryption)"
+    },
+    "records": {
+      "ns": "Infrastructure (NS)",
+      "routing": "Routing (A / AAAA)",
+      "mx": "Mail Exchangers (MX)",
+      "txt": "Raw TXT Records",
+      "noNs": "No NS records found.",
+      "noRouting": "No routing records resolved.",
+      "noMx": "No MX records returned."
+    }
+  },
+  "hashGenerator": {
+    "pageTitle": "Hash Generator | AEGIS CORE",
+    "metaDescription": "Generate MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes from text or files. All operations run locally in your browser.",
+    "breadcrumb": "Hash Generator",
+    "title": "Hash",
+    "highlight": "Generator",
+    "description": "Generate cryptographically secure digests for data & file integrity.",
+    "learnLink": "📖 Learn about hash algorithms →",
+    "clearAll": "Clear All Inputs",
+    "inputData": "Input Data",
+    "output": "Output",
+    "placeholder": "Paste text, drag & drop a file, or click 'Select File'...",
+    "resultPlaceholder": "Hash results will appear here...",
+    "fileError": "ERROR: Unable to read file or file is too large.",
+    "verification": {
+      "title": "Hash Verification",
+      "description": "Paste an expected hash to compare.",
+      "placeholder": "Paste original hash here..."
+    },
+    "securityNotice": "Terminal operates in offline mode. Cryptographic operations are performed locally via Web Crypto API. Zero data leaves this machine."
+  },
+  "base64": {
+    "pageTitle": "Base64 Codec | AEGIS CORE",
+    "metaDescription": "Encode and decode Base64 strings and files directly in your browser. Supports drag & drop file upload with zero data transmission.",
+    "breadcrumb": "Base64 Codec",
+    "title": "Base64",
+    "highlight": "Codec",
+    "description": "Encode text or files to Base64, or decode Base64 back to text or file.",
+    "learnLink": "📖 Learn how Base64 encoding works →",
+    "encode": "Encode",
+    "decode": "Decode",
+    "swap": "Swap Input & Output",
+    "inputLabels": {
+      "encodePlain": "Plain Text / File Input",
+      "decodeBase64": "Base64 / File Input"
+    },
+    "outputLabels": {
+      "encodeResult": "Base64 Output",
+      "decodeResult": "Plain Text Output"
+    },
+    "placeholders": {
+      "encode": "Enter text to encode, select a file, or drag & drop...",
+      "decode": "Paste Base64 here, select a file, or drag & drop..."
+    },
+    "resultPlaceholder": "Result will appear here...",
+    "errors": {
+      "invalidBase64": "Invalid Base64 string.",
+      "encodingError": "Encoding error occurred.",
+      "fileReadError": "Failed to read file.",
+      "cannotDecode": "Invalid Base64 — cannot decode to file."
+    },
+    "securityNotice": "All encoding/decoding operations are performed locally in your browser. Zero data leaves this machine."
+  },
+  "ai": {
+    "title": "AEGIS",
+    "titleHighlight": "Intelligence",
+    "subtitle": "Cybersecurity expert AI. Ask about threats, network analysis, vulnerability assessment, and more.",
+    "suggestions": [
+      "Explain SQL injection attacks",
+      "How does a VPN protect my traffic?",
+      "What is a zero-day vulnerability?",
+      "Best practices for API security"
+    ],
+    "inputPlaceholder": "Ask AEGIS anything about cybersecurity...",
+    "clearChat": "Clear chat",
+    "disclaimer": "AEGIS may produce inaccurate information. Verify critical security advice independently.",
+    "emptyResponse": "Neural link returned empty response.",
+    "errorFallback": "Neural link severed. Retry connection."
+  },
+  "ctf": {
+    "sidebar": {
+      "tools": "Tools",
+      "ctfOps": "CTF Ops",
+      "killChain": "Kill Chain",
+      "phaseSelector": "ATTACK_PHASE_SELECTOR",
+      "workspaceActive": "Workspace Active"
+    },
+    "targetConfig": {
+      "lhost": "LHOST",
+      "rhost": "RHOST"
+    },
+    "disclaimer": {
+      "title": "⚠️ Legal & Ethical Disclaimer",
+      "consent": "You must have explicit, mutual consent from the target system's owner before running any exploits, payloads, or scans.",
+      "accept": "I Accept — Proceed to Workspace"
+    },
+    "ui": {
+      "generate": "Generate",
+      "copy": "Copy",
+      "copyAll": "Copy All",
+      "copyToClipboard": "Copy to Clipboard",
+      "clear": "Clear",
+      "targetIp": "Target IP",
+      "targetPort": "Target Port",
+      "listenerIp": "Listener IP",
+      "listenerPort": "Listener Port",
+      "comingSoon": "Coming Soon",
+      "comingSoonDesc": "This module is under active development."
+    }
+  },
+  "breadcrumb": {
+    "tools": "Tools"
+  }
+}

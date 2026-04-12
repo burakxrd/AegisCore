@@ -1,41 +1,45 @@
 import React, { useState } from 'react';
 import { Globe, Search, Hash, Terminal, Sparkles, ArrowRight, Crosshair, Network, Shield } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { LangLink } from '../components/layout/LangLink';
+import { useTranslation, useLanguage } from '../i18n';
 
 export default function Dashboard() {
   const [quickIp, setQuickIp] = useState('');
   const [quickDomain, setQuickDomain] = useState('');
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { localePath } = useLanguage();
 
   const tools = [
     {
       id: 'ip',
-      title: 'IP Intelligence',
-      description: 'Trace origin, ASN, and ISP',
+      titleKey: 'dashboard.tools.ipIntelligence.title' as const,
+      descKey: 'dashboard.tools.ipIntelligence.description' as const,
       icon: Globe,
       color: 'cyan',
       path: '/tools/ip-intelligence',
     },
     {
       id: 'domain',
-      title: 'Domain Analyzer',
-      description: 'DNS, SSL, and security posture',
+      titleKey: 'dashboard.tools.domainAnalyzer.title' as const,
+      descKey: 'dashboard.tools.domainAnalyzer.description' as const,
       icon: Search,
       color: 'blue',
       path: '/tools/domain-analyzer',
     },
     {
       id: 'hash',
-      title: 'Hash Generator',
-      description: 'MD5, SHA-1, SHA-256 and more',
+      titleKey: 'dashboard.tools.hashGenerator.title' as const,
+      descKey: 'dashboard.tools.hashGenerator.description' as const,
       icon: Hash,
       color: 'purple',
       path: '/tools/hash-generator',
     },
     {
       id: 'base64',
-      title: 'Base64 Codec',
-      description: 'Encode and decode with file support',
+      titleKey: 'dashboard.tools.base64Codec.title' as const,
+      descKey: 'dashboard.tools.base64Codec.description' as const,
       icon: Terminal,
       color: 'emerald',
       path: '/tools/base64-codec',
@@ -65,21 +69,21 @@ export default function Dashboard() {
           />
           <div className="flex-1">
             <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">
-              Welcome to <span className="text-cyan-500">AEGIS CORE</span>
+              {t('dashboard.hero.welcome')} <span className="text-cyan-500">AEGIS CORE</span>
             </h1>
             <p className="text-slate-400 font-mono text-sm max-w-2xl leading-relaxed">
-              Your centralized cybersecurity intelligence interface. Analyze IPs, inspect domains, generate hashes, and query AI-powered threat intelligence — all in one place.
+              {t('dashboard.hero.description')}
             </p>
           </div>
 
-          <Link
+          <LangLink
             to="/ai"
             className="shrink-0 flex items-center gap-3 px-6 py-3.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-sm tracking-wider transition-all shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 group"
           >
             <Sparkles className="w-5 h-5" aria-hidden="true" />
-            ASK AI
+            {t('dashboard.hero.askAi')}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-          </Link>
+          </LangLink>
         </div>
       </div>
 
@@ -96,8 +100,8 @@ export default function Dashboard() {
               <Crosshair className="w-5 h-5 text-cyan-500" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-white font-bold text-sm">Quick IP Lookup</h3>
-              <p className="text-slate-400 text-xs font-mono">Instant geolocation & ISP data</p>
+              <h3 className="text-white font-bold text-sm">{t('dashboard.quickIp.title')}</h3>
+              <p className="text-slate-400 text-xs font-mono">{t('dashboard.quickIp.description')}</p>
             </div>
           </div>
 
@@ -105,25 +109,25 @@ export default function Dashboard() {
             <input
               type="text"
               value={quickIp}
-              aria-label="Enter IP address for quick lookup"
+              aria-label={t('dashboard.quickIp.ariaLabel')}
               onChange={(e) => {
                 const val = e.target.value.replace(/[^0-9.a-fA-F:]/g, '');
                 if (val.length <= 45) setQuickIp(val);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && quickIp.trim()) {
-                  navigate(`/tools/ip-intelligence?q=${encodeURIComponent(quickIp.trim())}`);
+                  navigate(localePath(`/tools/ip-intelligence?q=${encodeURIComponent(quickIp.trim())}`));
                 }
               }}
-              placeholder="e.g. 8.8.8.8"
+              placeholder={t('dashboard.quickIp.placeholder')}
               className="w-full bg-slate-950/80 border border-slate-700/50 rounded-xl pl-4 pr-12 py-3 text-sm font-mono text-cyan-400 focus:outline-none focus:border-cyan-500/50 placeholder:text-slate-600 transition-colors"
             />
             <button
               onClick={() => {
-                if (quickIp.trim()) navigate(`/tools/ip-intelligence?q=${encodeURIComponent(quickIp.trim())}`);
-                else navigate('/tools/ip-intelligence');
+                if (quickIp.trim()) navigate(localePath(`/tools/ip-intelligence?q=${encodeURIComponent(quickIp.trim())}`));
+                else navigate(localePath('/tools/ip-intelligence'));
               }}
-              aria-label="Search IP"
+              aria-label={t('common.search')}
               className="absolute right-2 p-2 bg-cyan-500/10 text-cyan-400 rounded-lg hover:bg-cyan-500 hover:text-white transition-all"
             >
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -140,8 +144,8 @@ export default function Dashboard() {
               <Network className="w-5 h-5 text-blue-500" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-white font-bold text-sm">Quick Domain Scan</h3>
-              <p className="text-slate-400 text-xs font-mono">DNS, SSL & security analysis</p>
+              <h3 className="text-white font-bold text-sm">{t('dashboard.quickDomain.title')}</h3>
+              <p className="text-slate-400 text-xs font-mono">{t('dashboard.quickDomain.description')}</p>
             </div>
           </div>
 
@@ -149,22 +153,22 @@ export default function Dashboard() {
             <input
               type="text"
               value={quickDomain}
-              aria-label="Enter domain name for quick scan"
+              aria-label={t('dashboard.quickDomain.ariaLabel')}
               onChange={(e) => setQuickDomain(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && quickDomain.trim()) {
-                  navigate(`/tools/domain-analyzer?q=${encodeURIComponent(quickDomain.trim())}`);
+                  navigate(localePath(`/tools/domain-analyzer?q=${encodeURIComponent(quickDomain.trim())}`));
                 }
               }}
-              placeholder="e.g. google.com"
+              placeholder={t('dashboard.quickDomain.placeholder')}
               className="w-full bg-slate-950/80 border border-slate-700/50 rounded-xl pl-4 pr-12 py-3 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500/50 placeholder:text-slate-600 transition-colors"
             />
             <button
               onClick={() => {
-                if (quickDomain.trim()) navigate(`/tools/domain-analyzer?q=${encodeURIComponent(quickDomain.trim())}`);
-                else navigate('/tools/domain-analyzer');
+                if (quickDomain.trim()) navigate(localePath(`/tools/domain-analyzer?q=${encodeURIComponent(quickDomain.trim())}`));
+                else navigate(localePath('/tools/domain-analyzer'));
               }}
-              aria-label="Scan Domain"
+              aria-label={t('common.search')}
               className="absolute right-2 p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all"
             >
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -177,11 +181,11 @@ export default function Dashboard() {
       <div>
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
           <div className="w-6 h-px bg-slate-700" />
-          Security Protocol Toolkit
+          {t('dashboard.toolkit.sectionTitle')}
           <div className="flex-1 h-px bg-slate-800/50" />
         </h2>
 
-        <Link
+        <LangLink
           to="/tools/ctf-workspace"
           className="group relative flex flex-col md:flex-row items-center gap-6 bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 p-6 md:p-8 rounded-3xl transition-all shadow-lg hover:shadow-cyan-500/10 mb-6 overflow-hidden"
         >
@@ -196,19 +200,19 @@ export default function Dashboard() {
 
           <div className="flex-1 text-center md:text-left z-10">
             <div className="flex items-center justify-center md:justify-start gap-3 mb-1">
-              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">CTF & Red Team Ops <span className="text-cyan-400">Workspace</span></h3>
-              <span className="px-2 py-0.5 rounded border border-cyan-500/20 bg-cyan-500/10 text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.2)]">New</span>
+              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">{t('dashboard.toolkit.ctfTitle')} <span className="text-cyan-400">{t('dashboard.toolkit.ctfHighlight')}</span></h3>
+              <span className="px-2 py-0.5 rounded border border-cyan-500/20 bg-cyan-500/10 text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(6,182,212,0.2)]">{t('common.new')}</span>
             </div>
-            <p className="text-xs md:text-sm font-mono text-slate-400 mt-2">Interactive kill chain visualization, automated Nmap vector analysis, and payload generation for CTF environments.</p>
+            <p className="text-xs md:text-sm font-mono text-slate-400 mt-2">{t('dashboard.toolkit.ctfDescription')}</p>
           </div>
 
           <div className="shrink-0 z-10 w-full md:w-auto mt-4 md:mt-0">
             <div className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-900/80 hover:bg-cyan-500/10 text-cyan-400 border border-slate-700 hover:border-cyan-500/40 rounded-xl font-bold text-sm transition-all group-hover:text-cyan-300">
-              Launch Workspace
+              {t('dashboard.toolkit.launchWorkspace')}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
             </div>
           </div>
-        </Link>
+        </LangLink>
 
         {/* TOOL CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -216,7 +220,7 @@ export default function Dashboard() {
             const colors = colorMap[tool.color];
             const Icon = tool.icon;
             return (
-              <Link
+              <LangLink
                 key={tool.id}
                 to={tool.path}
                 className={`group bg-slate-900/40 border border-slate-800/50 p-6 rounded-2xl ${colors.hoverBorder} transition-all hover:shadow-lg cursor-pointer block relative overflow-hidden`}
@@ -227,11 +231,11 @@ export default function Dashboard() {
                   <Icon className={`w-5 h-5 ${colors.text}`} aria-hidden="true" />
                 </div>
 
-                <h3 className="text-white font-bold text-sm mb-1 group-hover:text-cyan-400 transition-colors">{tool.title}</h3>
-                <p className="text-slate-400 text-xs font-mono">{tool.description}</p>
+                <h3 className="text-white font-bold text-sm mb-1 group-hover:text-cyan-400 transition-colors">{t(tool.titleKey)}</h3>
+                <p className="text-slate-400 text-xs font-mono">{t(tool.descKey)}</p>
 
                 <ArrowRight className="absolute bottom-6 right-6 w-4 h-4 text-slate-700 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" aria-hidden="true" />
-              </Link>
+              </LangLink>
             );
           })}
         </div>

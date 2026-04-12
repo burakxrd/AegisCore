@@ -1,0 +1,308 @@
+{
+  "common": {
+    "brand": "AEGIS CORE",
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı!",
+    "generate": "Oluştur",
+    "clear": "TEMİZLE",
+    "search": "Ara",
+    "close": "Kapat",
+    "back": "Geri",
+    "new": "YENİ",
+    "learnMore": "Daha fazla bilgi",
+    "selectFile": "DOSYA SEÇ",
+    "removeFile": "Dosyayı Kaldır",
+    "dropFileHere": "DOSYAYI BURAYA BIRAKIN",
+    "saveAsFile": "DOSYA OLARAK KAYDET",
+    "targetLocked": "Hedef Kilitlendi:",
+    "executeSearch": "Aramayı Başlat"
+  },
+  "header": {
+    "subtitle": "Gelişmiş Savunma Protokolü",
+    "nav": {
+      "dashboard": "PANEL",
+      "ai": "AI",
+      "tools": "ARAÇLAR",
+      "blogs": "BLOG"
+    },
+    "uplink": "UPLINK_STABLE",
+    "openMenu": "Menüyü Aç",
+    "closeMenu": "Menüyü Kapat"
+  },
+  "footer": {
+    "documentation": "Dokümantasyon",
+    "privacy": "Gizlilik",
+    "terms": "Şartlar"
+  },
+  "languageSwitcher": {
+    "en": "English",
+    "tr": "Türkçe"
+  },
+  "dashboard": {
+    "hero": {
+      "welcome": "Hoş Geldiniz",
+      "description": "Merkezi siber güvenlik istihbarat arayüzünüz. IP analizi, domain inceleme, hash oluşturma ve yapay zekâ destekli tehdit istihbaratı — hepsi tek yerde.",
+      "askAi": "AI'A SOR"
+    },
+    "quickIp": {
+      "title": "Hızlı IP Sorgulama",
+      "description": "Anlık konum ve ISP verileri",
+      "placeholder": "ör. 8.8.8.8",
+      "ariaLabel": "Hızlı sorgu için IP adresi girin"
+    },
+    "quickDomain": {
+      "title": "Hızlı Domain Tarama",
+      "description": "DNS, SSL ve güvenlik analizi",
+      "placeholder": "ör. google.com",
+      "ariaLabel": "Hızlı tarama için domain adı girin"
+    },
+    "toolkit": {
+      "sectionTitle": "Güvenlik Protokolü Araç Seti",
+      "ctfTitle": "CTF & Red Team Ops",
+      "ctfHighlight": "Çalışma Alanı",
+      "ctfDescription": "Etkileşimli kill chain görselleştirmesi, otomatik Nmap vektör analizi ve CTF ortamları için gelişmiş araçlar.",
+      "launchWorkspace": "Çalışma Alanını Aç"
+    },
+    "tools": {
+      "ipIntelligence": {
+        "title": "IP İstihbaratı",
+        "description": "Kaynak, ASN ve ISP takibi"
+      },
+      "domainAnalyzer": {
+        "title": "Domain Analizörü",
+        "description": "DNS, SSL ve güvenlik durumu"
+      },
+      "hashGenerator": {
+        "title": "Hash Oluşturucu",
+        "description": "MD5, SHA-1, SHA-256 ve daha fazlası"
+      },
+      "base64Codec": {
+        "title": "Base64 Codec",
+        "description": "Dosya desteğiyle encode ve decode"
+      }
+    }
+  },
+  "toolsCatalog": {
+    "title": "Güvenlik Protokolü",
+    "titleHighlight": "Araç Seti",
+    "subtitle": "Bağımsız analiz arayüzünü başlatmak için bir modül seçin.",
+    "ctfTitle": "CTF & Red Team Ops",
+    "ctfHighlight": "Çalışma Alanı",
+    "ctfDescription": "Etkileşimli kill chain görselleştirmesi, otomatik Nmap vektör analizi ve CTF ortamları için gelişmiş araçlar.",
+    "launchWorkspace": "Çalışma Alanını Aç",
+    "tools": {
+      "ipIntelligence": {
+        "name": "IP İstihbaratı",
+        "description": "Gelişmiş IP takibi, coğrafi konum, ASN detayları ve ISP tanımlama."
+      },
+      "domainAnalyzer": {
+        "name": "Domain Analizörü",
+        "description": "Kapsamlı DNS sorgusu ve e-posta güvenliği (SPF/DMARC) kontrolleri."
+      },
+      "hashGenerator": {
+        "name": "Hash Oluşturucu",
+        "description": "Veri bütünlüğü doğrulaması için toplu güvenli hash üretimi (MD5, SHA-1, SHA-256)."
+      },
+      "base64Codec": {
+        "name": "Base64 Codec",
+        "description": "Base64 dizelerini güvenli bir şekilde tarayıcınızda encode ve decode edin."
+      }
+    }
+  },
+  "blogList": {
+    "title": "İstihbarat",
+    "titleHighlight": "Raporları",
+    "subtitle": "Gizli saha raporları, düşman simülasyonları ve güvenlik araştırma dokümantasyonu.",
+    "loading": "İstihbarat arşivi çözümleniyor...",
+    "error": "SİNYAL KAYBEDİLDİ — İstihbarat dizini alınamadı.",
+    "empty": "Bu yetki düzeyinde mevcut istihbarat raporu bulunmamaktadır.",
+    "disclaimer": "Tüm raporlar yalnızca eğitim ve savunma amaçlı araştırma içindir."
+  },
+  "ipIntelligence": {
+    "pageTitle": "IP İstihbaratı | AEGIS CORE",
+    "metaDescription": "Herhangi bir IP adresini izleyin — coğrafi konum, ISP, ASN ve VPN/Proxy algılama. Ücretsiz IP sorgulama aracı.",
+    "breadcrumb": "IP İstihbaratı",
+    "title": "IP",
+    "highlight": "İstihbaratı",
+    "description": "Küresel kaynağı, ASN ve ISP detaylarını izlemek için bir IP adresi girin.",
+    "learnLink": "📖 IP Coğrafi Konum nasıl çalışır öğrenin →",
+    "myIp": "IP'M",
+    "placeholder4": "Hedef IP (ör. 8.8.8.8)",
+    "placeholder6": "Hedef IP (ör. 2001:4860:4860::8888)",
+    "ariaLabel": "Hedef IP Adresi",
+    "easterEggs": {
+      "localhost": "EV GİBİ YER YOK 127.0.0.1 [LOCALHOST / LOOPBACK]",
+      "void": "BOŞLUK [YÖNLENDİRİLEMEZ META-ADRES]",
+      "private": "DAHİLİ SİSTEM TESPİT EDİLDİ [ÖZEL AĞ IP'Sİ - HERKESE AÇIK YÖNLENDİRİLEMEZ]",
+      "detectFailed": "TESPİT BAŞARISIZ [IP'NİZ ÇÖZÜMLENEMEDI]"
+    },
+    "results": {
+      "geoTitle": "Coğrafi Konum & UYDU",
+      "country": "ÜLKE",
+      "regionCity": "BÖLGE / ŞEHİR",
+      "coordinates": "KOORDİNATLAR",
+      "timezone": "SAAT DİLİMİ",
+      "unknown": "BİLİNMİYOR",
+      "openSatellite": "UYDU GÖRÜNÜMÜNÜ AÇ",
+      "networkTitle": "Ağ Verileri",
+      "isp": "ISP",
+      "privacy": "GİZLİLİK",
+      "hosting": "HOSTING",
+      "vpnProxy": "VPN/PROXY",
+      "mobile": "MOBİL",
+      "asn": "ASN",
+      "hostname": "ANA BİLGİSAYAR ADI",
+      "noReverseDns": "TERS DNS YOK"
+    },
+    "error": {
+      "title": "Çözümleme Başarısız",
+      "fallback": "Bağlantı kesildi. IP çözümlenemiyor."
+    }
+  },
+  "domainAnalyzer": {
+    "pageTitle": "Domain Analizörü | AEGIS CORE",
+    "metaDescription": "DNS kayıt sorgusu, SSL sertifika incelemesi, SPF ve DMARC e-posta güvenliği analizi. Ücretsiz domain istihbarat aracı.",
+    "breadcrumb": "Domain Analizörü",
+    "title": "Domain",
+    "highlight": "Analizörü",
+    "description": "Kapsamlı DNS, SSL ve güvenlik duruşu analizi.",
+    "learnLink": "📖 DNS kayıtları nasıl çalışır öğrenin →",
+    "placeholder": "Hedef Domain (ör. aegis.net.tr)",
+    "ariaLabel": "Analiz için hedef domain girin",
+    "errorTitle": "Analiz Başarısız",
+    "ssl": {
+      "title": "SSL Sertifikası",
+      "subject": "KONU",
+      "issuer": "VEREN",
+      "protocol": "PROTOKOL",
+      "expires": "BİTİŞ",
+      "serial": "SERİ NO",
+      "expired": "SÜRESİ DOLMUŞ",
+      "noSsl": "SSL sertifikası tespit edilemedi",
+      "checking": "SSL kontrol ediliyor..."
+    },
+    "security": {
+      "title": "Güvenlik Durumu",
+      "spf": "SPF Kaydı",
+      "spfSub": "(Spoofing Koruması)",
+      "dmarc": "DMARC Kaydı",
+      "dmarcSub": "(Posta Doğrulama)",
+      "sslTls": "SSL/TLS",
+      "sslTlsSub": "(Şifreleme)"
+    },
+    "records": {
+      "ns": "Altyapı (NS)",
+      "routing": "Yönlendirme (A / AAAA)",
+      "mx": "Posta Sunucuları (MX)",
+      "txt": "Ham TXT Kayıtları",
+      "noNs": "NS kaydı bulunamadı.",
+      "noRouting": "Yönlendirme kaydı çözümlenemedi.",
+      "noMx": "MX kaydı döndürülmedi."
+    }
+  },
+  "hashGenerator": {
+    "pageTitle": "Hash Oluşturucu | AEGIS CORE",
+    "metaDescription": "Metin veya dosyalardan MD5, SHA-1, SHA-256, SHA-384 ve SHA-512 hash oluşturun. Tüm işlemler tarayıcınızda yerel olarak çalışır.",
+    "breadcrumb": "Hash Oluşturucu",
+    "title": "Hash",
+    "highlight": "Oluşturucu",
+    "description": "Veri ve dosya bütünlüğü için kriptografik güvenli özetler oluşturun.",
+    "learnLink": "📖 Hash algoritmaları hakkında bilgi edinin →",
+    "clearAll": "Tüm Girdileri Temizle",
+    "inputData": "Girdi Verileri",
+    "output": "Çıktı",
+    "placeholder": "Metin yapıştırın, dosya sürükleyip bırakın veya 'Dosya Seç'e tıklayın...",
+    "resultPlaceholder": "Hash sonuçları burada görünecek...",
+    "fileError": "HATA: Dosya okunamıyor veya çok büyük.",
+    "verification": {
+      "title": "Hash Doğrulaması",
+      "description": "Karşılaştırmak için beklenen hash'i yapıştırın.",
+      "placeholder": "Orijinal hash'i buraya yapıştırın..."
+    },
+    "securityNotice": "Terminal çevrimdışı modda çalışır. Kriptografik işlemler Web Crypto API aracılığıyla yerel olarak gerçekleştirilir. Hiçbir veri cihazınızdan çıkmaz."
+  },
+  "base64": {
+    "pageTitle": "Base64 Codec | AEGIS CORE",
+    "metaDescription": "Base64 dizelerini ve dosyalarını doğrudan tarayıcınızda encode ve decode edin. Sıfır veri aktarımıyla sürükle bırak dosya yüklemeyi destekler.",
+    "breadcrumb": "Base64 Codec",
+    "title": "Base64",
+    "highlight": "Codec",
+    "description": "Metin veya dosyaları Base64'e encode edin veya Base64'ü metin ya da dosyaya decode edin.",
+    "learnLink": "📖 Base64 encodlama nasıl çalışır öğrenin →",
+    "encode": "Encode",
+    "decode": "Decode",
+    "swap": "Girdi ve Çıktıyı Değiştir",
+    "inputLabels": {
+      "encodePlain": "Düz Metin / Dosya Girişi",
+      "decodeBase64": "Base64 / Dosya Girişi"
+    },
+    "outputLabels": {
+      "encodeResult": "Base64 Çıktısı",
+      "decodeResult": "Düz Metin Çıktısı"
+    },
+    "placeholders": {
+      "encode": "Encode etmek için metin girin, dosya seçin veya sürükleyip bırakın...",
+      "decode": "Base64 yapıştırın, dosya seçin veya sürükleyip bırakın..."
+    },
+    "resultPlaceholder": "Sonuç burada görünecek...",
+    "errors": {
+      "invalidBase64": "Geçersiz Base64 dizesi.",
+      "encodingError": "Encodlama hatası oluştu.",
+      "fileReadError": "Dosya okunamadı.",
+      "cannotDecode": "Geçersiz Base64 — dosyaya decode edilemiyor."
+    },
+    "securityNotice": "Tüm encode/decode işlemleri tarayıcınızda yerel olarak gerçekleştirilir. Hiçbir veri cihazınızdan çıkmaz."
+  },
+  "ai": {
+    "title": "AEGIS",
+    "titleHighlight": "İstihbarat",
+    "subtitle": "Siber güvenlik uzmanı yapay zekâ. Tehditler, ağ analizi, zafiyet değerlendirmesi ve daha fazlası hakkında sorun.",
+    "suggestions": [
+      "SQL injection saldırılarını açıkla",
+      "VPN trafiğimi nasıl korur?",
+      "Zero-day zafiyet nedir?",
+      "API güvenliği için en iyi uygulamalar"
+    ],
+    "inputPlaceholder": "AEGIS'e siber güvenlik hakkında bir şey sorun...",
+    "clearChat": "Sohbeti Temizle",
+    "disclaimer": "AEGIS hatalı bilgiler üretebilir. Kritik güvenlik tavsiyelerini bağımsız olarak doğrulayın.",
+    "emptyResponse": "Sinir ağı bağlantısı boş yanıt döndürdü.",
+    "errorFallback": "Sinir ağı bağlantısı kesildi. Yeniden deneyin."
+  },
+  "ctf": {
+    "sidebar": {
+      "tools": "Araçlar",
+      "ctfOps": "CTF Ops",
+      "killChain": "Kill Chain",
+      "phaseSelector": "SALDIRI_FAZ_SEÇİCİ",
+      "workspaceActive": "Çalışma Alanı Aktif"
+    },
+    "targetConfig": {
+      "lhost": "LHOST",
+      "rhost": "RHOST"
+    },
+    "disclaimer": {
+      "title": "⚠️ Hukuki & Etik Sorumluluk Reddi",
+      "consent": "Herhangi bir exploit, payload veya tarama çalıştırmadan önce hedef sistem sahibinden açık ve karşılıklı onay almanız gerekmektedir.",
+      "accept": "Kabul Ediyorum — Çalışma Alanına Geç"
+    },
+    "ui": {
+      "generate": "Oluştur",
+      "copy": "Kopyala",
+      "copyAll": "Tümünü Kopyala",
+      "copyToClipboard": "Panoya Kopyala",
+      "clear": "Temizle",
+      "targetIp": "Hedef IP",
+      "targetPort": "Hedef Port",
+      "listenerIp": "Dinleyici IP",
+      "listenerPort": "Dinleyici Port",
+      "comingSoon": "Yakında",
+      "comingSoonDesc": "Bu modül aktif geliştirme aşamasındadır."
+    }
+  },
+  "breadcrumb": {
+    "tools": "Araçlar"
+  }
+}

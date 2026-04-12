@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FileText, ChevronRight, Calendar, Tag, ShieldAlert, AlertTriangle, Loader2 } from 'lucide-react';
+import { FileText, ChevronRight, Calendar, Tag, AlertTriangle, Loader2 } from 'lucide-react';
 import { SystemAlert } from '../components/SystemAlert';
 import { Helmet } from 'react-helmet-async';
+import { LangLink } from '../components/layout/LangLink';
+import { useTranslation } from '../i18n';
 
 import { getBlogIndex, BlogEntry } from '../data/blogService';
 import { logError } from '../utils/logger';
@@ -19,6 +20,7 @@ export default function BlogList() {
     const [posts, setPosts] = useState<BlogEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         getBlogIndex()
@@ -46,10 +48,10 @@ export default function BlogList() {
             {/* --- Header --- */}
             <div className="mb-10 w-full text-left">
                 <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
-                    Intelligence <span className="text-cyan-500">Reports</span>
+                    {t('blogList.title')} <span className="text-cyan-500">{t('blogList.titleHighlight')}</span>
                 </h2>
                 <p className="text-slate-400 font-mono text-sm">
-                    Classified field reports, adversary simulations, and security research documentation.
+                    {t('blogList.subtitle')}
                 </p>
             </div>
 
@@ -57,7 +59,7 @@ export default function BlogList() {
             {loading && (
                 <div className="flex items-center justify-center gap-3 py-20 text-cyan-500 font-mono">
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Decrypting intelligence archive...
+                    {t('blogList.loading')}
                 </div>
             )}
 
@@ -65,7 +67,7 @@ export default function BlogList() {
             {error && (
                 <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-8 text-center">
                     <AlertTriangle className="w-8 h-8 text-red-500/60 mx-auto mb-3" />
-                    <p className="text-red-400 font-mono text-sm">SIGNAL LOST — Failed to retrieve intelligence index.</p>
+                    <p className="text-red-400 font-mono text-sm">{t('blogList.error')}</p>
                 </div>
             )}
 
@@ -73,7 +75,7 @@ export default function BlogList() {
             {!loading && !error && posts.length === 0 && (
                 <div className="bg-slate-900/40 border border-slate-800/50 rounded-3xl p-12 text-center">
                     <FileText className="w-10 h-10 text-slate-600 mx-auto mb-4" />
-                    <p className="text-slate-500 font-mono text-sm">No intelligence reports available at this clearance level.</p>
+                    <p className="text-slate-500 font-mono text-sm">{t('blogList.empty')}</p>
                 </div>
             )}
 
@@ -83,18 +85,16 @@ export default function BlogList() {
                     {posts.map((post) => {
                         const threat = threatLevelConfig[post.threatLevel] || threatLevelConfig.Info;
                         return (
-                            <Link
+                            <LangLink
                                 key={post.slug}
                                 to={`/blog/${post.slug}`}
                                 className="group bg-slate-900/40 border border-slate-800/50 p-8 rounded-3xl hover:border-cyan-500/50 transition-all hover:shadow-2xl hover:shadow-cyan-500/10 cursor-pointer block relative overflow-hidden"
                             >
-                                {/* Background icon effect */}
                                 <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all duration-500">
                                     <FileText className="w-32 h-32" />
                                 </div>
 
                                 <div className="relative z-10">
-                                    {/* Top bar: category + threat level */}
                                     <div className="flex items-center justify-between mb-5">
                                         <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-500">
                                             <Tag className="w-3.5 h-3.5" />
@@ -105,31 +105,28 @@ export default function BlogList() {
                                         </span>
                                     </div>
 
-                                    {/* Title */}
                                     <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2 leading-snug">
                                         {post.title}
                                         <ChevronRight className="w-5 h-5 text-cyan-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all shrink-0" />
                                     </h3>
 
-                                    {/* Summary */}
                                     <p className="text-sm text-slate-400 leading-relaxed mb-5">
                                         {post.summary}
                                     </p>
 
-                                    {/* Date */}
                                     <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
                                         <Calendar className="w-3.5 h-3.5" />
                                         {post.date}
                                     </div>
                                 </div>
-                            </Link>
+                            </LangLink>
                         );
                     })}
                 </div>
             )}
 
             {/* --- Footer Disclaimer --- */}
-            <SystemAlert type="info" message="All reports are for educational and defensive research purposes only." />
+            <SystemAlert type="info" message={t('blogList.disclaimer')} />
         </div>
     );
 }

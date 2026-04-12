@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Send, Sparkles, User, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useTranslation, useLanguage } from '../i18n';
 
 // --- Types ---
 interface Message {
@@ -17,6 +18,7 @@ export default function AegisIntelligence() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { t, tArray } = useTranslation();
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,10 +55,10 @@ export default function AegisIntelligence() {
         throw new Error(data.error || 'Request failed.');
       }
 
-      setMessages(prev => [...prev, { role: 'ai', text: data.text || 'Neural link returned empty response.' }]);
+      setMessages(prev => [...prev, { role: 'ai', text: data.text || t('ai.emptyResponse') }]);
 
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Neural link severed. Retry connection.';
+      const msg = error instanceof Error ? error.message : t('ai.errorFallback');
       setMessages(prev => [...prev, { role: 'ai', text: msg }]);
     } finally {
       setIsLoading(false);
@@ -101,18 +103,13 @@ export default function AegisIntelligence() {
               AEGIS <span className="text-cyan-500">Intelligence</span>
             </h2>
             <p className="text-slate-500 font-mono text-sm max-w-md">
-              Cybersecurity expert AI. Ask about threats, network analysis, vulnerability assessment, and more.
+              {t('ai.subtitle')}
             </p>
           </div>
 
           {/* Öneri butonları */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 w-full max-w-lg">
-            {[
-              "Explain SQL injection attacks",
-              "How does a VPN protect my traffic?",
-              "What is a zero-day vulnerability?",
-              "Best practices for API security"
-            ].map((suggestion) => (
+            {tArray('ai.suggestions').map((suggestion) => (
               <button
                 key={suggestion}
                 onClick={() => {
@@ -199,7 +196,7 @@ export default function AegisIntelligence() {
               value={input}
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask AEGIS anything about cybersecurity..."
+              placeholder={t('ai.inputPlaceholder')}
               rows={1}
               maxLength={MAX_CHARS}
               className="flex-1 bg-transparent px-4 py-3 text-sm text-white focus:outline-none resize-none max-h-37.5 placeholder:text-slate-600 font-mono"
@@ -210,7 +207,7 @@ export default function AegisIntelligence() {
                 <button
                   onClick={handleClear}
                   className="p-2.5 text-slate-600 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10"
-                  title="Clear chat"
+                  title={t('ai.clearChat')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -235,7 +232,7 @@ export default function AegisIntelligence() {
           </div>
         </div>
         <p className="text-center text-[10px] text-slate-600 font-mono mt-2">
-          AEGIS may produce inaccurate information. Verify critical security advice independently.
+          {t('ai.disclaimer')}
         </p>
       </div>
 

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Hash, CheckCircle2, ShieldCheck, Zap, FileUp, Trash2, Check, X } from 'lucide-react';
 import { CopyButton } from '../components/CopyButtons';
-import { Link } from 'react-router-dom';
 import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
 import { DragOverlay, SecurityNotice } from '../components/ToolWidgets';
 import { Helmet } from 'react-helmet-async';
+import { LangLink } from '../components/layout/LangLink';
+import { useTranslation } from '../i18n';
 
 function md5(input: Uint8Array): string {
   function md5cycle(x: number[], k: number[]) {
@@ -111,6 +112,7 @@ export default function HashGenerator() {
   const [expectedHash, setExpectedHash] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   // Drag and drop handlers
   const handleDragEnter = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
@@ -155,7 +157,7 @@ export default function HashGenerator() {
             setOutput(hashArray.map(b => b.toString(16).padStart(2, '0')).join(''));
           }
         } catch (error) {
-          if (!signal.aborted) setOutput("ERROR: Unable to read file or file is too large.");
+          if (!signal.aborted) setOutput(t('hashGenerator.fileError'));
         }
         return;
       }
@@ -200,19 +202,19 @@ export default function HashGenerator() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <Helmet>
-        <title>Hash Generator | AEGIS CORE</title>
-        <meta name="description" content="Generate MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes from text or files. All operations run locally in your browser." />
+        <title>{t('hashGenerator.pageTitle')}</title>
+        <meta name="description" content={t('hashGenerator.metaDescription')} />
         <link rel="canonical" href="https://aegis.net.tr/tools/hash-generator" />
       </Helmet>
 
       {/* ÜST BİLGİ */}
       <div>
-        <ToolBreadcrumb toolName="Hash Generator" />
+        <ToolBreadcrumb toolName={t('hashGenerator.breadcrumb')} />
 
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
-            <ToolPageHeader icon={Hash} title="Hash" highlight="Generator" description="Generate cryptographically secure digests for data & file integrity." />
-            <Link to="/blog/hash-functions-guide" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">📖 Learn about hash algorithms →</Link>
+            <ToolPageHeader icon={Hash} title={t('hashGenerator.title')} highlight={t('hashGenerator.highlight')} description={t('hashGenerator.description')} />
+            <LangLink to="/blog/hash-functions-guide" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">{t('hashGenerator.learnLink')}</LangLink>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -234,9 +236,9 @@ export default function HashGenerator() {
             <button
               onClick={handleClear}
               className="p-2.5 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all border border-red-500/20 flex items-center gap-2 text-xs font-bold"
-              title="Clear All Inputs"
+              title={t('hashGenerator.clearAll')}
             >
-              <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">CLEAR</span>
+              <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">{t('common.clear')}</span>
             </button>
           </div>
         </div>
@@ -259,7 +261,7 @@ export default function HashGenerator() {
           <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-950/80 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-yellow-500" />
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Input Data</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('hashGenerator.inputData')}</span>
             </div>
 
             <input
@@ -278,7 +280,7 @@ export default function HashGenerator() {
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-2 text-[10px] font-bold bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg hover:bg-cyan-900 hover:text-cyan-400 transition-colors border border-slate-700 hover:border-cyan-700"
             >
-              <FileUp className="w-3 h-3" /> SELECT FILE
+              <FileUp className="w-3 h-3" /> {t('common.selectFile')}
             </button>
           </div>
 
@@ -292,7 +294,7 @@ export default function HashGenerator() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Paste text, drag & drop a file, or click 'Select File'..."
+              placeholder={t('hashGenerator.placeholder')}
               className="w-full flex-1 bg-transparent border-none p-6 text-sm font-mono text-slate-300 focus:outline-none focus:ring-0 resize-none min-h-75 custom-scrollbar placeholder:text-slate-600"
             />
           )}
@@ -310,7 +312,7 @@ export default function HashGenerator() {
           <textarea
             readOnly
             value={output}
-            placeholder="Hash results will appear here..."
+            placeholder={t('hashGenerator.resultPlaceholder')}
             className="w-full h-full bg-transparent border-none p-6 text-sm font-mono text-cyan-400 focus:outline-none focus:ring-0 resize-none min-h-75 custom-scrollbar selection:bg-cyan-900 selection:text-cyan-100"
           />
         </div>
@@ -325,9 +327,9 @@ export default function HashGenerator() {
         <div className="bg-slate-950 rounded-[22px] p-6 flex flex-col md:flex-row items-center gap-4">
           <div className="w-full md:w-1/3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-slate-400" /> Hash Verification
+              <CheckCircle2 className="w-4 h-4 text-slate-400" /> {t('hashGenerator.verification.title')}
             </h3>
-            <p className="text-xs text-slate-500 mt-1 font-mono">Paste an expected hash to compare.</p>
+            <p className="text-xs text-slate-500 mt-1 font-mono">{t('hashGenerator.verification.description')}</p>
           </div>
 
           <div className="w-full md:w-2/3 relative flex items-center">
@@ -335,7 +337,7 @@ export default function HashGenerator() {
               type="text"
               value={expectedHash}
               onChange={(e) => setExpectedHash(e.target.value)}
-              placeholder="Paste original hash here..."
+              placeholder={t('hashGenerator.verification.placeholder')}
               className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-mono text-slate-300 focus:outline-none focus:border-cyan-500 transition-colors"
             />
             {isMatch === true && <Check className="absolute right-4 w-5 h-5 text-green-500 animate-in zoom-in" />}
@@ -345,7 +347,7 @@ export default function HashGenerator() {
       </div>
 
       {/* GÜVENLİK BİLDİRİMİ */}
-      <SecurityNotice message="Terminal operates in offline mode. Cryptographic operations are performed locally via Web Crypto API. Zero data leaves this machine." />
+      <SecurityNotice message={t('hashGenerator.securityNotice')} />
 
     </div>
   );

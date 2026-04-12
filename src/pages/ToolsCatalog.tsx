@@ -1,48 +1,51 @@
 import React from 'react';
 import { Globe, Search, Hash, Terminal, ChevronRight, Shield, ArrowRight, Crosshair } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { LangLink } from '../components/layout/LangLink';
+import { useTranslation } from '../i18n';
 
 // --- Types ---
 interface ToolCard {
   id: string;
-  name: string;
-  description: string;
+  nameKey: string;
+  descKey: string;
   icon: React.ReactNode;
   path: string;
   colorClass: string;
 }
 
 export default function ToolsCatalog() {
+  const { t } = useTranslation();
+
   const tools: ToolCard[] = [
     {
       id: 'ip-intelligence',
-      name: 'IP Intelligence',
+      nameKey: 'toolsCatalog.tools.ipIntelligence.name',
       icon: <Globe className="w-6 h-6" />,
-      description: 'Advanced IP tracking, geolocation, ASN details, and ISP identification.',
+      descKey: 'toolsCatalog.tools.ipIntelligence.description',
       path: '/tools/ip-intelligence',
       colorClass: 'text-cyan-500'
     },
     {
       id: 'domain-analyzer',
-      name: 'Domain Analyzer',
+      nameKey: 'toolsCatalog.tools.domainAnalyzer.name',
       icon: <Search className="w-6 h-6" />,
-      description: 'Comprehensive DNS lookup and email security (SPF/DMARC) checks.',
+      descKey: 'toolsCatalog.tools.domainAnalyzer.description',
       path: '/tools/domain-analyzer',
       colorClass: 'text-purple-500'
     },
     {
       id: 'hash-generator',
-      name: 'Hash Generator',
+      nameKey: 'toolsCatalog.tools.hashGenerator.name',
       icon: <Hash className="w-6 h-6" />,
-      description: 'Bulk generate secure hashes (MD5, SHA-1, SHA-256) for data integrity verification.',
+      descKey: 'toolsCatalog.tools.hashGenerator.description',
       path: '/tools/hash-generator',
       colorClass: 'text-blue-500'
     },
     {
       id: 'base64-codec',
-      name: 'Base64 Codec',
+      nameKey: 'toolsCatalog.tools.base64Codec.name',
       icon: <Terminal className="w-6 h-6" />,
-      description: 'Encode and decode Base64 strings safely within your local browser environment.',
+      descKey: 'toolsCatalog.tools.base64Codec.description',
       path: '/tools/base64-codec',
       colorClass: 'text-slate-400'
     }
@@ -53,8 +56,8 @@ export default function ToolsCatalog() {
 
       {/* --- Catalog Header --- */}
       <div className="mb-2">
-        <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Security Protocol <span className="text-cyan-500">Toolkit</span></h2>
-        <p className="text-slate-400 font-mono text-sm">Select a module to initiate standalone analysis interface.</p>
+        <h2 className="text-3xl font-bold text-white tracking-tight mb-2">{t('toolsCatalog.title')} <span className="text-cyan-500">{t('toolsCatalog.titleHighlight')}</span></h2>
+        <p className="text-slate-400 font-mono text-sm">{t('toolsCatalog.subtitle')}</p>
       </div>
 
       {/* --- CTF Hero Card / Banner --- */}
@@ -72,14 +75,10 @@ export default function ToolsCatalog() {
         <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 p-6 sm:p-8">
           {/* Left — Animated Icon Cluster */}
           <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
-            {/* Outer ring pulse */}
             <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-ping" style={{ animationDuration: '3s' }} />
-            {/* Static outer ring */}
             <div className="absolute inset-0 rounded-full border border-cyan-500/30" />
-            {/* Inner shield */}
             <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/10 border border-cyan-500/30 flex items-center justify-center shadow-lg shadow-cyan-500/10 group-hover:scale-110 group-hover:shadow-cyan-500/20 transition-all duration-500">
               <Shield className="w-7 h-7 sm:w-8 sm:h-8 text-cyan-400 drop-shadow-[0_0_6px_rgba(6,182,212,0.5)]" />
-              {/* Small crosshair accent */}
               <Crosshair className="absolute -top-2 -right-2 w-5 h-5 text-cyan-500/60 group-hover:text-cyan-400 group-hover:rotate-90 transition-all duration-700" />
             </div>
           </div>
@@ -87,19 +86,19 @@ export default function ToolsCatalog() {
           {/* Center — Text Content */}
           <div className="flex-1 text-center sm:text-left min-w-0">
             <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
-              <span className="inline-block px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-mono">NEW</span>
+              <span className="inline-block px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-mono">{t('common.new')}</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">
-              CTF & Red Team Ops <span className="text-cyan-400">Workspace</span>
+              {t('toolsCatalog.ctfTitle')} <span className="text-cyan-400">{t('toolsCatalog.ctfHighlight')}</span>
             </h3>
             <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
-              Interactive kill chain visualization, automated Nmap vector analysis, and payload generation for CTF environments.
+              {t('toolsCatalog.ctfDescription')}
             </p>
           </div>
 
           {/* Right — CTA Button */}
           <div className="flex-shrink-0">
-            <Link
+            <LangLink
               to="/tools/ctf-workspace"
               className="group/btn relative inline-flex items-center gap-2 px-6 py-3 rounded-xl
                          bg-cyan-500/10 border border-cyan-500/30
@@ -109,9 +108,9 @@ export default function ToolsCatalog() {
                          hover:shadow-[0_0_24px_-4px_rgba(6,182,212,0.4)]
                          active:scale-95"
             >
-              Launch Workspace
+              {t('toolsCatalog.launchWorkspace')}
               <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
-            </Link>
+            </LangLink>
           </div>
         </div>
       </div>
@@ -120,12 +119,11 @@ export default function ToolsCatalog() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {tools.map((tool) => (
 
-          <Link
+          <LangLink
             key={tool.id}
             to={tool.path}
             className="group bg-slate-900/40 border border-slate-800/50 p-8 rounded-3xl hover:border-cyan-500/50 transition-all hover:shadow-2xl hover:shadow-cyan-500/10 cursor-pointer block relative overflow-hidden"
           >
-            {/* Arka plan efekti */}
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all duration-500">
               {React.cloneElement(tool.icon as React.ReactElement<any>, { className: "w-32 h-32" })}
             </div>
@@ -136,15 +134,15 @@ export default function ToolsCatalog() {
               </div>
 
               <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                {tool.name}
+                {t(tool.nameKey as any)}
                 <ChevronRight className="w-5 h-5 text-cyan-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
               </h3>
 
               <p className="text-sm text-slate-400 leading-relaxed max-w-[85%]">
-                {tool.description}
+                {t(tool.descKey as any)}
               </p>
             </div>
-          </Link>
+          </LangLink>
         ))}
       </div>
 

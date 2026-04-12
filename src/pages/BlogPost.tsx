@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Terminal, ChevronRight, Network } from 'lucide-react';
 import { SystemAlert } from '../components/SystemAlert';
 import { getBlogIndex } from '../data/blogService';
 import { Helmet } from 'react-helmet-async';
+import { LangLink } from '../components/layout/LangLink';
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -65,11 +66,11 @@ export default function BlogPost() {
       </Helmet>
 
       <div className="flex items-center gap-2 text-sm font-mono tracking-wider text-slate-400 mb-6 uppercase">
-        <Link to="/" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
+        <LangLink to="/" className="hover:text-cyan-400 transition-colors flex items-center gap-2">
           <Network className="w-4 h-4" /> AEGIS CORE
-        </Link>
+        </LangLink>
         <ChevronRight className="w-4 h-4 text-slate-600" />
-        <Link to="/blog" className="text-slate-400 hover:text-cyan-400 transition-colors">Intelligence Docs</Link>
+        <LangLink to="/blog" className="text-slate-400 hover:text-cyan-400 transition-colors">Intelligence Docs</LangLink>
         <ChevronRight className="w-4 h-4 text-slate-600" />
         <span className="text-cyan-500">{slug}</span>
       </div>

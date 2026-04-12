@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Globe, Shield, Mail, Server, AlertTriangle, CheckCircle2, Activity, Fingerprint, Lock, Terminal } from 'lucide-react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { CopyButton, CopyAllButton } from '../components/CopyButtons';
 import { SystemAlert } from '../components/SystemAlert';
 import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
@@ -8,6 +8,8 @@ import { SearchBar } from '../components/SearchBar';
 import { InfoCard } from '../components/InfoCard';
 import { TargetLockedBanner } from '../components/ToolWidgets';
 import { Helmet } from 'react-helmet-async';
+import { LangLink } from '../components/layout/LangLink';
+import { useTranslation } from '../i18n';
 
 // --- Types ---
 interface MxRecord {
@@ -47,6 +49,7 @@ export default function DomainAnalyzer() {
   const [error, setError] = useState<string | null>(null);
   const [sslInfo, setSslInfo] = useState<SslInfo | null>(null);
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
   const cleanDomainInput = (input: string) => {
@@ -136,16 +139,16 @@ export default function DomainAnalyzer() {
     <div className="w-full max-w-4xl mx-auto space-y-6">
 
       <Helmet>
-        <title>Domain Analyzer | AEGIS CORE</title>
-        <meta name="description" content="DNS records lookup, SSL certificate inspection, SPF and DMARC email security analysis. Free domain intelligence tool." />
+        <title>{t('domainAnalyzer.pageTitle')}</title>
+        <meta name="description" content={t('domainAnalyzer.metaDescription')} />
         <link rel="canonical" href="https://aegis.net.tr/tools/domain-analyzer" />
       </Helmet>
 
       {/* ÜST BİLGİ */}
       <div>
-        <ToolBreadcrumb toolName="Domain Analyzer" />
-        <ToolPageHeader icon={Globe} title="Domain" highlight="Analyzer" description="Comprehensive DNS, SSL, and security posture analysis." />
-        <Link to="/blog/dns-records-explained" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">📖 Learn how DNS records work →</Link>
+        <ToolBreadcrumb toolName={t('domainAnalyzer.breadcrumb')} />
+        <ToolPageHeader icon={Globe} title={t('domainAnalyzer.title')} highlight={t('domainAnalyzer.highlight')} description={t('domainAnalyzer.description')} />
+        <LangLink to="/blog/dns-records-explained" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">{t('domainAnalyzer.learnLink')}</LangLink>
       </div>
 
       {/* ARAMA ÇUBUĞU */}
@@ -155,12 +158,12 @@ export default function DomainAnalyzer() {
         onSearch={() => handleAnalyze()}
         loading={loading}
         disabled={!domainInput.trim()}
-        placeholder="Target Domain (e.g. aegis.net.tr)"
-        ariaLabel="Enter target domain to analyze"
+        placeholder={t('domainAnalyzer.placeholder')}
+        ariaLabel={t('domainAnalyzer.ariaLabel')}
       />
 
       {/* HATA */}
-      {error && <SystemAlert type="error" title="Analysis Failed" message={error} />}
+      {error && <SystemAlert type="error" title={t('domainAnalyzer.errorTitle')} message={error} />}
 
       {/* SONUÇLAR */}
       {result && (
@@ -173,7 +176,7 @@ export default function DomainAnalyzer() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* SSL CERTIFICATE */}
-            <InfoCard color="emerald" title="SSL Certificate" icon={Lock}>
+            <InfoCard color="emerald" title={t('domainAnalyzer.ssl.title')} icon={Lock}>
 
               {sslInfo && sslInfo.status === 'success' ? (
                 <div className="space-y-4 font-mono text-sm">
@@ -220,26 +223,26 @@ export default function DomainAnalyzer() {
               ) : sslInfo && sslInfo.status === 'fail' ? (
                 <div className="flex items-center gap-3 text-red-400 font-mono text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20">
                   <AlertTriangle className="w-5 h-5 shrink-0" />
-                  <span>No SSL certificate detected</span>
+                  <span>{t('domainAnalyzer.ssl.noSsl')}</span>
                 </div>
               ) : (
-                <div className="text-slate-600 font-mono text-sm italic">Checking SSL...</div>
+                <div className="text-slate-600 font-mono text-sm italic">{t('domainAnalyzer.ssl.checking')}</div>
               )}
             </InfoCard>
 
             {/* SECURITY POSTURE */}
-            <InfoCard color="green" title="Security Posture" icon={Shield}>
+            <InfoCard color="green" title={t('domainAnalyzer.security.title')} icon={Shield}>
               <div className="space-y-4 font-mono text-sm">
                 <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-xl border border-slate-800 hover:border-slate-700 transition-colors">
-                  <span className="text-slate-300">SPF Record <span className="text-slate-500 text-xs hidden sm:inline">(Spoofing Protection)</span></span>
+                  <span className="text-slate-300">{t('domainAnalyzer.security.spf')} <span className="text-slate-500 text-xs hidden sm:inline">{t('domainAnalyzer.security.spfSub')}</span></span>
                   {hasSpf ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertTriangle className="w-5 h-5 text-red-500" />}
                 </div>
                 <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-xl border border-slate-800 hover:border-slate-700 transition-colors">
-                  <span className="text-slate-300">DMARC Record <span className="text-slate-500 text-xs hidden sm:inline">(Mail Authentication)</span></span>
+                  <span className="text-slate-300">{t('domainAnalyzer.security.dmarc')} <span className="text-slate-500 text-xs hidden sm:inline">{t('domainAnalyzer.security.dmarcSub')}</span></span>
                   {hasDmarc ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertTriangle className="w-5 h-5 text-yellow-500" />}
                 </div>
                 <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-xl border border-slate-800 hover:border-slate-700 transition-colors">
-                  <span className="text-slate-300">SSL/TLS <span className="text-slate-500 text-xs hidden sm:inline">(Encryption)</span></span>
+                  <span className="text-slate-300">{t('domainAnalyzer.security.sslTls')} <span className="text-slate-500 text-xs hidden sm:inline">{t('domainAnalyzer.security.sslTlsSub')}</span></span>
                   {sslInfo?.status === 'success' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertTriangle className="w-5 h-5 text-red-500" />}
                 </div>
               </div>
@@ -250,7 +253,7 @@ export default function DomainAnalyzer() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* NS Records */}
-            <InfoCard color="purple" title="Infrastructure (NS)" icon={Fingerprint}>
+            <InfoCard color="purple" title={t('domainAnalyzer.records.ns')} icon={Fingerprint}>
               <div className="flex items-center justify-between mb-4">
                 <CopyAllButton items={result.records.NS} label="NS records" />
               </div>
@@ -261,13 +264,13 @@ export default function DomainAnalyzer() {
                     <CopyButton text={ns} />
                   </div>
                 )) : (
-                  <div className="text-slate-600 italic">No NS records found.</div>
+                  <div className="text-slate-600 italic">{t('domainAnalyzer.records.noNs')}</div>
                 )}
               </div>
             </InfoCard>
 
             {/* A & AAAA Records */}
-            <InfoCard color="cyan" title="Routing (A / AAAA)" icon={Server}>
+            <InfoCard color="cyan" title={t('domainAnalyzer.records.routing')} icon={Server}>
               <div className="flex items-center justify-between mb-4">
                 <CopyAllButton items={[...(result.records.A || []), ...(result.records.AAAA || [])]} label="IP records" />
               </div>
@@ -291,7 +294,7 @@ export default function DomainAnalyzer() {
                   </div>
                 ))}
                 {(!result.records.A?.length && !result.records.AAAA?.length) && (
-                  <div className="text-slate-600 italic">No routing records resolved.</div>
+                  <div className="text-slate-600 italic">{t('domainAnalyzer.records.noRouting')}</div>
                 )}
               </div>
             </InfoCard>
@@ -299,7 +302,7 @@ export default function DomainAnalyzer() {
           </div>
 
           {/* MX Records */}
-          <InfoCard color="blue" title="Mail Exchangers (MX)" icon={Mail}>
+          <InfoCard color="blue" title={t('domainAnalyzer.records.mx')} icon={Mail}>
             <div className="flex items-center justify-between mb-4">
               <CopyAllButton items={(result.records.MX || []).map(r => `${r.priority} ${r.exchange}`)} label="MX records" />
             </div>
@@ -313,7 +316,7 @@ export default function DomainAnalyzer() {
                   </div>
                 </div>
               )) : (
-                <div className="text-slate-600 italic">No MX records returned.</div>
+                <div className="text-slate-600 italic">{t('domainAnalyzer.records.noMx')}</div>
               )}
             </div>
           </InfoCard>
@@ -323,7 +326,7 @@ export default function DomainAnalyzer() {
             <div className="bg-slate-950 border border-slate-800 p-6 rounded-3xl relative overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-slate-400" /> Raw TXT Records
+                  <Terminal className="w-4 h-4 text-slate-400" /> {t('domainAnalyzer.records.txt')}
                 </h3>
                 <CopyAllButton items={result.records.TXT} label="TXT records" />
               </div>

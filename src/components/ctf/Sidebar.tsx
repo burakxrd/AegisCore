@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Network } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { LangLink } from '../layout/LangLink';
 import { KILL_CHAIN, COLOR_MAP } from '../../data/ctf-menu';
 
 // ─── Props ────────────────────────────────────────────────────────
@@ -35,12 +35,12 @@ export default function Sidebar({ activePanel, onSelectPanel, isOpen, onToggle }
       >
         {/* Header */}
         <div className="px-5 pt-5 pb-4 border-b border-slate-800/50">
-          <Link to="/tools" className="flex items-center gap-2 text-xs font-mono text-slate-500 hover:text-cyan-400 transition-colors mb-3 uppercase tracking-widest">
+          <LangLink to="/tools" className="flex items-center gap-2 text-xs font-mono text-slate-500 hover:text-cyan-400 transition-colors mb-3 uppercase tracking-widest">
             <Network className="w-3.5 h-3.5" />
             Tools
             <ChevronRight className="w-3 h-3" />
             <span className="text-slate-400">CTF Ops</span>
-          </Link>
+          </LangLink>
           <h2 className="text-base font-bold text-white tracking-tight">Kill Chain</h2>
           <p className="text-[11px] text-slate-500 font-mono mt-0.5">ATTACK_PHASE_SELECTOR</p>
         </div>

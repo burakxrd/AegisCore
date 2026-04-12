@@ -1,11 +1,16 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { LangLink } from './LangLink';
+import { useTranslation } from '../../i18n';
 
 export default function Footer() {
     const location = useLocation();
-    const isFullscreenPage = location.pathname === '/ai' || location.pathname === '/tools/ctf-workspace';
+    const { t } = useTranslation();
 
-    // Eğer sayfa tam ekransa footer'ı hiç render etme
+    // Strip /:lang prefix for page logic
+    const pathWithoutLang = location.pathname.replace(/^\/[a-z]{2}/, '');
+    const isFullscreenPage = pathWithoutLang === '/ai' || pathWithoutLang === '/tools/ctf-workspace';
+
     if (isFullscreenPage) return null;
 
     return (
@@ -16,9 +21,9 @@ export default function Footer() {
                     <span className="font-bold text-white tracking-tight">AEGIS CORE</span>
                 </div>
                 <div className="flex gap-8 text-[11px] uppercase font-bold tracking-widest text-slate-400">
-                    <Link to="/tools" className="hover:text-cyan-500 transition-colors">Documentation</Link>
-                    <Link to="/privacy-policy" className="hover:text-cyan-500 transition-colors">Privacy</Link>
-                    <Link to="/terms-of-service" className="hover:text-cyan-500 transition-colors">Terms</Link>
+                    <LangLink to="/tools" className="hover:text-cyan-500 transition-colors">{t('footer.documentation')}</LangLink>
+                    <LangLink to="/privacy-policy" className="hover:text-cyan-500 transition-colors">{t('footer.privacy')}</LangLink>
+                    <LangLink to="/terms-of-service" className="hover:text-cyan-500 transition-colors">{t('footer.terms')}</LangLink>
                 </div>
                 <div className="text-[11px] font-mono text-slate-500">
                     © {new Date().getFullYear()} AEGIS_CORE

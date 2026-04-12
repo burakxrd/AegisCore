@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Terminal, ArrowRightLeft, AlertCircle, FileUp, Download } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { CopyButton } from '../components/CopyButtons';
 import { ToolBreadcrumb, ToolPageHeader } from '../components/ToolHeader';
 import { DragOverlay, SecurityNotice } from '../components/ToolWidgets';
 import { Helmet } from 'react-helmet-async';
+import { LangLink } from '../components/layout/LangLink';
+import { useTranslation } from '../i18n';
 
 export default function Base64Encoder() {
   const [input, setInput] = useState<string>('');
@@ -14,6 +15,7 @@ export default function Base64Encoder() {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const handleFileAccepted = (newFile: File) => {
     setFile(newFile);
@@ -39,7 +41,7 @@ export default function Base64Encoder() {
         setOutput(decoded);
       }
     } catch (err) {
-      setError(mode === 'DECODE' ? 'Invalid Base64 string.' : 'Encoding error occurred.');
+      setError(mode === 'DECODE' ? t('base64.errors.invalidBase64') : t('base64.errors.encodingError'));
       setOutput('');
     }
   }, [input, mode, file]);
@@ -58,7 +60,7 @@ export default function Base64Encoder() {
     };
     reader.onerror = () => {
       if (cancelled) return;
-      setError('Failed to read file.');
+      setError(t('base64.errors.fileReadError'));
       setOutput('');
     };
     reader.readAsDataURL(file);
@@ -82,7 +84,7 @@ export default function Base64Encoder() {
     };
     reader.onerror = () => {
       if (cancelled) return;
-      setError('Failed to read file.');
+      setError(t('base64.errors.fileReadError'));
     };
     reader.readAsText(file);
 
@@ -168,7 +170,7 @@ export default function Base64Encoder() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      setError('Invalid Base64 — cannot decode to file.');
+      setError(t('base64.errors.cannotDecode'));
     }
   };
 
@@ -176,16 +178,16 @@ export default function Base64Encoder() {
     <div className="max-w-6xl mx-auto space-y-8">
 
       <Helmet>
-        <title>Base64 Codec | AEGIS CORE</title>
-        <meta name="description" content="Encode and decode Base64 strings and files directly in your browser. Supports drag & drop file upload with zero data transmission." />
+        <title>{t('base64.pageTitle')}</title>
+        <meta name="description" content={t('base64.metaDescription')} />
         <link rel="canonical" href="https://aegis.net.tr/tools/base64-codec" />
       </Helmet>
 
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <ToolBreadcrumb toolName="Base64 Codec" />
-          <ToolPageHeader icon={Terminal} title="Base64" highlight="Codec" description="Encode text or files to Base64, or decode Base64 back to text or file." />
-          <Link to="/blog/base64-encoding-explained" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">📖 Learn how Base64 encoding works →</Link>
+          <ToolBreadcrumb toolName={t('base64.breadcrumb')} />
+          <ToolPageHeader icon={Terminal} title={t('base64.title')} highlight={t('base64.highlight')} description={t('base64.description')} />
+          <LangLink to="/blog/base64-encoding-explained" className="text-[11px] font-mono text-cyan-500/60 hover:text-cyan-400 transition-colors mt-1 inline-block">{t('base64.learnLink')}</LangLink>
         </div>
 
         <div className="flex items-center gap-3">
@@ -223,7 +225,7 @@ export default function Base64Encoder() {
 
           <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-950/50 flex justify-between items-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-              {mode === 'ENCODE' ? 'Plain Text / File Input' : 'Base64 / File Input'}
+              {mode === 'ENCODE' ? t('base64.inputLabels.encodePlain') : t('base64.inputLabels.decodeBase64')}
             </span>
 
             <input
@@ -236,7 +238,7 @@ export default function Base64Encoder() {
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-2 text-[10px] font-bold bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg hover:bg-cyan-900 hover:text-cyan-400 transition-colors border border-slate-700 hover:border-cyan-700"
             >
-              <FileUp className="w-3 h-3" /> SELECT FILE
+              <FileUp className="w-3 h-3" /> {t('common.selectFile')}
             </button>
           </div>
 
@@ -259,8 +261,8 @@ export default function Base64Encoder() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={mode === 'ENCODE'
-                  ? "Enter text to encode, select a file, or drag & drop..."
-                  : "Paste Base64 here, select a file, or drag & drop..."
+                  ? t('base64.placeholders.encode')
+                  : t('base64.placeholders.decode')
                 }
                 className="w-full h-full bg-transparent border-none p-6 text-sm font-mono text-slate-300 focus:outline-none focus:ring-0 resize-none min-h-75"
               />
@@ -272,7 +274,7 @@ export default function Base64Encoder() {
         <button
           onClick={toggleMode}
           className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-slate-800 border-4 border-slate-950 rounded-full items-center justify-center text-slate-400 hover:text-cyan-400 hover:scale-110 transition-all z-10"
-          title="Swap Input & Output"
+          title={t('base64.swap')}
         >
           <ArrowRightLeft className="w-5 h-5" />
         </button>
@@ -281,7 +283,7 @@ export default function Base64Encoder() {
         <div className="bg-slate-900/40 border border-slate-800/50 rounded-3xl flex flex-col overflow-hidden backdrop-blur-md relative">
           <div className="px-6 py-4 border-b border-slate-800/50 bg-slate-950/50 flex justify-between items-center">
             <span className="text-xs font-bold text-cyan-500 uppercase tracking-widest">
-              {mode === 'ENCODE' ? 'Base64 Output' : 'Plain Text Output'}
+              {mode === 'ENCODE' ? t('base64.outputLabels.encodeResult') : t('base64.outputLabels.decodeResult')}
             </span>
             <div className="flex items-center gap-3">
               {/* Decode modunda dosya olarak indir */}
@@ -290,7 +292,7 @@ export default function Base64Encoder() {
                   onClick={handleDownloadDecoded}
                   className="flex items-center gap-2 text-[10px] font-bold text-slate-400 hover:text-cyan-400 transition-colors"
                 >
-                  <Download className="w-3.5 h-3.5" /> SAVE AS FILE
+                  <Download className="w-3.5 h-3.5" /> {t('common.saveAsFile')}
                 </button>
               )}
               <CopyButton text={output} />
@@ -307,7 +309,7 @@ export default function Base64Encoder() {
               <textarea
                 readOnly
                 value={output}
-                placeholder="Result will appear here..."
+                placeholder={t('base64.resultPlaceholder')}
                 className="w-full h-full bg-transparent border-none text-sm font-mono text-cyan-400 focus:outline-none focus:ring-0 resize-none"
               />
             )}
@@ -317,7 +319,7 @@ export default function Base64Encoder() {
       </div>
 
       {/* GÜVENLİK BİLDİRİMİ */}
-      <SecurityNotice message="All encoding/decoding operations are performed locally in your browser. Zero data leaves this machine." />
+      <SecurityNotice message={t('base64.securityNotice')} />
 
     </div>
   );
