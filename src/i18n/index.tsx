@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import en from './locales/en.json';
@@ -83,6 +83,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   const language: Language = SUPPORTED_LANGUAGES.includes(lang as Language)
     ? (lang as Language)
     : DEFAULT_LANGUAGE;
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   const locale = LOCALES[language];
 
